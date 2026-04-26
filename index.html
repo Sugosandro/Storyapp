@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryWorld — Il tuo universo narrativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0b08; --surface:#161410; --surface2:#1e1b16; --surface3:#26231c;
+  --border:#2e2a22; --border-light:#3d3830;
+  --gold:#c9a84c; --gold-dim:#7d6830; --gold-glow:rgba(201,168,76,0.12);
+  --text:#e8e0d0; --text-dim:#8a8070; --text-muted:#5a5448;
+  --char:#7ab8d4; --char-dim:#2a4a5a;
+  --place:#8fbd7c; --place-dim:#2f4a28;
+  --object:#d4956a; --object-dim:#4a2e18;
+  --event:#b88fc4; --event-dim:#3a2848;
+  --arc:#e8a0a8; --arc-dim:#4a2028;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 18px;display:flex;align-items:center;gap:16px;height:52px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);letter-spacing:.05em;white-space:nowrap}
+.logo span{font-style:italic;opacity:.7}
+nav{display:flex;gap:2px;flex:1}
+nav button{background:none;border:none;color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:13px;padding:5px 11px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap}
+nav button:hover{color:var(--text);background:var(--surface2)}
+nav button.active{color:var(--gold);background:var(--gold-glow)}
+.header-actions{display:flex;gap:6px;margin-left:auto}
+.btn-icon{background:none;border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:4px 10px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Crimson Pro',serif}
+.btn-icon:hover{border-color:var(--border-light);color:var(--text)}
+
+/* LAYOUT */
+.app{display:flex;flex:1;height:calc(100vh - 52px);overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:245px;min-width:245px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-search{padding:10px;border-bottom:1px solid var(--border)}
+.sidebar-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;padding:6px 10px;outline:none;transition:border-color .2s}
+.sidebar-search input:focus{border-color:var(--gold-dim)}
+.sidebar-search input::placeholder{color:var(--text-muted)}
+.sidebar-list{flex:1;overflow-y:auto;padding:6px}
+.sidebar-list::-webkit-scrollbar{width:3px}
+.sidebar-list::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
+.sidebar-section{margin-bottom:2px}
+.sidebar-section-header{display:flex;align-items:center;justify-content:space-between;padding:5px 7px;cursor:pointer;border-radius:var(--r);user-select:none;transition:background .2s}
+.sidebar-section-header:hover{background:var(--surface2)}
+.section-label{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-char{background:var(--char)}.dot-place{background:var(--place)}.dot-object{background:var(--object)}.dot-event{background:var(--event)}.dot-arc{background:var(--arc)}
+.section-add{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;line-height:1;padding:1px 4px;border-radius:3px;transition:color .2s,background .2s}
+.section-add:hover{color:var(--gold);background:var(--gold-glow)}
+.sidebar-items{padding:0 2px 2px}
+.sidebar-item{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text-dim);transition:all .15s;user-select:none}
+.sidebar-item:hover{background:var(--surface2);color:var(--text)}
+.sidebar-item.active{background:var(--surface3);color:var(--text)}
+.sidebar-item-img{width:20px;height:20px;border-radius:3px;object-fit:cover;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;position:relative}
+.main::-webkit-scrollbar{width:5px}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* VIEWS */
+.view{display:none;padding:26px 28px}
+.view.active{display:block}
+.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:12px}
+.view-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--text)}
+.view-title span{color:var(--gold);font-style:italic}
+.btn-primary{background:var(--gold-glow);border:1px solid var(--gold-dim);color:var(--gold);font-family:'Crimson Pro',serif;font-size:13px;padding:6px 15px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-primary:hover{background:rgba(201,168,76,.22);border-color:var(--gold)}
+
+/* SECTION DIVIDER */
+.sec-div{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sec-div-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);white-space:nowrap}
+.sec-div-line{flex:1;height:1px;background:var(--border)}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.card.char::before{background:var(--char)}.card.place::before{background:var(--place)}.card.object::before{background:var(--object)}.card.event::before{background:var(--event)}
+.card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.card-img{width:100%;height:120px;object-fit:cover;display:block}
+.card-img-ph{width:100%;height:60px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.25}
+.card-body{padding:12px}
+.card-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.card.char .card-type{color:var(--char)}.card.place .card-type{color:var(--place)}.card.object .card-type{color:var(--object)}.card.event .card-type{color:var(--event)}
+.card-name{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:5px}
+.card-desc{font-size:12px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.card-arc-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:20px;background:var(--arc-dim);color:var(--arc);margin-top:5px}
+
+/* TAGS */
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;cursor:pointer;transition:opacity .2s;font-style:italic;display:inline-block}
+.tag:hover{opacity:.7}
+.tag.char{background:var(--char-dim);color:var(--char)}.tag.place{background:var(--place-dim);color:var(--place)}.tag.object{background:var(--object-dim);color:var(--object)}.tag.event{background:var(--event-dim);color:var(--event)}.tag.arc{background:var(--arc-dim);color:var(--arc)}
+
+/* DETAIL PANEL */
+.detail-panel{width:390px;min-width:390px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.detail-panel.hidden{display:none}
+.detail-header{padding:14px 18px 12px;border-bottom:1px solid var(--border)}
+.detail-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.detail-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.detail-name{font-family:'Playfair Display',serif;font-size:18px;line-height:1.2}
+.detail-actions{display:flex;gap:4px;flex-shrink:0;margin-top:2px}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:11px;padding:3px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--border-light);color:var(--text)}
+.btn-danger{background:none;border:1px solid #3a1515;color:#c06060;font-family:'Crimson Pro',serif;font-size:11px;padding:3px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:rgba(192,96,96,.1);border-color:#c06060}
+.detail-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:17px;line-height:1;padding:2px;transition:color .2s}
+.detail-close:hover{color:var(--text)}
+.detail-tabs{display:flex;border-bottom:1px solid var(--border)}
+.detail-tab{flex:1;padding:8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Crimson Pro',serif}
+.detail-tab:hover{color:var(--text)}
+.detail-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.detail-body{flex:1;overflow-y:auto}
+.detail-body::-webkit-scrollbar{width:3px}
+.detail-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.detail-img{width:100%;max-height:180px;object-fit:cover;display:block}
+.detail-tab-content{display:none}
+.detail-tab-content.active{display:block}
+.dp-section{padding:12px 18px;border-bottom:1px solid var(--border)}
+.dp-section:last-child{border-bottom:none}
+.dp-label{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:7px}
+.dp-text{font-size:13px;line-height:1.65;color:var(--text-dim);white-space:pre-wrap}
+.dp-tags{display:flex;flex-wrap:wrap;gap:5px}
+.backlinks{display:flex;flex-direction:column}
+.backlink-item{display:flex;align-items:center;gap:7px;padding:7px 0;cursor:pointer;transition:opacity .15s;border-bottom:1px solid var(--border);font-size:12px}
+.backlink-item:last-child{border-bottom:none}
+.backlink-item:hover{opacity:.7}
+.bl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.bl-name{color:var(--text)}
+.bl-type{color:var(--text-muted);font-size:10px;margin-left:auto;font-style:italic}
+.notes-area{width:100%;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;line-height:1.7;padding:14px 18px;resize:none;outline:none;min-height:220px}
+.notes-area::placeholder{color:var(--text-muted);font-style:italic}
+.notes-hint{font-size:10px;color:var(--text-muted);padding:0 18px 10px;font-style:italic}
+
+/* TIMELINE */
+.tl-filters{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.tl-filter{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:11px;padding:3px 11px;border-radius:20px;cursor:pointer;transition:all .2s}
+.tl-filter.active{border-color:var(--gold-dim);color:var(--gold);background:var(--gold-glow)}
+.tl-track{position:relative;padding-left:34px;max-width:720px}
+.tl-track::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-entry{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.tl-entry:hover{border-color:var(--border-light)}
+.tl-entry::before{content:'';position:absolute;left:-29px;top:16px;width:8px;height:8px;border-radius:50%;border:2px solid var(--surface)}
+.tl-entry.event::before{background:var(--event)}.tl-entry.char::before{background:var(--char)}.tl-entry.place::before{background:var(--place)}.tl-entry.object::before{background:var(--object)}
+.tl-date{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:4px}
+.tl-title{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:4px}
+.tl-desc{font-size:12px;color:var(--text-dim);line-height:1.5}
+.tl-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.tl-arc{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 6px;border-radius:20px;background:var(--arc-dim);color:var(--arc);margin-top:5px}
+
+/* ARCHI */
+.arcs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.arc-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:all .2s;border-top:2px solid var(--arc)}
+.arc-card:hover{border-color:var(--arc-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.arc-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--arc);margin-bottom:5px}
+.arc-name{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:5px}
+.arc-desc{font-size:12px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.arc-members{display:flex;flex-wrap:wrap;gap:3px;margin-top:9px}
+.arc-phase-bar{display:flex;gap:2px;margin-top:10px}
+.arc-phase{flex:1;height:3px;border-radius:2px;background:var(--border)}
+.arc-phase.filled{background:var(--arc)}
+
+/* CONNECTIONS */
+.conn-wrap{columns:2;gap:12px}
+.conn-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;break-inside:avoid;cursor:pointer;transition:border-color .2s}
+.conn-card:hover{border-color:var(--border-light)}
+.conn-from{font-family:'Playfair Display',serif;font-size:13px;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.conn-arrow{color:var(--text-muted);font-size:10px;margin:2px 0;padding-left:13px}
+.conn-to{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:5px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:520px;max-width:95vw;max-height:87vh;overflow-y:auto;padding:24px}
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:16px;color:var(--gold)}
+.form-group{margin-bottom:13px}
+.form-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:5px}
+.form-input,.form-textarea,.form-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;padding:7px 10px;outline:none;transition:border-color .2s}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--gold-dim)}
+.form-textarea{resize:vertical;min-height:85px}
+.form-select{cursor:pointer}
+.form-select option{background:var(--surface2)}
+
+/* IMAGE UPLOAD */
+.img-upload-area{border:1px dashed var(--border);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface2)}
+.img-upload-area:hover{border-color:var(--gold-dim)}
+.img-upload-area p{color:var(--text-muted);font-size:12px;font-style:italic;margin-top:4px}
+.img-preview{width:100%;max-height:150px;object-fit:cover;border-radius:var(--r);display:none;margin-top:7px}
+
+/* TAG INPUT */
+.tag-input-container{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 7px;display:flex;flex-wrap:wrap;gap:4px;min-height:38px;align-items:center;cursor:text;transition:border-color .2s}
+.tag-input-container:focus-within{border-color:var(--gold-dim)}
+.tag-chip{display:flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:20px;font-style:italic}
+.tag-chip.char{background:var(--char-dim);color:var(--char)}.tag-chip.place{background:var(--place-dim);color:var(--place)}.tag-chip.object{background:var(--object-dim);color:var(--object)}.tag-chip.event{background:var(--event-dim);color:var(--event)}.tag-chip.arc{background:var(--arc-dim);color:var(--arc)}
+.tag-chip button{background:none;border:none;color:inherit;cursor:pointer;opacity:.6;font-size:11px;padding:0;line-height:1;transition:opacity .2s}
+.tag-chip button:hover{opacity:1}
+.tag-autocomplete{position:relative;flex:1;min-width:90px}
+.tag-autocomplete input{background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;width:100%;padding:2px 3px}
+.tag-dropdown{position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-width:200px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.55);overflow:hidden;display:none}
+.tag-dropdown.open{display:block}
+.tag-option{display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;font-size:13px;transition:background .15s}
+.tag-option:hover{background:var(--surface2)}
+.tag-option-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.32}
+.empty-title{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:5px;color:var(--text-dim)}
+.empty-sub{font-size:12px;font-style:italic}
+
+/* CONFIRM */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;align-items:center;justify-content:center}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;width:340px;max-width:92vw}
+.confirm-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:7px}
+.confirm-msg{font-size:13px;color:var(--text-dim);margin-bottom:18px;line-height:1.5}
+.confirm-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--surface3);border:1px solid var(--border-light);color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;padding:9px 16px;border-radius:var(--r);z-index:500;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Story<span>World</span></div>
+  <nav>
+    <button class="active" onclick="switchView('world')">🌍 Mondo</button>
+    <button onclick="switchView('timeline')">⏳ Timeline</button>
+    <button onclick="switchView('arcs')">📖 Archi</button>
+    <button onclick="switchView('connections')">🕸 Connessioni</button>
+  </nav>
+  <div class="header-actions">
+    <button class="btn-icon" onclick="importData()">⬆ Importa</button>
+    <button class="btn-icon" onclick="exportData()">⬇ Esporta</button>
+  </div>
+</header>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-search">
+    <input type="text" id="sidebarSearch" placeholder="Cerca…" oninput="renderSidebar()">
+  </div>
+  <div class="sidebar-list" id="sidebarList"></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- MONDO -->
+  <div class="view active" id="view-world">
+    <div class="view-header">
+      <div class="view-title">Il tuo <span>Mondo</span></div>
+      <button class="btn-primary" onclick="openNewModal()">+ Nuovo elemento</button>
+    </div>
+    <div id="section-char" style="margin-bottom:24px"></div>
+    <div id="section-place" style="margin-bottom:24px"></div>
+    <div id="section-object" style="margin-bottom:24px"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="view" id="view-timeline">
+    <div class="view-header">
+      <div class="view-title">Time<span>line</span></div>
+      <button class="btn-primary" onclick="openNewModal('event')">+ Nuovo evento</button>
+    </div>
+    <div class="tl-filters" id="tlFilters"></div>
+    <div class="tl-track" id="tlTrack"></div>
+  </div>
+
+  <!-- ARCHI -->
+  <div class="view" id="view-arcs">
+    <div class="view-header">
+      <div class="view-title">Archi <span>Narrativi</span></div>
+      <button class="btn-primary" onclick="openArcModal()">+ Nuovo arco</button>
+    </div>
+    <div class="arcs-grid" id="arcsGrid"></div>
+  </div>
+
+  <!-- CONNESSIONI -->
+  <div class="view" id="view-connections">
+    <div class="view-header">
+      <div class="view-title">Mappa delle <span>Connessioni</span></div>
+    </div>
+    <div id="connWrap"></div>
+  </div>
+
+</main>
+
+<!-- DETAIL PANEL — ELEMENTI -->
+<div class="detail-panel hidden" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-type" id="dpType"></div>
+        <div class="detail-name" id="dpName"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-ghost" onclick="editCurrent()">Modifica</button>
+        <button class="btn-danger" onclick="deleteCurrent()">Elimina</button>
+        <button class="detail-close" onclick="closeDetail()">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-tabs">
+    <button class="detail-tab active" onclick="switchDetailTab('info')">Scheda</button>
+    <button class="detail-tab" onclick="switchDetailTab('notes')">Note libere</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-tab-content active" id="dtab-info">
+      <img id="dpImg" class="detail-img" src="" alt="" style="display:none">
+      <div class="dp-section" id="dpDesc"></div>
+      <div class="dp-section" id="dpExtra"></div>
+      <div class="dp-section">
+        <div class="dp-label">Tag collegati</div>
+        <div class="dp-tags" id="dpTags"></div>
+      </div>
+      <div class="dp-section" id="dpArcsSection" style="display:none">
+        <div class="dp-label">Archi narrativi</div>
+        <div class="dp-tags" id="dpArcsList"></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-label">Citato in</div>
+        <div class="backlinks" id="dpBacklinks"></div>
+      </div>
+    </div>
+    <div class="detail-tab-content" id="dtab-notes">
+      <textarea class="notes-area" id="dpNotes" placeholder="Scrivi note libere su questo elemento…&#10;&#10;Idee, bozze di scena, dubbi, rimandi ad altri capitoli." oninput="saveNotes()"></textarea>
+      <div class="notes-hint">💾 Salvato automaticamente</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL — ARCHI -->
+<div class="detail-panel hidden" id="arcPanel">
+  <div class="detail-header">
+    <div class="detail-header-top">
+      <div>
+        <div class="detail-type" style="color:var(--arc)">📖 Arco Narrativo</div>
+        <div class="detail-name" id="adpName"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-ghost" onclick="editCurrentArc()">Modifica</button>
+        <button class="btn-danger" onclick="deleteCurrentArc()">Elimina</button>
+        <button class="detail-close" onclick="closeArcDetail()">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="detail-tabs">
+    <button class="detail-tab active" onclick="switchArcTab('info')">Scheda</button>
+    <button class="detail-tab" onclick="switchArcTab('notes')">Note libere</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-tab-content active" id="arctab-info">
+      <div class="dp-section" id="adpDesc"></div>
+      <div class="dp-section" id="adpPhases"></div>
+      <div class="dp-section">
+        <div class="dp-label">Elementi coinvolti</div>
+        <div class="dp-tags" id="adpMembers"></div>
+      </div>
+    </div>
+    <div class="detail-tab-content" id="arctab-notes">
+      <textarea class="notes-area" id="adpNotes" placeholder="Note sull'arco narrativo…&#10;&#10;Struttura, punti di svolta, idee di sviluppo." oninput="saveArcNotes()"></textarea>
+      <div class="notes-hint">💾 Salvato automaticamente</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<!-- MODAL ELEMENTI -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Nuovo elemento</div>
+    <input type="hidden" id="editingId">
+    <div class="form-group">
+      <label class="form-label">Tipo</label>
+      <select class="form-select" id="fType" onchange="updateFormFields()">
+        <option value="char">👤 Personaggio</option>
+        <option value="place">📍 Luogo</option>
+        <option value="object">📦 Oggetto</option>
+        <option value="event">⚡ Evento (Timeline)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input class="form-input" id="fName" placeholder="Es. Elena Marchetti" autocomplete="off">
+    </div>
+    <div class="form-group" id="fDateGroup" style="display:none">
+      <label class="form-label">Data / Momento narrativo</label>
+      <input class="form-input" id="fDate" placeholder="Es. Anno 1247, Giorno 3">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrizione</label>
+      <textarea class="form-textarea" id="fDesc" placeholder="Descrivi questo elemento…"></textarea>
+    </div>
+    <div id="fExtraGroup"></div>
+    <div class="form-group">
+      <label class="form-label">Immagine (opzionale)</label>
+      <div class="img-upload-area" onclick="document.getElementById('fImgInput').click()">
+        <div style="font-size:26px">🖼</div>
+        <p>Clicca per caricare un'immagine (JPG, PNG, WebP)</p>
+      </div>
+      <input type="file" id="fImgInput" accept="image/*" style="display:none" onchange="previewImage(event)">
+      <img id="fImgPreview" class="img-preview" alt="">
+      <button id="fImgRemove" class="btn-ghost" style="margin-top:6px;display:none;font-size:11px" onclick="removeImage()">✕ Rimuovi immagine</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tag — collega ad altri elementi</label>
+      <div class="tag-input-container" id="tagContainer" onclick="focusTagInput()">
+        <div id="tagChips" style="display:contents"></div>
+        <div class="tag-autocomplete">
+          <input type="text" id="tagInput" placeholder="Cerca elemento…" oninput="showTagDropdown()" onkeydown="tagKeydown(event)" autocomplete="off">
+          <div class="tag-dropdown" id="tagDropdown"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Annulla</button>
+      <button class="btn-primary" onclick="saveElement()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ARCHI -->
+<div class="modal-overlay" id="arcModalOverlay" onclick="handleArcOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="arcModalTitle">Nuovo arco narrativo</div>
+    <input type="hidden" id="editingArcId">
+    <div class="form-group">
+      <label class="form-label">Nome dell'arco</label>
+      <input class="form-input" id="afName" placeholder="Es. La caccia all'eretica" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrizione</label>
+      <textarea class="form-textarea" id="afDesc" placeholder="Riassumi il filo narrativo di questo arco…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fasi (separate da virgola)</label>
+      <input class="form-input" id="afPhases" placeholder="Es. Innesco, Sviluppo, Climax, Risoluzione">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fase corrente</label>
+      <input class="form-input" id="afCurrentPhase" placeholder="Es. Sviluppo" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Elementi coinvolti</label>
+      <div class="tag-input-container" onclick="focusArcTagInput()">
+        <div id="arcTagChips" style="display:contents"></div>
+        <div class="tag-autocomplete">
+          <input type="text" id="arcTagInput" placeholder="Cerca elemento…" oninput="showArcTagDropdown()" onkeydown="arcTagKeydown(event)" autocomplete="off">
+          <div class="tag-dropdown" id="arcTagDropdown"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeArcModal()">Annulla</button>
+      <button class="btn-primary" onclick="saveArc()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions">
+      <button class="btn-ghost" onclick="closeConfirm()">Annulla</button>
+      <button class="btn-danger" id="confirmBtn">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- IMPORT helper -->
+<input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ═══════════════════ DATA ═══════════════════
+let data = { elements:[], arcs:[], nextId:1, nextArcId:1 };
+
+function loadData() {
+  try { const s=localStorage.getItem('storyworld_v2'); if(s) data=JSON.parse(s); } catch(e){}
+}
+function saveData() {
+  try { localStorage.setItem('storyworld_v2', JSON.stringify(data)); } catch(e){}
+}
+
+function seedDemo() {
+  if (data.elements.length>0) return;
+  data.elements = [
+    {id:1,type:'char',name:'Elena Marchetti',desc:'Giovane alchimista fiorentina, mente brillante e animo ribelle. Si nasconde nelle catacombe per sfuggire all\'Inquisizione.',extra:{ruolo:'Protagonista',età:'24'},tags:[2,3],date:'',image:'',notes:'Pensare a un arco di redenzione. Ha rubato il Codex per salvare sua sorella?\n\nVedi anche: rapporto con Fra Tommaso nel cap. 3.'},
+    {id:2,type:'place',name:'Catacombe di Firenze',desc:'Labirinto sotterraneo sotto la città vecchia. Freddo, umido, illuminato da torce tremolanti. Rifugio di eretici e cospiratori.',extra:{regione:'Firenze'},tags:[1,4],date:'',image:'',notes:''},
+    {id:3,type:'object',name:'Il Codex Argentum',desc:'Manoscritto alchemico di sette secoli, scritto in inchiostro d\'argento. Contiene la formula della pietra filosofale.',extra:{materiale:'Pergamena e argento'},tags:[1],date:'',image:'',notes:'Deve avere una protezione magica. Chi può leggerlo davvero?'},
+    {id:4,type:'char',name:'Fra Tommaso',desc:'Inquisitore del Santo Uffizio. Intelligente e spietato. Un tempo era amico di Elena.',extra:{ruolo:'Antagonista',età:'41'},tags:[2],date:'',image:'',notes:''},
+    {id:5,type:'event',name:'Il Furto del Codex',desc:'Elena sottrae il Codex dalla biblioteca del convento, innescando la caccia dell\'Inquisizione.',extra:{},tags:[1,2,3,4],date:'Anno 1247, Giorno 1',image:'',notes:''},
+    {id:6,type:'event',name:'Fuga nelle Catacombe',desc:'Braccata dalle guardie, Elena si rifugia nelle catacombe portando con sé il Codex.',extra:{},tags:[1,2],date:'Anno 1247, Giorno 3',image:'',notes:''},
+    {id:7,type:'place',name:'Biblioteca del Convento',desc:'Enorme sala voltata piena di manoscritti rari e proibiti. Custodita dai frati dell\'Ordine Nero.',extra:{regione:'Firenze'},tags:[3,4],date:'',image:'',notes:''},
+  ];
+  data.arcs = [
+    {id:1,name:'La Caccia all\'Eretica',desc:'Fra Tommaso e l\'Inquisizione danno la caccia a Elena attraverso le strade e i sotterranei di Firenze.',phases:['Innesco','Sviluppo','Climax','Risoluzione'],currentPhase:'Sviluppo',members:[1,4,2],notes:'Punto di svolta: Fra Tommaso scopre il nascondiglio nel cap. 7.'},
+    {id:2,name:'Il Segreto del Codex',desc:'Elena cerca di decifrare il Codex e scoprire cosa vuole davvero nascondere l\'Ordine Nero.',phases:['Scoperta','Ricerca','Rivelazione'],currentPhase:'Ricerca',members:[1,3,7],notes:''},
+  ];
+  data.nextId=8; data.nextArcId=3;
+  saveData();
+}
+
+// ═══════════════════ UTILS ═══════════════════
+const TL = {char:'Personaggio',place:'Luogo',object:'Oggetto',event:'Evento'};
+const TI = {char:'👤',place:'📍',object:'📦',event:'⚡'};
+const TC = {char:'var(--char)',place:'var(--place)',object:'var(--object)',event:'var(--event)',arc:'var(--arc)'};
+
+function byId(id) { return data.elements.find(e=>e.id===+id); }
+function arcById(id) { return data.arcs.find(a=>a.id===+id); }
+function backlinks(id) { return data.elements.filter(e=>e.id!==+id&&(e.tags||[]).includes(+id)); }
+function arcsByMember(id) { return data.arcs.filter(a=>(a.members||[]).includes(+id)); }
+
+function tagHtml(id,clickable=true){
+  const el=byId(id); if(!el) return '';
+  const c=clickable?`onclick="openDetail(${el.id});event.stopPropagation();"`:' ';
+  return `<span class="tag ${el.type}" ${c}>${TI[el.type]} ${el.name}</span>`;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ═══════════════════ VIEWS ═══════════════════
+let currentView='world', curDetailId=null, curArcDetailId=null;
+let detailTab='info', arcTab='info', tlArcFilter=null;
+
+function switchView(v){
+  currentView=v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',['world','timeline','arcs','connections'][i]===v));
+  renderMain();
+}
+
+function renderMain(){
+  if(currentView==='world') renderWorld();
+  if(currentView==='timeline') renderTimeline();
+  if(currentView==='arcs') renderArcs();
+  if(currentView==='connections') renderConnections();
+}
+
+// WORLD
+function renderWorld(){
+  ['char','place','object'].forEach(type=>{
+    const sec=document.getElementById('section-'+type);
+    const items=data.elements.filter(e=>e.type===type);
+    if(!items.length){sec.innerHTML='';return;}
+    const pl={char:'Personaggi',place:'Luoghi',object:'Oggetti'};
+    let h=`<div class="sec-div"><span class="sec-div-label">${TI[type]} ${pl[type]}</span><div class="sec-div-line"></div></div><div class="cards-grid">`;
+    items.forEach(el=>{
+      const tagsH=(el.tags||[]).map(t=>tagHtml(t)).join('');
+      const arcsH=arcsByMember(el.id).map(a=>`<div class="card-arc-badge">📖 ${a.name}</div>`).join('');
+      const imgH=el.image?`<img class="card-img" src="${el.image}" alt="">`:`<div class="card-img-ph">${TI[el.type]}</div>`;
+      h+=`<div class="card ${el.type}" onclick="openDetail(${el.id})">
+        ${imgH}
+        <div class="card-body">
+          <div class="card-type">${TI[el.type]} ${TL[el.type]}</div>
+          <div class="card-name">${el.name}</div>
+          <div class="card-desc">${el.desc||'<em style="opacity:.35">Nessuna descrizione</em>'}</div>
+          ${tagsH?`<div class="card-tags">${tagsH}</div>`:''}
+          ${arcsH}
+        </div>
+      </div>`;
+    });
+    sec.innerHTML=h+'</div>';
+  });
+}
+
+// TIMELINE
+function renderTimeline(){
+  const fi=document.getElementById('tlFilters');
+  let fh=`<button class="tl-filter ${!tlArcFilter?'active':''}" onclick="setTlFilter(null)">Tutti</button>`;
+  data.arcs.forEach(a=>{ fh+=`<button class="tl-filter ${tlArcFilter===a.id?'active':''}" onclick="setTlFilter(${a.id})">📖 ${a.name}</button>`; });
+  fi.innerHTML=fh;
+
+  const track=document.getElementById('tlTrack');
+  let events=data.elements.filter(e=>e.type==='event');
+  if(tlArcFilter){
+    const arc=arcById(tlArcFilter);
+    if(arc) events=events.filter(e=>(arc.members||[]).includes(e.id)||(e.tags||[]).some(t=>(arc.members||[]).includes(t)));
+  }
+  if(!events.length){track.innerHTML=`<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Nessun evento</div><div class="empty-sub">Crea eventi per costruire la timeline della tua storia</div></div>`;return;}
+  let h='';
+  events.forEach(ev=>{
+    const tagsH=(ev.tags||[]).map(t=>tagHtml(t)).join('');
+    const arcsH=arcsByMember(ev.id).map(a=>`<div class="tl-arc">📖 ${a.name}</div>`).join('');
+    h+=`<div class="tl-entry event" onclick="openDetail(${ev.id})">
+      ${ev.date?`<div class="tl-date">📅 ${ev.date}</div>`:''}
+      <div class="tl-title">${ev.name}</div>
+      <div class="tl-desc">${ev.desc||''}</div>
+      ${tagsH?`<div class="tl-tags">${tagsH}</div>`:''}
+      ${arcsH}
+    </div>`;
+  });
+  track.innerHTML=h;
+}
+function setTlFilter(id){tlArcFilter=id;renderTimeline();}
+
+// ARCHI
+function renderArcs(){
+  const grid=document.getElementById('arcsGrid');
+  if(!data.arcs.length){grid.innerHTML=`<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Nessun arco narrativo</div><div class="empty-sub">Crea archi per strutturare i fili narrativi della tua storia</div></div>`;return;}
+  let h='';
+  data.arcs.forEach(arc=>{
+    const phases=arc.phases||[]; const ci=phases.indexOf(arc.currentPhase);
+    const bar=phases.length?`<div class="arc-phase-bar">${phases.map((p,i)=>`<div class="arc-phase ${i<=ci?'filled':''}" title="${p}"></div>`).join('')}</div>`:'';
+    const mems=(arc.members||[]).map(id=>tagHtml(id)).join('');
+    h+=`<div class="arc-card" onclick="openArcDetail(${arc.id})">
+      <div class="arc-lbl">📖 Arco narrativo${arc.currentPhase?' · '+arc.currentPhase:''}</div>
+      <div class="arc-name">${arc.name}</div>
+      <div class="arc-desc">${arc.desc||''}</div>
+      ${mems?`<div class="arc-members">${mems}</div>`:''}
+      ${bar}
+    </div>`;
+  });
+  grid.innerHTML=h;
+}
+
+// CONNECTIONS
+function renderConnections(){
+  const wrap=document.getElementById('connWrap');
+  const pairs=[];
+  data.elements.forEach(el=>(el.tags||[]).forEach(tid=>{const t=byId(tid);if(t)pairs.push({from:el,to:t});}));
+  if(!pairs.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">🕸</div><div class="empty-title">Nessuna connessione</div><div class="empty-sub">Usa i tag per collegare gli elementi tra loro</div></div>`;return;}
+  let h='<div class="conn-wrap">';
+  pairs.forEach(p=>{
+    h+=`<div class="conn-card" onclick="openDetail(${p.from.id})">
+      <div class="conn-from"><span style="width:7px;height:7px;border-radius:50%;background:${TC[p.from.type]};display:inline-block;flex-shrink:0"></span>${p.from.name}</div>
+      <div class="conn-arrow">↓ cita</div>
+      <div class="conn-to"><span style="width:7px;height:7px;border-radius:50%;background:${TC[p.to.type]};display:inline-block;flex-shrink:0"></span>${p.to.name}</div>
+    </div>`;
+  });
+  wrap.innerHTML=h+'</div>';
+}
+
+// SIDEBAR
+function renderSidebar(){
+  const q=document.getElementById('sidebarSearch').value.toLowerCase();
+  let h='';
+  ['char','place','object','event'].forEach(type=>{
+    const items=data.elements.filter(e=>e.type===type&&(!q||e.name.toLowerCase().includes(q)));
+    if(!items.length&&q) return;
+    const pl={char:'Personaggi',place:'Luoghi',object:'Oggetti',event:'Eventi'};
+    h+=`<div class="sidebar-section">
+      <div class="sidebar-section-header">
+        <span class="section-label"><span class="dot dot-${type}"></span>${pl[type]}</span>
+        <button class="section-add" onclick="event.stopPropagation();openNewModal('${type}')">+</button>
+      </div>
+      <div class="sidebar-items">
+        ${items.map(el=>{
+          const thumb=el.image?`<img class="sidebar-item-img" src="${el.image}" alt="">`:`<span style="font-size:11px;opacity:.55">${TI[el.type]}</span>`;
+          return `<div class="sidebar-item ${curDetailId===el.id?'active':''}" onclick="openDetail(${el.id})">${thumb}${el.name}</div>`;
+        }).join('')}
+        ${!items.length?`<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>`:''}
+      </div>
+    </div>`;
+  });
+  // Archi
+  const arcs=data.arcs.filter(a=>!q||a.name.toLowerCase().includes(q));
+  if(arcs.length||!q){
+    h+=`<div class="sidebar-section">
+      <div class="sidebar-section-header">
+        <span class="section-label"><span class="dot dot-arc"></span>Archi</span>
+        <button class="section-add" onclick="event.stopPropagation();openArcModal()">+</button>
+      </div>
+      <div class="sidebar-items">
+        ${arcs.map(a=>`<div class="sidebar-item ${curArcDetailId===a.id?'active':''}" onclick="openArcDetail(${a.id})"><span style="font-size:11px;opacity:.55">📖</span>${a.name}</div>`).join('')}
+        ${!arcs.length?`<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>`:''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('sidebarList').innerHTML=h;
+}
+
+// ═══════════════════ DETAIL — ELEMENTI ═══════════════════
+function openDetail(id){
+  const el=byId(id); if(!el) return;
+  curDetailId=id; curArcDetailId=null;
+  document.getElementById('detailPanel').classList.remove('hidden');
+  document.getElementById('arcPanel').classList.add('hidden');
+  switchDetailTab(detailTab);
+
+  document.getElementById('dpType').textContent=`${TI[el.type]} ${TL[el.type]}`;
+  document.getElementById('dpType').style.color=TC[el.type];
+  document.getElementById('dpName').textContent=el.name;
+
+  const dpImg=document.getElementById('dpImg');
+  if(el.image){dpImg.src=el.image;dpImg.style.display='block';}else{dpImg.style.display='none';}
+
+  document.getElementById('dpDesc').innerHTML=el.desc?`<div class="dp-label">Descrizione</div><div class="dp-text">${el.desc}</div>`:'';
+
+  const ex=el.extra||{}; const ks=Object.keys(ex).filter(k=>ex[k]);
+  let exH='';
+  if(el.date) exH=`<div class="dp-label">Data</div><div class="dp-text">📅 ${el.date}</div>`;
+  else if(ks.length) exH=`<div style="display:flex;flex-direction:column;gap:9px">${ks.map(k=>`<div><div class="dp-label">${k}</div><div class="dp-text">${ex[k]}</div></div>`).join('')}</div>`;
+  document.getElementById('dpExtra').innerHTML=exH;
+
+  document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
+
+  const elArcs=arcsByMember(id);
+  const arcsSection=document.getElementById('dpArcsSection');
+  if(elArcs.length){
+    arcsSection.style.display='';
+    document.getElementById('dpArcsList').innerHTML=elArcs.map(a=>`<span class="tag arc" onclick="openArcDetail(${a.id});event.stopPropagation()">📖 ${a.name}</span>`).join('');
+  } else { arcsSection.style.display='none'; }
+
+  const bls=backlinks(id);
+  document.getElementById('dpBacklinks').innerHTML=bls.length
+    ?bls.map(b=>`<div class="backlink-item" onclick="openDetail(${b.id})"><span class="bl-dot" style="background:${TC[b.type]}"></span><span class="bl-name">${b.name}</span><span class="bl-type">${TL[b.type]}</span></div>`).join('')
+    :'<div style="color:var(--text-muted);font-style:italic;font-size:12px">Non citato altrove</div>';
+
+  document.getElementById('dpNotes').value=el.notes||'';
+  renderSidebar();
+}
+
+function closeDetail(){ document.getElementById('detailPanel').classList.add('hidden'); curDetailId=null; renderSidebar(); }
+
+function switchDetailTab(tab){
+  detailTab=tab;
+  document.querySelectorAll('#detailPanel .detail-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));
+  document.getElementById('dtab-info').classList.toggle('active',tab==='info');
+  document.getElementById('dtab-notes').classList.toggle('active',tab==='notes');
+}
+
+function saveNotes(){ if(!curDetailId) return; const el=byId(curDetailId); if(!el) return; el.notes=document.getElementById('dpNotes').value; saveData(); }
+
+// ═══════════════════ DETAIL — ARCHI ═══════════════════
+function openArcDetail(id){
+  const arc=arcById(id); if(!arc) return;
+  curArcDetailId=id; curDetailId=null;
+  document.getElementById('arcPanel').classList.remove('hidden');
+  document.getElementById('detailPanel').classList.add('hidden');
+  switchArcTab(arcTab);
+
+  document.getElementById('adpName').textContent=arc.name;
+  document.getElementById('adpDesc').innerHTML=arc.desc?`<div class="dp-label">Descrizione</div><div class="dp-text">${arc.desc}</div>`:'';
+
+  const phases=arc.phases||[]; const ci=phases.indexOf(arc.currentPhase);
+  if(phases.length){
+    document.getElementById('adpPhases').innerHTML=`<div class="dp-label">Fasi</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">
+        ${phases.map((p,i)=>`<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:${i<=ci?'var(--arc-dim)':'var(--surface3)'};color:${i<=ci?'var(--arc)':'var(--text-muted)'}${p===arc.currentPhase?';font-weight:600;outline:1px solid var(--arc)':''}">${p===arc.currentPhase?'▶ ':''}${p}</span>`).join('')}
+      </div>`;
+  } else { document.getElementById('adpPhases').innerHTML=''; }
+
+  document.getElementById('adpMembers').innerHTML=(arc.members||[]).map(id=>tagHtml(id)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun elemento</span>';
+  document.getElementById('adpNotes').value=arc.notes||'';
+  renderSidebar();
+}
+
+function closeArcDetail(){ document.getElementById('arcPanel').classList.add('hidden'); curArcDetailId=null; renderSidebar(); }
+function switchArcTab(tab){
+  arcTab=tab;
+  document.querySelectorAll('#arcPanel .detail-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));
+  document.getElementById('arctab-info').classList.toggle('active',tab==='info');
+  document.getElementById('arctab-notes').classList.toggle('active',tab==='notes');
+}
+function saveArcNotes(){ if(!curArcDetailId) return; const arc=arcById(curArcDetailId); if(!arc) return; arc.notes=document.getElementById('adpNotes').value; saveData(); }
+
+// ═══════════════════ DELETE ═══════════════════
+function showConfirm(title,msg,cb){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmBtn').onclick=()=>{closeConfirm();cb();};
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('open'); }
+
+function deleteCurrent(){
+  if(!curDetailId) return;
+  const el=byId(curDetailId);
+  showConfirm('Elimina elemento',`Vuoi davvero eliminare "${el.name}"? I tag che lo citano verranno rimossi.`,()=>{
+    const id=curDetailId;
+    data.elements=data.elements.filter(e=>e.id!==id);
+    data.elements.forEach(e=>{e.tags=(e.tags||[]).filter(t=>t!==id);});
+    data.arcs.forEach(a=>{a.members=(a.members||[]).filter(m=>m!==id);});
+    saveData(); closeDetail(); renderAll(); showToast('Elemento eliminato');
+  });
+}
+
+function deleteCurrentArc(){
+  if(!curArcDetailId) return;
+  const arc=arcById(curArcDetailId);
+  showConfirm('Elimina arco',`Vuoi davvero eliminare l'arco "${arc.name}"?`,()=>{
+    data.arcs=data.arcs.filter(a=>a.id!==curArcDetailId);
+    saveData(); closeArcDetail(); renderAll(); showToast('Arco eliminato');
+  });
+}
+
+// ═══════════════════ MODAL ELEMENTI ═══════════════════
+let selTags=[], curImg='';
+
+function openNewModal(type){
+  selTags=[]; curImg='';
+  document.getElementById('editingId').value='';
+  document.getElementById('modalTitle').textContent='Nuovo elemento';
+  ['fName','fDesc','fDate'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fType').value=type||'char';
+  resetImgPreview(); updateFormFields(); renderTagChips();
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('fName').focus(),80);
+}
+
+function editCurrent(){
+  if(!curDetailId) return;
+  const el=byId(curDetailId); if(!el) return;
+  selTags=[...(el.tags||[])]; curImg=el.image||'';
+  document.getElementById('editingId').value=el.id;
+  document.getElementById('modalTitle').textContent='Modifica elemento';
+  document.getElementById('fType').value=el.type;
+  document.getElementById('fName').value=el.name;
+  document.getElementById('fDesc').value=el.desc||'';
+  document.getElementById('fDate').value=el.date||'';
+  const prev=document.getElementById('fImgPreview'), rem=document.getElementById('fImgRemove');
+  if(el.image){prev.src=el.image;prev.style.display='block';rem.style.display='inline-block';}
+  else{prev.style.display='none';rem.style.display='none';}
+  document.getElementById('fImgInput').value='';
+  updateFormFields();
+  const ex=el.extra||{}; ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i)i.value=ex[k]||'';});
+  renderTagChips();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function updateFormFields(){
+  const t=document.getElementById('fType').value;
+  document.getElementById('fDateGroup').style.display=t==='event'?'block':'none';
+  const defs={char:[['ruolo','Ruolo narrativo'],['età','Età']],place:[['regione','Regione / Area']],object:[['materiale','Materiale / Origine']],event:[]};
+  document.getElementById('fExtraGroup').innerHTML=(defs[t]||[]).map(([k,l])=>`<div class="form-group"><label class="form-label">${l}</label><input class="form-input" id="fExtra_${k}" placeholder=""></div>`).join('');
+}
+
+function previewImage(event){
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    curImg=e.target.result;
+    const prev=document.getElementById('fImgPreview');
+    prev.src=curImg; prev.style.display='block';
+    document.getElementById('fImgRemove').style.display='inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+function removeImage(){ curImg=''; resetImgPreview(); }
+function resetImgPreview(){
+  document.getElementById('fImgPreview').style.display='none';
+  document.getElementById('fImgPreview').src='';
+  document.getElementById('fImgRemove').style.display='none';
+  document.getElementById('fImgInput').value='';
+}
+
+function saveElement(){
+  const name=document.getElementById('fName').value.trim(); if(!name){document.getElementById('fName').focus();return;}
+  const type=document.getElementById('fType').value;
+  const desc=document.getElementById('fDesc').value.trim();
+  const date=document.getElementById('fDate').value.trim();
+  const extra={};
+  ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
+  const editId=document.getElementById('editingId').value;
+  if(editId){
+    const el=byId(editId);
+    Object.assign(el,{name,type,desc,date,extra,tags:[...selTags],image:curImg});
+  } else {
+    data.elements.push({id:data.nextId++,type,name,desc,date,extra,tags:[...selTags],image:curImg,notes:''});
+  }
+  saveData(); closeModal(); renderAll();
+  if(editId) openDetail(+editId);
+  showToast(editId?'Elemento aggiornato':'Elemento creato');
+}
+
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+// TAG INPUT
+function focusTagInput(){ document.getElementById('tagInput').focus(); }
+function showTagDropdown(){
+  const q=document.getElementById('tagInput').value.toLowerCase();
+  const dd=document.getElementById('tagDropdown');
+  const editId=+document.getElementById('editingId').value||-1;
+  const cands=data.elements.filter(e=>e.id!==editId&&!selTags.includes(e.id)&&e.name.toLowerCase().includes(q));
+  if(!cands.length||!q){dd.classList.remove('open');return;}
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="tag-option" onclick="addTag(${e.id})"><span class="tag-option-dot" style="background:${TC[e.type]}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${TL[e.type]}</span></div>`).join('');
+  dd.classList.add('open');
+}
+function addTag(id){ if(!selTags.includes(id))selTags.push(id); document.getElementById('tagInput').value=''; document.getElementById('tagDropdown').classList.remove('open'); renderTagChips(); }
+function removeTag(id){ selTags=selTags.filter(t=>t!==id); renderTagChips(); }
+function tagKeydown(e){ if(e.key==='Escape')document.getElementById('tagDropdown').classList.remove('open'); }
+function renderTagChips(){
+  document.getElementById('tagChips').innerHTML=selTags.map(id=>{const el=byId(id);if(!el)return '';return `<span class="tag-chip ${el.type}">${TI[el.type]} ${el.name}<button onclick="removeTag(${el.id})">×</button></span>`;}).join('');
+}
+
+// ═══════════════════ MODAL ARCHI ═══════════════════
+let selArcMembers=[];
+
+function openArcModal(){
+  selArcMembers=[];
+  document.getElementById('editingArcId').value='';
+  document.getElementById('arcModalTitle').textContent='Nuovo arco narrativo';
+  ['afName','afDesc','afPhases','afCurrentPhase'].forEach(id=>document.getElementById(id).value='');
+  renderArcTagChips();
+  document.getElementById('arcModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('afName').focus(),80);
+}
+
+function editCurrentArc(){
+  if(!curArcDetailId) return;
+  const arc=arcById(curArcDetailId); if(!arc) return;
+  selArcMembers=[...(arc.members||[])];
+  document.getElementById('editingArcId').value=arc.id;
+  document.getElementById('arcModalTitle').textContent='Modifica arco';
+  document.getElementById('afName').value=arc.name;
+  document.getElementById('afDesc').value=arc.desc||'';
+  document.getElementById('afPhases').value=(arc.phases||[]).join(', ');
+  document.getElementById('afCurrentPhase').value=arc.currentPhase||'';
+  renderArcTagChips();
+  document.getElementById('arcModalOverlay').classList.add('open');
+}
+
+function saveArc(){
+  const name=document.getElementById('afName').value.trim(); if(!name){document.getElementById('afName').focus();return;}
+  const desc=document.getElementById('afDesc').value.trim();
+  const pRaw=document.getElementById('afPhases').value.trim();
+  const phases=pRaw?pRaw.split(',').map(p=>p.trim()).filter(Boolean):[];
+  const currentPhase=document.getElementById('afCurrentPhase').value.trim();
+  const editId=document.getElementById('editingArcId').value;
+  if(editId){
+    const arc=arcById(editId);
+    Object.assign(arc,{name,desc,phases,currentPhase,members:[...selArcMembers]});
+  } else {
+    data.arcs.push({id:data.nextArcId++,name,desc,phases,currentPhase,members:[...selArcMembers],notes:''});
+  }
+  saveData(); closeArcModal(); renderAll();
+  showToast(editId?'Arco aggiornato':'Arco creato');
+}
+
+function closeArcModal(){ document.getElementById('arcModalOverlay').classList.remove('open'); }
+function handleArcOverlayClick(e){ if(e.target===document.getElementById('arcModalOverlay')) closeArcModal(); }
+
+// ARC TAG INPUT
+function focusArcTagInput(){ document.getElementById('arcTagInput').focus(); }
+function showArcTagDropdown(){
+  const q=document.getElementById('arcTagInput').value.toLowerCase();
+  const dd=document.getElementById('arcTagDropdown');
+  const cands=data.elements.filter(e=>!selArcMembers.includes(e.id)&&e.name.toLowerCase().includes(q));
+  if(!cands.length||!q){dd.classList.remove('open');return;}
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="tag-option" onclick="addArcMember(${e.id})"><span class="tag-option-dot" style="background:${TC[e.type]}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${TL[e.type]}</span></div>`).join('');
+  dd.classList.add('open');
+}
+function addArcMember(id){ if(!selArcMembers.includes(id))selArcMembers.push(id); document.getElementById('arcTagInput').value=''; document.getElementById('arcTagDropdown').classList.remove('open'); renderArcTagChips(); }
+function removeArcMember(id){ selArcMembers=selArcMembers.filter(m=>m!==id); renderArcTagChips(); }
+function arcTagKeydown(e){ if(e.key==='Escape')document.getElementById('arcTagDropdown').classList.remove('open'); }
+function renderArcTagChips(){
+  document.getElementById('arcTagChips').innerHTML=selArcMembers.map(id=>{const el=byId(id);if(!el)return '';return `<span class="tag-chip ${el.type}">${TI[el.type]} ${el.name}<button onclick="removeArcMember(${el.id})">×</button></span>`;}).join('');
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.tag-autocomplete')) document.querySelectorAll('.tag-dropdown').forEach(d=>d.classList.remove('open'));
+});
+
+// ═══════════════════ EXPORT / IMPORT ═══════════════════
+function exportData(){
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`storyworld_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('📦 File esportato con successo');
+}
+
+function importData(){ document.getElementById('importInput').click(); }
+
+function handleImport(event){
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const imp=JSON.parse(e.target.result);
+      if(!imp.elements) throw new Error('Formato non valido');
+      showConfirm('Importa dati','Vuoi sostituire tutti i dati attuali con quelli importati? L\'operazione non è reversibile.',()=>{
+        data=imp;
+        if(!data.arcs) data.arcs=[];
+        if(!data.nextArcId) data.nextArcId=data.arcs.length?Math.max(...data.arcs.map(a=>a.id))+1:1;
+        saveData(); closeDetail(); closeArcDetail(); renderAll();
+        showToast('✅ Dati importati con successo');
+      });
+    } catch(err){ showToast('❌ Errore: file JSON non valido'); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ═══════════════════ RENDER ALL ═══════════════════
+function renderAll(){ renderSidebar(); renderMain(); }
+
+// ═══════════════════ INIT ═══════════════════
+loadData(); seedDemo(); renderAll();
+</script>
+</body>
+</html>
