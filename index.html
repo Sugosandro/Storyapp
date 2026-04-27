@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StoryWorld — Il tuo universo narrativo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>StoryWorld</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -11,104 +11,110 @@
   --border:#2e2a22;--border-light:#3d3830;
   --gold:#c9a84c;--gold-dim:#7d6830;--gold-glow:rgba(201,168,76,0.12);
   --text:#e8e0d0;--text-dim:#8a8070;--text-muted:#5a5448;
-  --char:#7ab8d4;--char-dim:#2a4a5a;
-  --place:#8fbd7c;--place-dim:#2f4a28;
-  --object:#d4956a;--object-dim:#4a2e18;
-  --event:#b88fc4;--event-dim:#3a2848;
+  --faz:#f0c060;--faz-dim:#4a3810;
+  --mag:#a0d0c0;--mag-dim:#1a3830;
   --arc:#e8a0a8;--arc-dim:#4a2028;
   --r:6px;
+  --sb-w:240px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-/* SCROLL */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px}
 
-/* HEADER */
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:50px;position:sticky;top:0;z-index:100;flex-shrink:0}
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;display:flex;align-items:center;gap:10px;height:50px;position:sticky;top:0;z-index:150;flex-shrink:0}
 .logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);letter-spacing:.05em;white-space:nowrap}.logo span{font-style:italic;opacity:.7}
-nav{display:flex;gap:2px;flex:1;overflow-x:auto}
+.menu-toggle{display:none;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;padding:4px;line-height:1}
+nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
 nav button{background:none;border:none;color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:13px;padding:5px 10px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap}
 nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{color:var(--gold);background:var(--gold-glow)}
 .hact{display:flex;gap:5px;margin-left:auto;flex-shrink:0}
 .btn-sm{background:none;border:1px solid var(--border);color:var(--text-dim);font-size:11px;padding:4px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Crimson Pro',serif}
 .btn-sm:hover{border-color:var(--border-light);color:var(--text)}
+.hact-mob{display:none}
 
-/* LAYOUT */
-.app{display:flex;flex:1;height:calc(100vh - 50px);overflow:hidden}
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;height:calc(100vh - 50px);overflow:hidden;position:relative}
 
-/* SIDEBAR */
-.sidebar{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+/* ── SIDEBAR ── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:120}
+.sidebar{width:var(--sb-w);min-width:var(--sb-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:130;transition:transform .3s ease}
 .sb-top{padding:8px;border-bottom:1px solid var(--border);display:flex;gap:5px}
 .sb-top input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;padding:5px 9px;outline:none;transition:border-color .2s}
 .sb-top input:focus{border-color:var(--gold-dim)}.sb-top input::placeholder{color:var(--text-muted)}
 .sb-list{flex:1;overflow-y:auto;padding:5px}
+
+/* Tree */
 .sb-sec{margin-bottom:1px}
 .sb-sec-hd{display:flex;align-items:center;justify-content:space-between;padding:5px 7px;cursor:pointer;border-radius:var(--r);user-select:none;transition:background .2s}
 .sb-sec-hd:hover{background:var(--surface2)}
-.sb-sec-lbl{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:400;letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted)}
-.sb-sec-actions{display:flex;gap:2px}
+.sb-sec-lbl{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:400;letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted);flex:1;min-width:0}
+.sb-chevron{font-size:9px;color:var(--text-muted);transition:transform .2s;flex-shrink:0;margin-right:2px}
+.sb-chevron.open{transform:rotate(90deg)}
+.sb-sec-actions{display:flex;gap:2px;flex-shrink:0}
 .sb-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;line-height:1;padding:1px 4px;border-radius:3px;transition:color .2s,background .2s}
 .sb-btn:hover{color:var(--gold);background:var(--gold-glow)}
+.sb-children{overflow:hidden;transition:max-height .25s ease}
+.sb-children.collapsed{max-height:0!important}
 .sb-items{padding:0 2px 3px}
-.sb-item{display:flex;align-items:center;gap:6px;padding:4px 7px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text-dim);transition:all .15s;user-select:none}
+.sb-item{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text-dim);transition:all .15s;user-select:none;min-height:32px}
 .sb-item:hover{background:var(--surface2);color:var(--text)}.sb-item.active{background:var(--surface3);color:var(--text)}
-.sb-item-sub{padding-left:18px}
-.sb-thumb{width:18px;height:18px;border-radius:3px;object-fit:cover;flex-shrink:0}
+.sb-thumb{width:20px;height:20px;border-radius:3px;object-fit:cover;flex-shrink:0}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
-/* MAIN */
-.main{flex:1;overflow-y:auto;position:relative}
-.view{display:none;padding:24px 28px}.view.active{display:block}
-.view-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:10px}
-.view-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--text)}.view-title span{color:var(--gold);font-style:italic}
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;position:relative;min-width:0}
+.view{display:none;padding:20px 22px}.view.active{display:block}
+.view-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.view-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--text)}.view-title span{color:var(--gold);font-style:italic}
 .vhact{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .btn-p{background:var(--gold-glow);border:1px solid var(--gold-dim);color:var(--gold);font-family:'Crimson Pro',serif;font-size:12px;padding:6px 14px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap}
 .btn-p:hover{background:rgba(201,168,76,.22);border-color:var(--gold)}
 
-/* CARDS */
+/* ── CARDS ── */
 .sec-div{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.sec-div-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:var(--text-muted);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.sec-div-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.13em;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .sec-div-line{flex:1;height:1px;background:var(--border)}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px;margin-bottom:6px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:6px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.card-img{width:100%;height:110px;object-fit:cover;display:block}
-.card-img-ph{width:100%;height:52px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.22}
-.card-body{padding:11px}
-.card-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.card-img{width:100%;height:100px;object-fit:cover;display:block}
+.card-img-ph{width:100%;height:48px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.22}
+.card-body{padding:10px}
+.card-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
 .card-name{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:4px}
-.card-sub{font-size:10px;color:var(--text-muted);margin-bottom:4px;font-style:italic}
 .card-desc{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
-.card-arc{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 5px;border-radius:20px;background:var(--arc-dim);color:var(--arc);margin-top:4px}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.card-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 5px;border-radius:20px;margin-top:4px}
 
-/* TAGS */
+/* ── TAGS ── */
 .tag{font-size:10px;padding:2px 7px;border-radius:20px;cursor:pointer;transition:opacity .2s;font-style:italic;display:inline-block}
 .tag:hover{opacity:.7}
 
-/* DETAIL PANEL */
-.dp{width:385px;min-width:385px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+/* ── DETAIL PANEL ── */
+.dp{width:370px;min-width:370px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:110}
 .dp.hidden{display:none}
-.dp-hd{padding:13px 17px 11px;border-bottom:1px solid var(--border)}
+.dp-hd{padding:12px 15px 10px;border-bottom:1px solid var(--border)}
 .dp-hd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
 .dp-type{font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
-.dp-name{font-family:'Playfair Display',serif;font-size:17px;line-height:1.2}
-.dp-sub{font-size:11px;color:var(--text-muted);font-style:italic;margin-top:2px}
+.dp-name{font-family:'Playfair Display',serif;font-size:16px;line-height:1.2}
+.dp-sub{font-size:10px;color:var(--text-muted);font-style:italic;margin-top:2px}
 .dp-acts{display:flex;gap:3px;flex-shrink:0}
 .btn-g{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:11px;padding:3px 8px;border-radius:var(--r);cursor:pointer;transition:all .2s}
 .btn-g:hover{border-color:var(--border-light);color:var(--text)}
 .btn-d{background:none;border:1px solid #3a1515;color:#c06060;font-family:'Crimson Pro',serif;font-size:11px;padding:3px 8px;border-radius:var(--r);cursor:pointer;transition:all .2s}
 .btn-d:hover{background:rgba(192,96,96,.1);border-color:#c06060}
-.dp-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1;padding:2px;transition:color .2s}
+.dp-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;line-height:1;padding:2px;transition:color .2s}
 .dp-close:hover{color:var(--text)}
-.dp-tabs{display:flex;border-bottom:1px solid var(--border)}
-.dp-tab{flex:1;padding:7px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Crimson Pro',serif}
+.dp-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.dp-tabs::-webkit-scrollbar{display:none}
+.dp-tab{flex-shrink:0;padding:7px 10px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Crimson Pro',serif}
 .dp-tab:hover{color:var(--text)}.dp-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .dp-body{flex:1;overflow-y:auto}
-.dp-img{width:100%;max-height:170px;object-fit:cover;display:block}
+.dp-img{width:100%;max-height:160px;object-fit:cover;display:block}
 .dp-tc{display:none}.dp-tc.active{display:block}
-.dp-sec{padding:11px 17px;border-bottom:1px solid var(--border)}.dp-sec:last-child{border-bottom:none}
+.dp-sec{padding:10px 15px;border-bottom:1px solid var(--border)}.dp-sec:last-child{border-bottom:none}
 .dp-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:6px}
 .dp-txt{font-size:13px;line-height:1.65;color:var(--text-dim);white-space:pre-wrap}
 .dp-tags{display:flex;flex-wrap:wrap;gap:4px}
@@ -117,102 +123,124 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .bl-item:last-child{border-bottom:none}.bl-item:hover{opacity:.7}
 .bl-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .bl-name{color:var(--text)}.bl-type{color:var(--text-muted);font-size:10px;margin-left:auto;font-style:italic}
-.notes-area{width:100%;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;line-height:1.7;padding:13px 17px;resize:none;outline:none;min-height:200px}
+.notes-area{width:100%;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;line-height:1.7;padding:12px 15px;resize:none;outline:none;min-height:200px}
 .notes-area::placeholder{color:var(--text-muted);font-style:italic}
-.notes-hint{font-size:9px;color:var(--text-muted);padding:0 17px 9px;font-style:italic}
+.notes-hint{font-size:9px;color:var(--text-muted);padding:0 15px 8px;font-style:italic}
 
-/* EQUIPMENT */
-.equip-list{display:flex;flex-direction:column;gap:5px}
-.equip-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:12px}
+/* Equipment */
+.equip-list{display:flex;flex-direction:column;gap:4px}
+.equip-item{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;cursor:pointer;transition:border-color .15s}
 .equip-item:hover{border-color:var(--border-light)}
 .equip-name{flex:1;color:var(--text)}
 .equip-type{color:var(--text-muted);font-size:10px;font-style:italic}
-.equip-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;opacity:.5;transition:opacity .2s;padding:0 2px}
+.equip-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;opacity:.5;transition:opacity .2s;padding:0 2px;line-height:1}
 .equip-remove:hover{opacity:1;color:#c06060}
 
-/* CHANGELOG */
-.changelog{display:flex;flex-direction:column;gap:0}
-.cl-entry{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+/* Changelog */
+.cl-entry{padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
 .cl-entry:last-child{border-bottom:none}
-.cl-date{font-size:10px;color:var(--text-muted);margin-bottom:3px;font-style:italic}
+.cl-date{font-size:10px;color:var(--text-muted);margin-bottom:2px;font-style:italic;display:flex;justify-content:space-between;align-items:center}
 .cl-text{color:var(--text-dim);line-height:1.5}
-.cl-add-form{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
-.cl-add-form input,.cl-add-form textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;padding:6px 9px;outline:none;transition:border-color .2s;resize:none}
-.cl-add-form input:focus,.cl-add-form textarea:focus{border-color:var(--gold-dim)}
 
-/* TIMELINE */
-.tl-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.tl-range{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px}
-.tl-range label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);white-space:nowrap}
-.tl-range input{background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;width:140px}
-.tl-range input::placeholder{color:var(--text-muted)}
-.tl-sep{color:var(--text-muted);font-size:11px}
+/* ── FAZIONI ── */
+.faz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.faz-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;border-top:2px solid var(--faz)}
+.faz-card:hover{border-color:#7d6010;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.faz-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faz);margin-bottom:4px}
+.faz-name{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px}
+.faz-desc{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.faz-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.faz-count{font-size:10px;color:var(--text-muted)}
+.faz-rel-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.faz-rel-row:last-child{border-bottom:none}
+.faz-rel-type{font-size:10px;padding:1px 6px;border-radius:10px;font-style:italic;flex-shrink:0}
+.faz-rel-ally{background:#2a4a28;color:#8fbd7c}
+.faz-rel-enemy{background:#4a1515;color:#c06060}
+.faz-rel-neutral{background:var(--surface3);color:var(--text-muted)}
+
+/* ── MAGIA ── */
+.mag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.mag-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;border-top:2px solid var(--mag)}
+.mag-card:hover{border-color:#406858;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.mag-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mag);margin-bottom:4px}
+.mag-name{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px}
+.mag-desc{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mag-rules{margin-top:8px;display:flex;flex-wrap:wrap;gap:3px}
+.mag-rule-chip{font-size:9px;padding:2px 7px;border-radius:20px;background:var(--mag-dim);color:var(--mag)}
+
+/* ── TIMELINE ── */
+.tl-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tl-range{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px 9px;flex-wrap:wrap}
+.tl-range label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);white-space:nowrap}
+.tl-range select,.tl-range-sep{background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer}
+.tl-range select option{background:var(--surface2);color:var(--text)}
+.tl-range-sep{color:var(--text-muted);padding:0 2px}
 .tl-filters{display:flex;gap:5px;flex-wrap:wrap}
 .tl-filter{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:10px;padding:3px 10px;border-radius:20px;cursor:pointer;transition:all .2s}
 .tl-filter.active{border-color:var(--gold-dim);color:var(--gold);background:var(--gold-glow)}
-.tl-track{position:relative;padding-left:32px;max-width:700px}
-.tl-track::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:1px;background:var(--border)}
-.tl-group-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:8px;margin-top:16px;padding-left:2px;display:flex;align-items:center;gap:8px}
+.tl-track{position:relative;padding-left:30px;max-width:680px}
+.tl-track::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-group-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:7px;margin-top:14px;display:flex;align-items:center;gap:7px}
 .tl-group-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
-.tl-entry{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:11px 13px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.tl-entry{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:9px;cursor:pointer;transition:all .2s}
 .tl-entry:hover{border-color:var(--border-light)}
-.tl-entry::before{content:'';position:absolute;left:-27px;top:14px;width:8px;height:8px;border-radius:50%;border:2px solid var(--surface)}
+.tl-dot{position:absolute;left:-25px;top:13px;width:7px;height:7px;border-radius:50%;border:2px solid var(--surface)}
 .tl-date{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:3px}
-.tl-title{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:3px}
+.tl-title{font-family:'Playfair Display',serif;font-size:13px;margin-bottom:2px}
 .tl-desc{font-size:11px;color:var(--text-dim);line-height:1.5}
-.tl-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
-.tl-arc{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 6px;border-radius:20px;background:var(--arc-dim);color:var(--arc);margin-top:4px}
+.tl-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.tl-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:2px 5px;border-radius:20px;margin-top:4px}
 
-/* ARCHI */
-.arcs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
-.arc-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:15px;cursor:pointer;transition:all .2s;border-top:2px solid var(--arc)}
+/* Capitoli manager */
+.ch-mgr{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:14px;max-width:680px}
+.ch-mgr-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.ch-row{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:4px;font-size:11px}
+.ch-new{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+
+/* ── ARCHI ── */
+.arcs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.arc-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .2s;border-top:2px solid var(--arc)}
 .arc-card:hover{border-color:var(--arc-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .arc-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--arc);margin-bottom:4px}
-.arc-name{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px}
-.arc-desc{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.arc-members{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
-.arc-bar{display:flex;gap:2px;margin-top:9px}
+.arc-name{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:4px}
+.arc-desc{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.arc-members{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
+.arc-bar{display:flex;gap:2px;margin-top:8px}
 .arc-ph{flex:1;height:3px;border-radius:2px;background:var(--border)}.arc-ph.filled{background:var(--arc)}
 
-/* CONNECTIONS */
-.conn-view{display:flex;flex-direction:column;gap:18px}
+/* ── CONNESSIONI ── */
+.conn-view{display:flex;flex-direction:column;gap:14px}
 .conn-node{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.conn-node-hd{display:flex;align-items:center;gap:9px;padding:11px 14px;cursor:pointer;transition:background .2s}
+.conn-node-hd{display:flex;align-items:center;gap:8px;padding:10px 13px;cursor:pointer;transition:background .2s}
 .conn-node-hd:hover{background:var(--surface2)}
 .conn-node-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.conn-node-name{font-family:'Playfair Display',serif;font-size:15px;flex:1}
+.conn-node-name{font-family:'Playfair Display',serif;font-size:14px;flex:1}
 .conn-node-type{font-size:10px;color:var(--text-muted);font-style:italic}
 .conn-node-count{font-size:10px;color:var(--text-muted);background:var(--surface3);padding:2px 7px;border-radius:20px}
 .conn-rows{border-top:1px solid var(--border)}
-.conn-row{display:flex;align-items:center;gap:9px;padding:8px 14px 8px 28px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;font-size:12px}
-.conn-row:last-child{border-bottom:none}
-.conn-row:hover{background:var(--surface2)}
-.conn-dir{font-size:9px;padding:1px 6px;border-radius:10px;font-style:italic;flex-shrink:0}
-.conn-dir.out{background:var(--char-dim);color:var(--char)}
-.conn-dir.in{background:var(--place-dim);color:var(--place)}
-.conn-rname{flex:1;color:var(--text)}
-.conn-rtype{font-size:10px;color:var(--text-muted);margin-left:auto;font-style:italic}
+.conn-row{display:flex;align-items:center;gap:8px;padding:7px 13px 7px 26px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;font-size:11px}
+.conn-row:last-child{border-bottom:none}.conn-row:hover{background:var(--surface2)}
+.conn-dir{font-size:9px;padding:1px 5px;border-radius:10px;font-style:italic;flex-shrink:0}
+.conn-dir.out{background:var(--surface3);color:var(--text-dim)}.conn-dir.in{background:var(--surface3);color:var(--gold-dim)}
+.conn-rname{flex:1;color:var(--text)}.conn-rtype{font-size:10px;color:var(--text-muted);font-style:italic}
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;padding:10px}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:530px;max-width:95vw;max-height:87vh;overflow-y:auto;padding:22px}
-.modal-title{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:15px;color:var(--gold)}
-.fg{margin-bottom:12px}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;padding:20px}
+.modal-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px;color:var(--gold)}
+.fg{margin-bottom:11px}
 .fl{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:4px}
 .fi,.ft,.fs{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;padding:7px 10px;outline:none;transition:border-color .2s}
 .fi:focus,.ft:focus,.fs:focus{border-color:var(--gold-dim)}
-.ft{resize:vertical;min-height:80px}.fs{cursor:pointer}
-.fs option{background:var(--surface2)}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.color-swatches{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .2s}
+.ft{resize:vertical;min-height:75px}.fs{cursor:pointer}.fs option{background:var(--surface2)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.color-swatches{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .2s}
 .swatch.sel{border-color:var(--text)}
-/* Image upload */
-.img-up{border:1px dashed var(--border);border-radius:var(--r);padding:12px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface2)}
-.img-up:hover{border-color:var(--gold-dim)}.img-up p{color:var(--text-muted);font-size:11px;font-style:italic;margin-top:3px}
-.img-prev{width:100%;max-height:140px;object-fit:cover;border-radius:var(--r);display:none;margin-top:6px}
-/* Tag input */
+.img-up{border:1px dashed var(--border);border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--surface2)}
+.img-up:hover{border-color:var(--gold-dim)}.img-up p{color:var(--text-muted);font-size:10px;font-style:italic;margin-top:2px}
+.img-prev{width:100%;max-height:130px;object-fit:cover;border-radius:var(--r);display:none;margin-top:5px}
 .tic{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:4px 6px;display:flex;flex-wrap:wrap;gap:3px;min-height:36px;align-items:center;cursor:text;transition:border-color .2s}
 .tic:focus-within{border-color:var(--gold-dim)}
 .tc{display:flex;align-items:center;gap:2px;font-size:10px;padding:2px 6px;border-radius:20px;font-style:italic}
@@ -225,46 +253,73 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .topt{display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;font-size:12px;transition:background .15s}
 .topt:hover{background:var(--surface2)}
 .topt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.modal-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:16px}
+.modal-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:14px}
 
-/* EMPTY */
-.empty{text-align:center;padding:44px 20px;color:var(--text-muted)}
-.empty-icon{font-size:38px;margin-bottom:11px;opacity:.3}
-.empty-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:4px;color:var(--text-dim)}
-.empty-sub{font-size:12px;font-style:italic}
+/* ── EMPTY ── */
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+.empty-title{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px;color:var(--text-dim)}
+.empty-sub{font-size:11px;font-style:italic}
 
-/* CONFIRM */
-.cfm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;align-items:center;justify-content:center}
+/* ── CONFIRM ── */
+.cfm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;align-items:center;justify-content:center;padding:10px}
 .cfm-overlay.open{display:flex}
-.cfm-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:330px;max-width:92vw}
-.cfm-title{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:6px}
-.cfm-msg{font-size:12px;color:var(--text-dim);margin-bottom:16px;line-height:1.5}
-.cfm-acts{display:flex;gap:7px;justify-content:flex-end}
+.cfm-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;width:320px;max-width:100%}
+.cfm-title{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:5px}
+.cfm-msg{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+.cfm-acts{display:flex;gap:6px;justify-content:flex-end}
 
-/* TOAST */
-.toast{position:fixed;bottom:16px;right:16px;background:var(--surface3);border:1px solid var(--border-light);color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;padding:8px 15px;border-radius:var(--r);z-index:500;opacity:0;transform:translateY(7px);transition:all .3s;pointer-events:none}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:14px;right:14px;background:var(--surface3);border:1px solid var(--border-light);color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;padding:8px 14px;border-radius:var(--r);z-index:500;opacity:0;transform:translateY(6px);transition:all .3s;pointer-events:none;max-width:260px}
 .toast.show{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width:768px){
+  .menu-toggle{display:block}
+  .hact .btn-sm:not(.hact-show){display:none}
+  .hact-mob{display:flex}
+  nav{display:none}
+  nav.mob-open{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:160;padding:8px 6px;justify-content:space-around;gap:0}
+  nav.mob-open button{flex:1;font-size:11px;padding:6px 4px;text-align:center}
+  .sidebar{position:fixed;left:0;top:50px;bottom:0;transform:translateX(-100%);z-index:130}
+  .sidebar.mob-open{transform:translateX(0)}
+  .sb-overlay.mob-open{display:block}
+  .dp{position:fixed;right:0;top:50px;bottom:0;width:100%!important;min-width:0!important;transform:translateX(100%);transition:transform .3s ease;z-index:135}
+  .dp.mob-open{transform:translateX(0)}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .view{padding:14px 14px 80px}
+  .view-hd{margin-bottom:14px}
+}
+@media (max-width:420px){
+  .cards-grid{grid-template-columns:1fr 1fr}
+  .frow{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <header>
+  <button class="menu-toggle" onclick="toggleMobSidebar()" title="Menu">☰</button>
   <div class="logo">Story<span>World</span></div>
-  <nav>
+  <nav id="mainNav">
     <button class="active" onclick="sv('world')">🌍 Mondo</button>
     <button onclick="sv('timeline')">⏳ Timeline</button>
+    <button onclick="sv('fazioni')">⚔ Fazioni</button>
+    <button onclick="sv('magia')">✨ Magia</button>
     <button onclick="sv('arcs')">📖 Archi</button>
     <button onclick="sv('connections')">🕸 Connessioni</button>
   </nav>
   <div class="hact">
-    <button class="btn-sm" onclick="openCatModal()">⚙ Categorie</button>
-    <button class="btn-sm" onclick="importData()">⬆ Importa</button>
-    <button class="btn-sm" onclick="exportData()">⬇ Esporta</button>
+    <button class="btn-sm hact-show" onclick="openCatModal()">⚙</button>
+    <button class="btn-sm hact-show" onclick="exportData()">⬇</button>
+    <button class="btn-sm hact-show" onclick="importData()">⬆</button>
   </div>
 </header>
 
+<div class="sb-overlay" id="sbOverlay" onclick="closeMobSidebar()"></div>
+
 <div class="app">
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="sb-top">
     <input type="text" id="sbSearch" placeholder="Cerca…" oninput="renderSidebar()">
   </div>
@@ -273,13 +328,12 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 
 <!-- MAIN -->
 <main class="main">
+
   <!-- MONDO -->
   <div class="view active" id="view-world">
     <div class="view-hd">
       <div class="view-title">Il tuo <span>Mondo</span></div>
-      <div class="vhact">
-        <button class="btn-p" onclick="openNewModal()">+ Nuovo elemento</button>
-      </div>
+      <button class="btn-p" onclick="openNewModal()">+ Nuovo</button>
     </div>
     <div id="worldContent"></div>
   </div>
@@ -288,46 +342,70 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <div class="view" id="view-timeline">
     <div class="view-hd">
       <div class="view-title">Time<span>line</span></div>
-      <button class="btn-p" onclick="openNewModal('event')">+ Nuovo evento</button>
+      <div class="vhact">
+        <button class="btn-sm" onclick="toggleChMgr()" id="chMgrBtn">📚 Capitoli</button>
+        <button class="btn-p" onclick="openNewModal('event')">+ Evento</button>
+      </div>
     </div>
     <div class="tl-toolbar">
-      <!-- Date range filter -->
       <div class="tl-range">
         <label>Da</label>
-        <input type="text" id="tlFrom" placeholder="Es. Anno 1, Giorno 1" oninput="renderTimeline()">
-        <span class="tl-sep">→</span>
+        <select id="tlFrom" class="tl-range" onchange="renderTimeline()" style="padding:0;border:none;background:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:80px">
+          <option value="">Inizio</option>
+        </select>
+        <span class="tl-range-sep">→</span>
         <label>A</label>
-        <input type="text" id="tlTo" placeholder="Es. Anno 1, Giorno 10" oninput="renderTimeline()">
-        <button class="btn-sm" onclick="clearTlRange()" style="border:none;padding:2px 5px;font-size:11px" title="Azzera intervallo">✕</button>
+        <select id="tlTo" class="tl-range" onchange="renderTimeline()" style="padding:0;border:none;background:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:80px">
+          <option value="">Fine</option>
+        </select>
+        <button onclick="clearTlRange()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0 3px" title="Azzera">✕</button>
       </div>
-      <!-- Grouping mode -->
       <div class="tl-range" style="gap:5px">
         <label>Raggruppa</label>
-        <select id="tlGroupMode" class="fs" style="background:none;border:none;color:var(--text);font-size:12px;padding:0;outline:none;cursor:pointer" onchange="renderTimeline()">
+        <select id="tlGroupMode" style="background:none;border:none;color:var(--text);font-size:12px;padding:0;outline:none;cursor:pointer;font-family:'Crimson Pro',serif" onchange="renderTimeline()">
           <option value="date">Per data</option>
-          <option value="chapter">Per capitolo/atto</option>
+          <option value="chapter">Per capitolo</option>
           <option value="none">Nessuno</option>
         </select>
       </div>
       <div class="tl-filters" id="tlFilters"></div>
-      <!-- Chapter manager toggle -->
-      <button class="btn-sm" onclick="toggleChapterManager()" id="chapterMgrBtn">📚 Capitoli</button>
     </div>
-    <!-- Chapter/act manager (hidden by default) -->
-    <div id="chapterManager" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px;max-width:700px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted)">Capitoli / Atti</span>
-        <button class="btn-sm" onclick="toggleChapterManager()">✕ Chiudi</button>
+    <div class="ch-mgr" id="chMgr" style="display:none">
+      <div class="ch-mgr-hd">
+        <span style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted)">Capitoli / Atti</span>
+        <button class="btn-sm" onclick="toggleChMgr()">✕</button>
       </div>
-      <div id="chapterList" style="margin-bottom:10px"></div>
-      <div style="display:flex;gap:7px;align-items:flex-end">
-        <div style="flex:1"><label class="fl">Nome capitolo/atto</label><input class="fi" id="newChapterName" placeholder="Es. Capitolo 1: L'Inizio" style="font-size:12px"></div>
-        <div style="width:180px"><label class="fl">Da (data narrativa)</label><input class="fi" id="newChapterFrom" placeholder="Anno 1247, Giorno 1" style="font-size:12px"></div>
-        <div style="width:180px"><label class="fl">A (data narrativa)</label><input class="fi" id="newChapterTo" placeholder="Anno 1247, Giorno 7" style="font-size:12px"></div>
-        <button class="btn-p" onclick="addChapter()" style="flex-shrink:0;height:32px;padding:0 12px">+ Aggiungi</button>
+      <div id="chList"></div>
+      <div class="ch-new">
+        <div style="flex:1;min-width:120px"><label class="fl">Nome</label><input class="fi" id="chName" placeholder="Capitolo 1" style="font-size:11px"></div>
+        <div style="min-width:100px"><label class="fl">Da</label>
+          <select class="fi" id="chFrom" style="font-size:11px;padding:6px 8px"><option value="">—</option></select>
+        </div>
+        <div style="min-width:100px"><label class="fl">A</label>
+          <select class="fi" id="chTo" style="font-size:11px;padding:6px 8px"><option value="">—</option></select>
+        </div>
+        <button class="btn-p" onclick="addChapter()" style="font-size:11px;padding:5px 10px;align-self:flex-end">+ Aggiungi</button>
       </div>
     </div>
     <div class="tl-track" id="tlTrack"></div>
+  </div>
+
+  <!-- FAZIONI -->
+  <div class="view" id="view-fazioni">
+    <div class="view-hd">
+      <div class="view-title">⚔ <span>Fazioni</span></div>
+      <button class="btn-p" onclick="openFazModal()">+ Nuova fazione</button>
+    </div>
+    <div class="faz-grid" id="fazGrid"></div>
+  </div>
+
+  <!-- MAGIA -->
+  <div class="view" id="view-magia">
+    <div class="view-hd">
+      <div class="view-title">✨ Sistemi di <span>Magia</span></div>
+      <button class="btn-p" onclick="openMagModal()">+ Nuovo sistema</button>
+    </div>
+    <div class="mag-grid" id="magGrid"></div>
   </div>
 
   <!-- ARCHI -->
@@ -343,19 +421,20 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <div class="view" id="view-connections">
     <div class="view-hd">
       <div class="view-title">Mappa delle <span>Connessioni</span></div>
-      <select class="fs" id="connFilter" onchange="renderConnections()" style="width:auto;font-size:12px;padding:4px 8px">
-        <option value="">Tutti gli elementi</option>
+      <select class="fs" id="connFilter" onchange="renderConnections()" style="width:auto;font-size:11px;padding:4px 8px">
+        <option value="">Tutti</option>
       </select>
     </div>
     <div class="conn-view" id="connView"></div>
   </div>
+
 </main>
 
 <!-- DETAIL PANEL — ELEMENTI -->
 <div class="dp hidden" id="dpPanel">
   <div class="dp-hd">
     <div class="dp-hd-top">
-      <div>
+      <div style="min-width:0">
         <div class="dp-type" id="dpType"></div>
         <div class="dp-name" id="dpName"></div>
         <div class="dp-sub" id="dpSub"></div>
@@ -369,63 +448,109 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   </div>
   <div class="dp-tabs" id="dpTabsBar">
     <button class="dp-tab active" onclick="switchDpTab('info')">Scheda</button>
-    <button class="dp-tab" onclick="switchDpTab('equip')">Equipaggiamento</button>
+    <button class="dp-tab" onclick="switchDpTab('equip')">Equip.</button>
     <button class="dp-tab" onclick="switchDpTab('changelog')">Storico</button>
     <button class="dp-tab" onclick="switchDpTab('notes')">Note</button>
   </div>
   <div class="dp-body">
-    <!-- INFO -->
     <div class="dp-tc active" id="dtab-info">
       <img id="dpImg" class="dp-img" src="" alt="" style="display:none">
       <div class="dp-sec" id="dpDesc"></div>
       <div class="dp-sec" id="dpExtra"></div>
-      <div class="dp-sec">
-        <div class="dp-lbl">Tag collegati</div>
-        <div class="dp-tags" id="dpTags"></div>
-      </div>
-      <div class="dp-sec" id="dpArcsSection" style="display:none">
-        <div class="dp-lbl">Archi narrativi</div>
-        <div class="dp-tags" id="dpArcsList"></div>
-      </div>
-      <div class="dp-sec">
-        <div class="dp-lbl">Citato in</div>
-        <div class="bl-list" id="dpBacklinks"></div>
-      </div>
+      <div class="dp-sec"><div class="dp-lbl">Tag collegati</div><div class="dp-tags" id="dpTags"></div></div>
+      <div class="dp-sec" id="dpFazSec" style="display:none"><div class="dp-lbl">Fazioni</div><div class="dp-tags" id="dpFazList"></div></div>
+      <div class="dp-sec" id="dpMagSec" style="display:none"><div class="dp-lbl">Sistemi di magia</div><div class="dp-tags" id="dpMagList"></div></div>
+      <div class="dp-sec" id="dpArcsSec" style="display:none"><div class="dp-lbl">Archi narrativi</div><div class="dp-tags" id="dpArcsList"></div></div>
+      <div class="dp-sec"><div class="dp-lbl">Citato in</div><div class="bl-list" id="dpBacklinks"></div></div>
     </div>
-    <!-- EQUIPMENT -->
     <div class="dp-tc" id="dtab-equip">
       <div class="dp-sec">
-        <div class="dp-lbl" style="margin-bottom:10px">Oggetti posseduti</div>
+        <div class="dp-lbl" style="margin-bottom:8px">Oggetti posseduti</div>
         <div class="equip-list" id="dpEquipList"></div>
-        <div style="margin-top:10px">
-          <div class="dp-lbl">Aggiungi oggetto</div>
+        <div style="margin-top:9px"><div class="dp-lbl">Aggiungi oggetto</div>
           <div class="tic" style="margin-top:4px" onclick="document.getElementById('equipInput').focus()">
-            <div class="tac">
-              <input type="text" id="equipInput" placeholder="Cerca oggetto…" oninput="showEquipDropdown()" onkeydown="equipKeydown(event)" autocomplete="off">
-              <div class="tdrop" id="equipDropdown"></div>
+            <div class="tac"><input type="text" id="equipInput" placeholder="Cerca oggetto…" oninput="showEquipDrop()" onkeydown="if(event.key==='Escape')document.getElementById('equipDrop').classList.remove('open')" autocomplete="off">
+              <div class="tdrop" id="equipDrop"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- CHANGELOG -->
     <div class="dp-tc" id="dtab-changelog">
       <div class="dp-sec">
         <div class="dp-lbl">Storico narrativo</div>
         <div class="changelog" id="dpChangelog"></div>
-        <div class="cl-add-form">
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
           <div class="dp-lbl">Aggiungi voce</div>
-          <input type="text" id="clDate" placeholder="Momento narrativo (es. Cap. 3, Anno 1247)" class="fi" style="font-size:12px">
-          <textarea id="clText" placeholder="Cosa è cambiato in questo momento?" class="ft" style="min-height:60px;font-size:12px"></textarea>
-          <div style="display:flex;justify-content:flex-end">
-            <button class="btn-p" onclick="addChangelog()" style="font-size:11px;padding:5px 12px">+ Aggiungi</button>
-          </div>
+          <select class="fi" id="clDate" style="font-size:12px;margin-bottom:5px;padding:6px 8px">
+            <option value="">Seleziona momento narrativo…</option>
+          </select>
+          <input class="fi" id="clDateCustom" placeholder="…o scrivi un momento" style="font-size:12px;margin-bottom:5px">
+          <textarea class="ft" id="clText" placeholder="Cosa è cambiato?" style="min-height:55px;font-size:12px;margin-bottom:5px"></textarea>
+          <div style="display:flex;justify-content:flex-end"><button class="btn-p" onclick="addChangelog()" style="font-size:11px;padding:4px 11px">+ Aggiungi</button></div>
         </div>
       </div>
     </div>
-    <!-- NOTES -->
     <div class="dp-tc" id="dtab-notes">
-      <textarea class="notes-area" id="dpNotes" placeholder="Scrivi note libere su questo elemento…&#10;&#10;Idee, bozze di scena, dubbi, rimandi." oninput="saveNotes()"></textarea>
+      <textarea class="notes-area" id="dpNotes" placeholder="Note libere…&#10;&#10;Idee, bozze, dubbi, rimandi." oninput="saveNotes()"></textarea>
+      <div class="notes-hint">💾 Salvato automaticamente</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL — FAZIONI -->
+<div class="dp hidden" id="fazPanel">
+  <div class="dp-hd">
+    <div class="dp-hd-top">
+      <div><div class="dp-type" style="color:var(--faz)">⚔ Fazione</div><div class="dp-name" id="fdpName"></div></div>
+      <div class="dp-acts">
+        <button class="btn-g" onclick="editCurrentFaz()">Modifica</button>
+        <button class="btn-d" onclick="deleteCurrentFaz()">Elimina</button>
+        <button class="dp-close" onclick="closeFazDetail()">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="dp-tabs">
+    <button class="dp-tab active" onclick="switchFazTab('info')">Scheda</button>
+    <button class="dp-tab" onclick="switchFazTab('notes')">Note</button>
+  </div>
+  <div class="dp-body">
+    <div class="dp-tc active" id="faztab-info">
+      <div class="dp-sec" id="fdpDesc"></div>
+      <div class="dp-sec"><div class="dp-lbl">Membri</div><div class="dp-tags" id="fdpMembers"></div></div>
+      <div class="dp-sec"><div class="dp-lbl">Relazioni con altre fazioni</div><div id="fdpRels"></div></div>
+    </div>
+    <div class="dp-tc" id="faztab-notes">
+      <textarea class="notes-area" id="fdpNotes" placeholder="Note sulla fazione…" oninput="saveFazNotes()"></textarea>
+      <div class="notes-hint">💾 Salvato automaticamente</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL — MAGIA -->
+<div class="dp hidden" id="magPanel">
+  <div class="dp-hd">
+    <div class="dp-hd-top">
+      <div><div class="dp-type" style="color:var(--mag)">✨ Sistema di Magia</div><div class="dp-name" id="mdpName"></div></div>
+      <div class="dp-acts">
+        <button class="btn-g" onclick="editCurrentMag()">Modifica</button>
+        <button class="btn-d" onclick="deleteCurrentMag()">Elimina</button>
+        <button class="dp-close" onclick="closeMagDetail()">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="dp-tabs">
+    <button class="dp-tab active" onclick="switchMagTab('info')">Scheda</button>
+    <button class="dp-tab" onclick="switchMagTab('notes')">Note</button>
+  </div>
+  <div class="dp-body">
+    <div class="dp-tc active" id="magtab-info">
+      <div class="dp-sec" id="mdpDesc"></div>
+      <div class="dp-sec" id="mdpRules"></div>
+      <div class="dp-sec"><div class="dp-lbl">Chi lo usa</div><div class="dp-tags" id="mdpUsers"></div></div>
+    </div>
+    <div class="dp-tc" id="magtab-notes">
+      <textarea class="notes-area" id="mdpNotes" placeholder="Note sul sistema di magia…" oninput="saveMagNotes()"></textarea>
       <div class="notes-hint">💾 Salvato automaticamente</div>
     </div>
   </div>
@@ -435,10 +560,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 <div class="dp hidden" id="arcPanel">
   <div class="dp-hd">
     <div class="dp-hd-top">
-      <div>
-        <div class="dp-type" style="color:var(--arc)">📖 Arco Narrativo</div>
-        <div class="dp-name" id="adpName"></div>
-      </div>
+      <div><div class="dp-type" style="color:var(--arc)">📖 Arco Narrativo</div><div class="dp-name" id="adpName"></div></div>
       <div class="dp-acts">
         <button class="btn-g" onclick="editCurrentArc()">Modifica</button>
         <button class="btn-d" onclick="deleteCurrentArc()">Elimina</button>
@@ -454,43 +576,35 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <div class="dp-tc active" id="arctab-info">
       <div class="dp-sec" id="adpDesc"></div>
       <div class="dp-sec" id="adpPhases"></div>
-      <div class="dp-sec">
-        <div class="dp-lbl">Elementi coinvolti</div>
-        <div class="dp-tags" id="adpMembers"></div>
-      </div>
+      <div class="dp-sec"><div class="dp-lbl">Elementi coinvolti</div><div class="dp-tags" id="adpMembers"></div></div>
     </div>
     <div class="dp-tc" id="arctab-notes">
-      <textarea class="notes-area" id="adpNotes" placeholder="Note sull'arco narrativo…" oninput="saveArcNotes()"></textarea>
+      <textarea class="notes-area" id="adpNotes" placeholder="Note sull'arco…" oninput="saveArcNotes()"></textarea>
       <div class="notes-hint">💾 Salvato automaticamente</div>
     </div>
   </div>
 </div>
 </div><!-- .app -->
 
-<!-- MODAL CATEGORIA -->
+<!-- MODAL CATEGORIE -->
 <div class="modal-overlay" id="catModalOverlay" onclick="if(event.target===this)closeCatModal()">
-  <div class="modal" style="width:580px">
+  <div class="modal" style="width:570px">
     <div class="modal-title">⚙ Gestione Categorie</div>
-    <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px">Le categorie built-in (Personaggi, Luoghi, Oggetti, Eventi) non possono essere rimosse. Puoi creare categorie personalizzate con colore e sottocategorie.</p>
-    <div id="catList" style="margin-bottom:14px"></div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px">
-      <div class="dp-lbl" style="margin-bottom:10px">Nuova categoria</div>
-      <div class="frow" style="margin-bottom:8px">
-        <div class="fg" style="margin:0"><label class="fl">Nome</label><input class="fi" id="newCatName" placeholder="Es. Creature, Fazioni…"></div>
-        <div class="fg" style="margin:0"><label class="fl">Emoji icona</label><input class="fi" id="newCatIcon" placeholder="Es. 🐉" style="font-size:16px"></div>
+    <div id="catList" style="margin-bottom:12px"></div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px">
+      <div class="dp-lbl" style="margin-bottom:8px">Nuova categoria</div>
+      <div class="frow" style="margin-bottom:7px">
+        <div class="fg" style="margin:0"><label class="fl">Nome</label><input class="fi" id="newCatName" placeholder="Es. Creature"></div>
+        <div class="fg" style="margin:0"><label class="fl">Emoji</label><input class="fi" id="newCatIcon" placeholder="🐉" style="font-size:15px"></div>
       </div>
-      <div class="fg" style="margin-bottom:8px"><label class="fl">Colore</label>
-        <div class="color-swatches" id="catColorSwatches"></div>
-      </div>
-      <div style="display:flex;justify-content:flex-end"><button class="btn-p" onclick="addCustomCat()">+ Crea categoria</button></div>
+      <div class="fg" style="margin-bottom:7px"><label class="fl">Colore</label><div class="color-swatches" id="catColorSwatches"></div></div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn-p" onclick="addCustomCat()">+ Crea</button></div>
     </div>
-    <div style="margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px" id="subCatSection">
-      <div class="dp-lbl" style="margin-bottom:10px">Aggiungi sottocategoria</div>
-      <div class="frow" style="margin-bottom:8px">
-        <div class="fg" style="margin:0"><label class="fl">Categoria padre</label>
-          <select class="fs" id="subCatParent" style="font-size:12px"></select>
-        </div>
-        <div class="fg" style="margin:0"><label class="fl">Nome sottocategoria</label><input class="fi" id="newSubCatName" placeholder="Es. Eroi, Villain…"></div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px">
+      <div class="dp-lbl" style="margin-bottom:8px">Aggiungi sottocategoria</div>
+      <div class="frow" style="margin-bottom:7px">
+        <div class="fg" style="margin:0"><label class="fl">Categoria padre</label><select class="fs" id="subCatParent" style="font-size:12px"></select></div>
+        <div class="fg" style="margin:0"><label class="fl">Nome</label><input class="fi" id="newSubCatName" placeholder="Es. Eroi"></div>
       </div>
       <div style="display:flex;justify-content:flex-end"><button class="btn-p" onclick="addSubCat()">+ Aggiungi</button></div>
     </div>
@@ -504,40 +618,83 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <div class="modal-title" id="modalTitle">Nuovo elemento</div>
     <input type="hidden" id="editingId">
     <div class="frow">
-      <div class="fg" style="margin-bottom:10px"><label class="fl">Categoria</label>
-        <select class="fs" id="fCat" onchange="updateSubCatField()"></select>
-      </div>
-      <div class="fg" id="fSubCatGroup" style="margin-bottom:10px;display:none"><label class="fl">Sottocategoria</label>
-        <select class="fs" id="fSubCat"></select>
-      </div>
+      <div class="fg" style="margin-bottom:9px"><label class="fl">Categoria</label><select class="fs" id="fCat" onchange="updateSubCatField()"></select></div>
+      <div class="fg" id="fSubCatGroup" style="margin-bottom:9px;display:none"><label class="fl">Sottocategoria</label><select class="fs" id="fSubCat"></select></div>
     </div>
     <div class="fg"><label class="fl">Nome</label><input class="fi" id="fName" placeholder="Nome elemento" autocomplete="off"></div>
-    <div class="fg" id="fDateGroup" style="display:none"><label class="fl">Data / Momento narrativo</label><input class="fi" id="fDate" placeholder="Es. Anno 1247, Giorno 3"></div>
+    <div class="fg" id="fDateGroup" style="display:none"><label class="fl">Data / Momento narrativo</label>
+      <select class="fi" id="fDateSel" style="padding:7px 10px;font-size:13px;margin-bottom:5px" onchange="syncDateSelToInput()">
+        <option value="">Seleziona data esistente…</option>
+        <option value="__custom__">— Nuova data —</option>
+      </select>
+      <input class="fi" id="fDate" placeholder="Es. Anno 1247, Giorno 3" style="display:none">
+    </div>
     <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="fDesc" placeholder="Descrivi questo elemento…"></textarea></div>
     <div id="fExtraGroup"></div>
     <div class="fg">
       <label class="fl">Immagine (opzionale)</label>
-      <div class="img-up" onclick="document.getElementById('fImgInput').click()">
-        <div style="font-size:24px">🖼</div><p>Clicca per caricare un'immagine</p>
-      </div>
+      <div class="img-up" onclick="document.getElementById('fImgInput').click()"><div style="font-size:22px">🖼</div><p>Tocca per caricare un'immagine</p></div>
       <input type="file" id="fImgInput" accept="image/*" style="display:none" onchange="previewImage(event)">
       <img id="fImgPreview" class="img-prev" alt="">
-      <button id="fImgRemove" class="btn-g" style="margin-top:5px;display:none;font-size:11px" onclick="removeImage()">✕ Rimuovi</button>
+      <button id="fImgRemove" class="btn-g" style="margin-top:4px;display:none;font-size:11px" onclick="removeImage()">✕ Rimuovi</button>
     </div>
-    <div class="fg">
-      <label class="fl">Tag — collega ad altri elementi</label>
-      <div class="tic" id="tagContainer" onclick="document.getElementById('tagInput').focus()">
+    <div class="fg"><label class="fl">Tag — collega ad altri elementi</label>
+      <div class="tic" onclick="document.getElementById('tagInput').focus()">
         <div id="tagChips" style="display:contents"></div>
-        <div class="tac">
-          <input type="text" id="tagInput" placeholder="Cerca elemento…" oninput="showTagDrop()" onkeydown="tagKd(event)" autocomplete="off">
-          <div class="tdrop" id="tagDrop"></div>
-        </div>
+        <div class="tac"><input type="text" id="tagInput" placeholder="Cerca…" oninput="showTagDrop()" onkeydown="tagKd(event)" autocomplete="off"><div class="tdrop" id="tagDrop"></div></div>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-g" onclick="closeModal()">Annulla</button>
-      <button class="btn-p" onclick="saveElement()">Salva</button>
+    <div class="modal-actions"><button class="btn-g" onclick="closeModal()">Annulla</button><button class="btn-p" onclick="saveElement()">Salva</button></div>
+  </div>
+</div>
+
+<!-- MODAL FAZIONE -->
+<div class="modal-overlay" id="fazModalOverlay" onclick="if(event.target===this)closeFazModal()">
+  <div class="modal">
+    <div class="modal-title" id="fazModalTitle">Nuova fazione</div>
+    <input type="hidden" id="editingFazId">
+    <div class="fg"><label class="fl">Nome</label><input class="fi" id="ffName" placeholder="Es. Ordine Nero" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="ffDesc" placeholder="Obiettivi, storia, struttura…"></textarea></div>
+    <div class="fg"><label class="fl">Motto / Simbolo</label><input class="fi" id="ffMotto" placeholder="Es. 'Per la purezza'" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Membri (personaggi)</label>
+      <div class="tic" onclick="document.getElementById('fazMemInput').focus()">
+        <div id="fazMemChips" style="display:contents"></div>
+        <div class="tac"><input type="text" id="fazMemInput" placeholder="Cerca personaggio…" oninput="showFazMemDrop()" onkeydown="if(event.key==='Escape')document.getElementById('fazMemDrop').classList.remove('open')" autocomplete="off"><div class="tdrop" id="fazMemDrop"></div></div>
+      </div>
     </div>
+    <div class="fg"><label class="fl">Relazioni con altre fazioni</label>
+      <div id="fazRelList" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="tac" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:4px 8px">
+          <input type="text" id="fazRelInput" placeholder="Cerca fazione…" oninput="showFazRelDrop()" onkeydown="if(event.key==='Escape')document.getElementById('fazRelDrop').classList.remove('open')" autocomplete="off" style="width:100%;background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px">
+          <div class="tdrop" id="fazRelDrop"></div>
+        </div>
+        <select class="fs" id="fazRelType" style="width:auto;font-size:12px;padding:7px 8px">
+          <option value="ally">Alleata</option>
+          <option value="enemy">Nemica</option>
+          <option value="neutral">Neutrale</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn-g" onclick="closeFazModal()">Annulla</button><button class="btn-p" onclick="saveFaz()">Salva</button></div>
+  </div>
+</div>
+
+<!-- MODAL MAGIA -->
+<div class="modal-overlay" id="magModalOverlay" onclick="if(event.target===this)closeMagModal()">
+  <div class="modal">
+    <div class="modal-title" id="magModalTitle">Nuovo sistema di magia</div>
+    <input type="hidden" id="editingMagId">
+    <div class="fg"><label class="fl">Nome</label><input class="fi" id="mfName" placeholder="Es. Alchimia Argentea" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="mfDesc" placeholder="Come funziona questo sistema? Da dove proviene il potere?"></textarea></div>
+    <div class="fg"><label class="fl">Regole e limitazioni (una per riga)</label><textarea class="ft" id="mfRules" placeholder="Es. Richiede ingredienti rari&#10;Consuma energia vitale&#10;Non funziona di notte"></textarea></div>
+    <div class="fg"><label class="fl">Chi lo usa (personaggi)</label>
+      <div class="tic" onclick="document.getElementById('magUserInput').focus()">
+        <div id="magUserChips" style="display:contents"></div>
+        <div class="tac"><input type="text" id="magUserInput" placeholder="Cerca personaggio…" oninput="showMagUserDrop()" onkeydown="if(event.key==='Escape')document.getElementById('magUserDrop').classList.remove('open')" autocomplete="off"><div class="tdrop" id="magUserDrop"></div></div>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn-g" onclick="closeMagModal()">Annulla</button><button class="btn-p" onclick="saveMag()">Salva</button></div>
   </div>
 </div>
 
@@ -546,23 +703,17 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <div class="modal">
     <div class="modal-title" id="arcModalTitle">Nuovo arco narrativo</div>
     <input type="hidden" id="editingArcId">
-    <div class="fg"><label class="fl">Nome dell'arco</label><input class="fi" id="afName" placeholder="Es. La caccia all'eretica" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Nome</label><input class="fi" id="afName" placeholder="Es. La caccia all'eretica" autocomplete="off"></div>
     <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="afDesc" placeholder="Riassumi il filo narrativo…"></textarea></div>
     <div class="fg"><label class="fl">Fasi (separate da virgola)</label><input class="fi" id="afPhases" placeholder="Es. Innesco, Sviluppo, Climax, Risoluzione"></div>
     <div class="fg"><label class="fl">Fase corrente</label><input class="fi" id="afCurPhase" placeholder="Es. Sviluppo" autocomplete="off"></div>
     <div class="fg"><label class="fl">Elementi coinvolti</label>
       <div class="tic" onclick="document.getElementById('arcTagInput').focus()">
         <div id="arcTagChips" style="display:contents"></div>
-        <div class="tac">
-          <input type="text" id="arcTagInput" placeholder="Cerca elemento…" oninput="showArcTagDrop()" onkeydown="arcTagKd(event)" autocomplete="off">
-          <div class="tdrop" id="arcTagDrop"></div>
-        </div>
+        <div class="tac"><input type="text" id="arcTagInput" placeholder="Cerca elemento…" oninput="showArcTagDrop()" onkeydown="arcTagKd(event)" autocomplete="off"><div class="tdrop" id="arcTagDrop"></div></div>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-g" onclick="closeArcModal()">Annulla</button>
-      <button class="btn-p" onclick="saveArc()">Salva</button>
-    </div>
+    <div class="modal-actions"><button class="btn-g" onclick="closeArcModal()">Annulla</button><button class="btn-p" onclick="saveArc()">Salva</button></div>
   </div>
 </div>
 
@@ -571,10 +722,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <div class="cfm-box">
     <div class="cfm-title" id="cfmTitle"></div>
     <div class="cfm-msg" id="cfmMsg"></div>
-    <div class="cfm-acts">
-      <button class="btn-g" onclick="closeCfm()">Annulla</button>
-      <button class="btn-d" id="cfmBtn">Conferma</button>
-    </div>
+    <div class="cfm-acts"><button class="btn-g" onclick="closeCfm()">Annulla</button><button class="btn-d" id="cfmBtn">Conferma</button></div>
   </div>
 </div>
 
@@ -582,260 +730,290 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 <input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
-// ══════════════════════════════════════════
-// DATA
-// ══════════════════════════════════════════
-const BUILTIN_CATS = [
-  {id:'char', name:'Personaggi', icon:'👤', color:'#7ab8d4', colorDim:'#2a4a5a', subs:[], builtin:true},
-  {id:'place', name:'Luoghi',      icon:'📍', color:'#8fbd7c', colorDim:'#2f4a28', subs:[], builtin:true},
-  {id:'object',name:'Oggetti',     icon:'📦', color:'#d4956a', colorDim:'#4a2e18', subs:[], builtin:true},
-  {id:'event', name:'Eventi',      icon:'⚡', color:'#b88fc4', colorDim:'#3a2848', subs:[], builtin:true},
+// ═══════════════════════════ DATA ═══════════════════════════
+const BC=[
+  {id:'char',name:'Personaggi',icon:'👤',color:'#7ab8d4',colorDim:'#2a4a5a',subs:[],builtin:true},
+  {id:'place',name:'Luoghi',icon:'📍',color:'#8fbd7c',colorDim:'#2f4a28',subs:[],builtin:true},
+  {id:'object',name:'Oggetti',icon:'📦',color:'#d4956a',colorDim:'#4a2e18',subs:[],builtin:true},
+  {id:'event',name:'Eventi',icon:'⚡',color:'#b88fc4',colorDim:'#3a2848',subs:[],builtin:true},
 ];
-const PALETTE = ['#7ab8d4','#8fbd7c','#d4956a','#b88fc4','#e8a0a8','#a8d4b8','#d4c07a','#c4a0d4','#7ab8a8','#d4a07a','#a0b4d4','#d4b8a0'];
-let selColor = PALETTE[0];
+const PAL=['#7ab8d4','#8fbd7c','#d4956a','#b88fc4','#e8a0a8','#a8d4b8','#d4c07a','#c4a0d4','#7ab8a8','#d4a07a','#a0b4d4','#d4b8a0'];
+let selColor=PAL[0];
+let D={elements:[],arcs:[],fazioni:[],magie:[],cats:[],chapters:[],nextId:1,nextArcId:1,nextFazId:1,nextMagId:1};
+// collapsed state for sidebar sections
+let sbCollapsed={};
 
-let D = {
-  elements:[], arcs:[], cats:[], nextId:1, nextArcId:1
-};
+function loadD(){try{const s=localStorage.getItem('sw_v4');if(s)D=JSON.parse(s);}catch(e){}}
+function saveD(){try{localStorage.setItem('sw_v4',JSON.stringify(D));}catch(e){}}
 
-function loadD(){ try{ const s=localStorage.getItem('sw_v3'); if(s) D=JSON.parse(s); }catch(e){} }
-function saveD(){ try{ localStorage.setItem('sw_v3', JSON.stringify(D)); }catch(e){} }
-
-// Merge builtins with stored custom cats
-function allCats(){ return [...BUILTIN_CATS, ...(D.cats||[])]; }
-function catById(id){ return allCats().find(c=>c.id===id); }
+function allCats(){return[...BC,...(D.cats||[])];}
+function catById(id){return allCats().find(c=>c.id===id);}
 
 function seed(){
-  if(D.elements.length) return;
+  if(D.elements&&D.elements.length) return;
   D.elements=[
-    {id:1,cat:'char',sub:'',name:'Elena Marchetti',desc:'Giovane alchimista fiorentina, mente brillante e animo ribelle.',extra:{ruolo:'Protagonista',età:'24'},tags:[2,3],date:'',image:'',notes:'Pensare ad arco di redenzione.',equip:[3],changelog:[{date:'Anno 1247, Giorno 1',text:'Ruba il Codex Argentum dalla biblioteca.'},{date:'Anno 1247, Giorno 3',text:'Si rifugia nelle catacombe con il Codex.'}]},
-    {id:2,cat:'place',sub:'',name:'Catacombe di Firenze',desc:'Labirinto sotterraneo, freddo e umido. Rifugio di eretici.',extra:{regione:'Firenze'},tags:[1,4],date:'',image:'',notes:'',equip:[],changelog:[]},
+    {id:1,cat:'char',sub:'',name:'Elena Marchetti',desc:'Giovane alchimista fiorentina, mente brillante e animo ribelle.',extra:{ruolo:'Protagonista',età:'24'},tags:[2,3],date:'',image:'',notes:'Pensare ad arco di redenzione.',equip:[3],changelog:[{date:'Anno 1247, Giorno 1',text:'Ruba il Codex.'},{date:'Anno 1247, Giorno 3',text:'Si rifugia nelle catacombe.'}]},
+    {id:2,cat:'place',sub:'',name:'Catacombe di Firenze',desc:'Labirinto sotterraneo, freddo e umido.',extra:{regione:'Firenze'},tags:[1,4],date:'',image:'',notes:'',equip:[],changelog:[]},
     {id:3,cat:'object',sub:'',name:'Il Codex Argentum',desc:'Manoscritto alchemico in inchiostro d\'argento.',extra:{materiale:'Pergamena e argento'},tags:[1],date:'',image:'',notes:'Chi può leggerlo?',equip:[],changelog:[]},
     {id:4,cat:'char',sub:'',name:'Fra Tommaso',desc:'Inquisitore spietato, un tempo amico di Elena.',extra:{ruolo:'Antagonista',età:'41'},tags:[2],date:'',image:'',notes:'',equip:[],changelog:[]},
-    {id:5,cat:'event',sub:'',name:'Il Furto del Codex',desc:'Elena sottrae il Codex dalla biblioteca del convento.',extra:{},tags:[1,2,3,4],date:'Anno 1247, Giorno 1',image:'',notes:'',equip:[],changelog:[]},
+    {id:5,cat:'event',sub:'',name:'Il Furto del Codex',desc:'Elena sottrae il Codex dalla biblioteca.',extra:{},tags:[1,2,3,4],date:'Anno 1247, Giorno 1',image:'',notes:'',equip:[],changelog:[]},
     {id:6,cat:'event',sub:'',name:'Fuga nelle Catacombe',desc:'Braccata dalle guardie, Elena si rifugia sottoterra.',extra:{},tags:[1,2],date:'Anno 1247, Giorno 3',image:'',notes:'',equip:[],changelog:[]},
-    {id:7,cat:'place',sub:'',name:'Biblioteca del Convento',desc:'Sala voltata piena di manoscritti rari e proibiti.',extra:{regione:'Firenze'},tags:[3,4],date:'',image:'',notes:'',equip:[],changelog:[]},
+    {id:7,cat:'place',sub:'',name:'Biblioteca del Convento',desc:'Sala voltata piena di manoscritti rari.',extra:{regione:'Firenze'},tags:[3,4],date:'',image:'',notes:'',equip:[],changelog:[]},
   ];
   D.arcs=[
-    {id:1,name:'La Caccia all\'Eretica',desc:'Fra Tommaso insegue Elena attraverso Firenze.',phases:['Innesco','Sviluppo','Climax','Risoluzione'],currentPhase:'Sviluppo',members:[1,4,2],notes:'Punto di svolta: cap. 7.'},
+    {id:1,name:'La Caccia all\'Eretica',desc:'Fra Tommaso insegue Elena.',phases:['Innesco','Sviluppo','Climax','Risoluzione'],currentPhase:'Sviluppo',members:[1,4,2],notes:''},
     {id:2,name:'Il Segreto del Codex',desc:'Elena cerca di decifrare il Codex.',phases:['Scoperta','Ricerca','Rivelazione'],currentPhase:'Ricerca',members:[1,3,7],notes:''},
   ];
-  D.cats=[]; D.nextId=8; D.nextArcId=3;
+  D.fazioni=[
+    {id:1,name:'Ordine Nero',desc:'Fazione religiosa che controlla l\'Inquisizione e custodisce segreti proibiti.',motto:'Per la purezza eterna',members:[4],rels:[{fazId:2,type:'enemy'}],notes:''},
+    {id:2,name:'I Liberi',desc:'Rete clandestina di studiosi e alchimisti che si oppone all\'Ordine Nero.',motto:'La conoscenza non ha padroni',members:[1],rels:[{fazId:1,type:'enemy'}],notes:''},
+  ];
+  D.magie=[
+    {id:1,name:'Alchimia Argentea',desc:'Arte antichissima che trasforma la materia attraverso formule scritte in inchiostro d\'argento.',rules:['Richiede il Codex Argentum o suoi frammenti','Consuma energia vitale del praticante','Gli effetti durano solo finché il testo è leggibile'],users:[1],notes:''},
+  ];
+  D.cats=[];D.chapters=[{name:'Prologo',from:'',to:'Anno 1247, Giorno 1'},{name:'Capitolo I: La fuga',from:'Anno 1247, Giorno 1',to:'Anno 1247, Giorno 3'}];
+  D.nextId=8;D.nextArcId=3;D.nextFazId=3;D.nextMagId=2;
   saveD();
 }
 
-// ══════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════
-function byId(id){ return D.elements.find(e=>e.id===+id); }
-function arcByID(id){ return D.arcs.find(a=>a.id===+id); }
-function backlinks(id){ return D.elements.filter(e=>e.id!==+id&&(e.tags||[]).includes(+id)); }
-function arcsByMember(id){ return D.arcs.filter(a=>(a.members||[]).includes(+id)); }
-function elColor(el){ const c=catById(el.cat); return c?c.color:'#888'; }
-function elColorDim(el){ const c=catById(el.cat); return c?c.colorDim:'#333'; }
-function elIcon(el){ const c=catById(el.cat); return c?c.icon:'?'; }
-function elLabel(el){ const c=catById(el.cat); if(!c) return '?'; return el.sub?`${c.name} / ${el.sub}`:c.name; }
-
-function tagHtml(id, clickable=true){
-  const el=byId(id); if(!el) return '';
-  const col=elColor(el), dim=elColorDim(el);
+// ═══════════════════════════ UTILS ═══════════════════════════
+function byId(id){return D.elements.find(e=>e.id===+id);}
+function arcByID(id){return D.arcs.find(a=>a.id===+id);}
+function fazById(id){return(D.fazioni||[]).find(f=>f.id===+id);}
+function magById(id){return(D.magie||[]).find(m=>m.id===+id);}
+function backlinks(id){return D.elements.filter(e=>e.id!==+id&&(e.tags||[]).includes(+id));}
+function arcsByMember(id){return(D.arcs||[]).filter(a=>(a.members||[]).includes(+id));}
+function fazioniOfEl(id){return(D.fazioni||[]).filter(f=>(f.members||[]).includes(+id));}
+function magieOfEl(id){return(D.magie||[]).filter(m=>(m.users||[]).includes(+id));}
+function elColor(el){const c=catById(el.cat);return c?c.color:'#888';}
+function elColorDim(el){const c=catById(el.cat);return c?c.colorDim:'#333';}
+function elIcon(el){const c=catById(el.cat);return c?c.icon:'?';}
+function elLabel(el){const c=catById(el.cat);if(!c)return'?';return el.sub?`${c.name} / ${el.sub}`:c.name;}
+function tagHtml(id,clickable=true){
+  const el=byId(id);if(!el)return'';
   const c=clickable?`onclick="openDetail(${el.id});event.stopPropagation();"`:' ';
-  return `<span class="tag" style="background:${dim};color:${col}" ${c}>${elIcon(el)} ${el.name}</span>`;
+  return`<span class="tag" style="background:${elColorDim(el)};color:${elColor(el)}" ${c}>${elIcon(el)} ${el.name}</span>`;
 }
-function dotStyle(id){ const el=byId(id); return el?`background:${elColor(el)}`:'background:#888'; }
+function allEventDates(){return[...new Set(D.elements.filter(e=>e.cat==='event'&&e.date).map(e=>e.date))].sort();}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function showCfm(title,msg,cb){document.getElementById('cfmTitle').textContent=title;document.getElementById('cfmMsg').textContent=msg;document.getElementById('cfmBtn').onclick=()=>{closeCfm();cb();};document.getElementById('cfmOverlay').classList.add('open');}
+function closeCfm(){document.getElementById('cfmOverlay').classList.remove('open');}
 
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-function showCfm(title,msg,cb){ document.getElementById('cfmTitle').textContent=title; document.getElementById('cfmMsg').textContent=msg; document.getElementById('cfmBtn').onclick=()=>{closeCfm();cb();}; document.getElementById('cfmOverlay').classList.add('open'); }
-function closeCfm(){ document.getElementById('cfmOverlay').classList.remove('open'); }
+// ═══════════════════════════ MOBILE ═══════════════════════════
+function toggleMobSidebar(){
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay');
+  const open=sb.classList.toggle('mob-open');
+  ov.classList.toggle('mob-open',open);
+}
+function closeMobSidebar(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('sbOverlay').classList.remove('mob-open');
+}
+// Nav bottom bar on mobile
+const mainNav=document.getElementById('mainNav');
+mainNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{if(window.innerWidth<=768)mainNav.classList.remove('mob-open');}));
 
-// ══════════════════════════════════════════
-// VIEWS
-// ══════════════════════════════════════════
-let curView='world', curDetailId=null, curArcId=null, dpTab='info', arcTabSt='info', tlArcFilter=null;
+// ═══════════════════════════ VIEWS ═══════════════════════════
+let curView='world',curDetailId=null,curArcId=null,curFazId=null,curMagId=null;
+let dpTab='info',arcTabSt='info',fazTabSt='info',magTabSt='info';
+let tlArcFilter=null;
 
 function sv(v){
   curView=v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',['world','timeline','arcs','connections'][i]===v));
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',['world','timeline','fazioni','magia','arcs','connections'][i]===v));
+  if(v==='timeline')populateTlDateSelects();
   renderMain();
 }
 function renderMain(){
-  if(curView==='world') renderWorld();
-  if(curView==='timeline') renderTimeline();
-  if(curView==='arcs') renderArcs();
-  if(curView==='connections') renderConnections();
+  const m={world:renderWorld,timeline:renderTimeline,fazioni:renderFazioni,magia:renderMagia,arcs:renderArcs,connections:renderConnections};
+  if(m[curView])m[curView]();
 }
 
 // ── WORLD ──
 function renderWorld(){
   const wc=document.getElementById('worldContent');
-  // Group by category, then subcategory
   const cats=allCats().filter(c=>c.id!=='event');
   let html='';
   cats.forEach(cat=>{
     const items=D.elements.filter(e=>e.cat===cat.id);
-    if(!items.length) return;
-    // subcategories
-    const subs=['',...(cat.subs||[])];
+    if(!items.length)return;
+    const subs=['',...getCatSubs(cat.id)];
     subs.forEach(sub=>{
-      const subItems=sub?items.filter(e=>e.sub===sub):items.filter(e=>!e.sub||e.sub==='');
-      if(!subItems.length) return;
+      const si=sub?items.filter(e=>e.sub===sub):items.filter(e=>!e.sub||e.sub==='');
+      if(!si.length)return;
       const lbl=sub?`${cat.icon} ${cat.name} › ${sub}`:`${cat.icon} ${cat.name}`;
       html+=`<div class="sec-div"><span class="sec-div-lbl" style="color:${cat.color}">${lbl}</span><div class="sec-div-line"></div></div><div class="cards-grid">`;
-      subItems.forEach(el=>{
+      si.forEach(el=>{
         const tagsH=(el.tags||[]).map(t=>tagHtml(t)).join('');
-        const arcsH=arcsByMember(el.id).map(a=>`<div class="card-arc">📖 ${a.name}</div>`).join('');
+        const fazH=fazioniOfEl(el.id).map(f=>`<div class="card-badge" style="background:var(--faz-dim);color:var(--faz)">⚔ ${f.name}</div>`).join('');
+        const magH=magieOfEl(el.id).map(m=>`<div class="card-badge" style="background:var(--mag-dim);color:var(--mag)">✨ ${m.name}</div>`).join('');
+        const arcH=arcsByMember(el.id).map(a=>`<div class="card-badge" style="background:var(--arc-dim);color:var(--arc)">📖 ${a.name}</div>`).join('');
         const imgH=el.image?`<img class="card-img" src="${el.image}" alt="">`:`<div class="card-img-ph">${elIcon(el)}</div>`;
-        html+=`<div class="card" style="border-top-color:${elColor(el)};--ct:${elColor(el)}" onclick="openDetail(${el.id})">
+        html+=`<div class="card" style="border-top:2px solid ${elColor(el)}" onclick="openDetail(${el.id})">
           ${imgH}<div class="card-body">
           <div class="card-type" style="color:${elColor(el)}">${elIcon(el)} ${elLabel(el)}</div>
           <div class="card-name">${el.name}</div>
           <div class="card-desc">${el.desc||'<em style="opacity:.35">Nessuna descrizione</em>'}</div>
-          ${tagsH?`<div class="card-tags">${tagsH}</div>`:''}${arcsH}
+          ${tagsH?`<div class="card-tags">${tagsH}</div>`:''}${fazH}${magH}${arcH}
           </div></div>`;
       });
-      html+='</div><div style="margin-bottom:22px"></div>';
+      html+='</div><div style="margin-bottom:18px"></div>';
     });
   });
   wc.innerHTML=html||`<div class="empty"><div class="empty-icon">🌍</div><div class="empty-title">Il mondo è vuoto</div><div class="empty-sub">Inizia creando il primo elemento</div></div>`;
 }
 
 // ── TIMELINE ──
+function populateTlDateSelects(){
+  const dates=allEventDates();
+  ['tlFrom','tlTo'].forEach(id=>{
+    const sel=document.getElementById(id);
+    const prev=sel.value;
+    sel.innerHTML=`<option value="">${id==='tlFrom'?'Inizio':'Fine'}</option>`+dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+  });
+  // Also chapter selects
+  ['chFrom','chTo'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    const prev=sel.value;
+    sel.innerHTML=`<option value="">—</option>`+dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+  });
+  // Changelog date select
+  const clSel=document.getElementById('clDate');
+  if(clSel){clSel.innerHTML=`<option value="">Seleziona momento narrativo…</option>`+dates.map(d=>`<option value="${d}">${d}</option>`).join('');}
+}
+
 function renderTimeline(){
-  // Arc filter buttons
   const fi=document.getElementById('tlFilters');
   let fh=`<button class="tl-filter ${!tlArcFilter?'active':''}" onclick="setTlF(null)">Tutti</button>`;
-  D.arcs.forEach(a=>{ fh+=`<button class="tl-filter ${tlArcFilter===a.id?'active':''}" onclick="setTlF(${a.id})">📖 ${a.name}</button>`; });
+  (D.arcs||[]).forEach(a=>fh+=`<button class="tl-filter ${tlArcFilter===a.id?'active':''}" onclick="setTlF(${a.id})">📖 ${a.name}</button>`);
   fi.innerHTML=fh;
 
-  const track=document.getElementById('tlTrack');
   let events=D.elements.filter(e=>e.cat==='event');
+  if(tlArcFilter){const arc=arcByID(tlArcFilter);if(arc)events=events.filter(e=>(arc.members||[]).includes(e.id)||(e.tags||[]).some(t=>(arc.members||[]).includes(t)));}
 
-  // Arc filter
-  if(tlArcFilter){
-    const arc=arcByID(tlArcFilter);
-    if(arc) events=events.filter(e=>(arc.members||[]).includes(e.id)||(e.tags||[]).some(t=>(arc.members||[]).includes(t)));
-  }
+  const from=document.getElementById('tlFrom').value;
+  const to=document.getElementById('tlTo').value;
+  if(from||to) events=events.filter(e=>(!from||!e.date||e.date>=from)&&(!to||!e.date||e.date<=to));
 
-  // Date range filter
-  const from=document.getElementById('tlFrom').value.trim();
-  const to=document.getElementById('tlTo').value.trim();
-  if(from||to){
-    const allDates=[...new Set(D.elements.filter(e=>e.cat==='event'&&e.date).map(e=>e.date))].sort();
-    const fromIdx=from?allDates.findIndex(d=>d>=from):0;
-    const toIdx=to?allDates.findIndex(d=>d>to)-1:allDates.length-1;
-    const validDates=new Set(allDates.slice(fromIdx<0?0:fromIdx, toIdx<0?allDates.length:toIdx+1));
-    events=events.filter(e=>!e.date||validDates.has(e.date));
-  }
-
-  if(!events.length){
-    track.innerHTML=`<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Nessun evento${(from||to)?' in questo intervallo':''}</div><div class="empty-sub">${(from||to)?'Prova ad allargare l\'intervallo':'Crea eventi per la timeline'}</div></div>`;
-    return;
-  }
+  const track=document.getElementById('tlTrack');
+  if(!events.length){track.innerHTML=`<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Nessun evento</div><div class="empty-sub">${from||to?'Prova ad allargare l\'intervallo':'Crea eventi per la timeline'}</div></div>`;return;}
 
   const groupMode=(document.getElementById('tlGroupMode')||{}).value||'date';
   let groups={};
-
   if(groupMode==='chapter'){
-    // Assign each event to a chapter based on date ranges
-    const chapters=D.chapters||[];
+    const chs=D.chapters||[];
     events.forEach(ev=>{
       let grp='Senza capitolo';
-      if(ev.date&&chapters.length){
-        for(const ch of chapters){
-          const after=!ch.from||ev.date>=ch.from;
-          const before=!ch.to||ev.date<=ch.to;
-          if(after&&before){grp=ch.name;break;}
-        }
-      }
-      if(!groups[grp])groups[grp]=[];
-      groups[grp].push(ev);
+      if(ev.date&&chs.length)for(const ch of chs){if((!ch.from||ev.date>=ch.from)&&(!ch.to||ev.date<=ch.to)){grp=ch.name;break;}}
+      if(!groups[grp])groups[grp]=[];groups[grp].push(ev);
     });
-    // Ensure chapters appear in defined order
-    const ordered={};
-    chapters.forEach(ch=>{ if(groups[ch.name]) ordered[ch.name]=groups[ch.name]; });
-    if(groups['Senza capitolo']) ordered['Senza capitolo']=groups['Senza capitolo'];
-    groups=ordered;
+    const ord={};(D.chapters||[]).forEach(ch=>{if(groups[ch.name])ord[ch.name]=groups[ch.name];});
+    if(groups['Senza capitolo'])ord['Senza capitolo']=groups['Senza capitolo'];
+    groups=ord;
   } else if(groupMode==='date'){
-    // Group by first segment of date string
-    events.forEach(ev=>{
-      const grp=ev.date?ev.date.split(',')[0].trim():'Senza data';
-      if(!groups[grp])groups[grp]=[];
-      groups[grp].push(ev);
-    });
-  } else {
-    // No grouping
-    groups={'':events};
-  }
+    events.forEach(ev=>{const g=ev.date?ev.date.split(',')[0].trim():'Senza data';if(!groups[g])groups[g]=[];groups[g].push(ev);});
+  } else {groups={'':events};}
 
   let h='';
   Object.entries(groups).forEach(([grp,evs])=>{
-    if(grp) h+=`<div class="tl-group-lbl">${grp}</div>`;
+    if(grp)h+=`<div class="tl-group-lbl">${grp}</div>`;
     evs.forEach(ev=>{
       const col=elColor(ev)||'#888';
       const tagsH=(ev.tags||[]).map(t=>tagHtml(t)).join('');
-      const arcsH=arcsByMember(ev.id).map(a=>`<div class="tl-arc">📖 ${a.name}</div>`).join('');
+      const arcH=arcsByMember(ev.id).map(a=>`<div class="tl-badge" style="background:var(--arc-dim);color:var(--arc)">📖 ${a.name}</div>`).join('');
       h+=`<div class="tl-entry" onclick="openDetail(${ev.id})">
-        <div style="position:absolute;left:-27px;top:14px;width:8px;height:8px;border-radius:50%;background:${col};border:2px solid var(--surface)"></div>
+        <div class="tl-dot" style="background:${col}"></div>
         ${ev.date?`<div class="tl-date">📅 ${ev.date}</div>`:''}
         <div class="tl-title">${ev.name}</div>
         <div class="tl-desc">${ev.desc||''}</div>
-        ${tagsH?`<div class="tl-tags">${tagsH}</div>`:''}${arcsH}
+        ${tagsH?`<div class="tl-tags">${tagsH}</div>`:''}${arcH}
       </div>`;
     });
   });
   track.innerHTML=h;
 }
-
 function setTlF(id){tlArcFilter=id;renderTimeline();}
-function clearTlRange(){ document.getElementById('tlFrom').value=''; document.getElementById('tlTo').value=''; renderTimeline(); }
+function clearTlRange(){document.getElementById('tlFrom').value='';document.getElementById('tlTo').value='';renderTimeline();}
 
-// ── CHAPTER MANAGER ──
-function toggleChapterManager(){
-  const el=document.getElementById('chapterManager');
-  el.style.display=el.style.display==='none'?'block':'none';
-  if(el.style.display==='block') renderChapterList();
-}
-function renderChapterList(){
-  const chapters=D.chapters||[];
-  const list=document.getElementById('chapterList');
-  if(!chapters.length){list.innerHTML='<div style="color:var(--text-muted);font-size:12px;font-style:italic;margin-bottom:6px">Nessun capitolo definito. Aggiungine uno sotto.</div>';return;}
-  list.innerHTML=chapters.map((ch,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px;font-size:12px">
-      <span style="color:var(--gold);font-family:'Playfair Display',serif">${ch.name}</span>
-      ${ch.from||ch.to?`<span style="color:var(--text-muted);font-size:10px">${ch.from||'…'} → ${ch.to||'…'}</span>`:''}
-      <span style="margin-left:auto;color:var(--text-muted);font-size:10px">${(D.elements||[]).filter(e=>e.cat==='event'&&e.date&&(!ch.from||e.date>=ch.from)&&(!ch.to||e.date<=ch.to)).length} eventi</span>
-      <button onclick="moveChapter(${i},-1)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px" title="Su">↑</button>
-      <button onclick="moveChapter(${i},1)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px" title="Giù">↓</button>
-      <button onclick="deleteChapter(${i})" style="background:none;border:none;color:#c06060;cursor:pointer;font-size:12px" title="Elimina">✕</button>
-    </div>`).join('');
+// Chapter manager
+function toggleChMgr(){const el=document.getElementById('chMgr');const open=el.style.display==='none';el.style.display=open?'block':'none';if(open){populateTlDateSelects();renderChList();}}
+function renderChList(){
+  const chs=D.chapters||[];
+  const list=document.getElementById('chList');
+  if(!chs.length){list.innerHTML='<div style="color:var(--text-muted);font-size:11px;font-style:italic;margin-bottom:5px">Nessun capitolo.</div>';return;}
+  list.innerHTML=chs.map((ch,i)=>`<div class="ch-row">
+    <span style="color:var(--gold);font-family:\'Playfair Display\',serif;flex:1">${ch.name}</span>
+    ${ch.from||ch.to?`<span style="color:var(--text-muted);font-size:10px">${ch.from||'…'} → ${ch.to||'…'}</span>`:''}
+    <span style="color:var(--text-muted);font-size:10px">${(D.elements||[]).filter(e=>e.cat==='event'&&e.date&&(!ch.from||e.date>=ch.from)&&(!ch.to||e.date<=ch.to)).length} ev.</span>
+    <button onclick="moveChapter(${i},-1)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px">↑</button>
+    <button onclick="moveChapter(${i},1)" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px">↓</button>
+    <button onclick="delChapter(${i})" style="background:none;border:none;color:#c06060;cursor:pointer;font-size:12px">✕</button>
+  </div>`).join('');
 }
 function addChapter(){
-  const name=document.getElementById('newChapterName').value.trim(); if(!name) return;
-  const from=document.getElementById('newChapterFrom').value.trim();
-  const to=document.getElementById('newChapterTo').value.trim();
-  if(!D.chapters) D.chapters=[];
+  const name=document.getElementById('chName').value.trim();if(!name)return;
+  const from=document.getElementById('chFrom').value;
+  const to=document.getElementById('chTo').value;
+  if(!D.chapters)D.chapters=[];
   D.chapters.push({name,from,to});
-  document.getElementById('newChapterName').value='';
-  document.getElementById('newChapterFrom').value='';
-  document.getElementById('newChapterTo').value='';
-  saveD(); renderChapterList(); renderTimeline(); toast('Capitolo aggiunto');
+  document.getElementById('chName').value='';
+  saveD();renderChList();renderTimeline();toast('Capitolo aggiunto');
 }
-function deleteChapter(i){ D.chapters.splice(i,1); saveD(); renderChapterList(); renderTimeline(); }
-function moveChapter(i,dir){
-  const j=i+dir; if(j<0||j>=D.chapters.length) return;
-  [D.chapters[i],D.chapters[j]]=[D.chapters[j],D.chapters[i]];
-  saveD(); renderChapterList(); renderTimeline();
+function delChapter(i){D.chapters.splice(i,1);saveD();renderChList();renderTimeline();}
+function moveChapter(i,dir){const j=i+dir;if(j<0||j>=D.chapters.length)return;[D.chapters[i],D.chapters[j]]=[D.chapters[j],D.chapters[i]];saveD();renderChList();renderTimeline();}
+
+// ── FAZIONI ──
+function renderFazioni(){
+  const grid=document.getElementById('fazGrid');
+  if(!(D.fazioni||[]).length){grid.innerHTML=`<div class="empty"><div class="empty-icon">⚔</div><div class="empty-title">Nessuna fazione</div><div class="empty-sub">Crea fazioni per strutturare la politica del tuo mondo</div></div>`;return;}
+  let h='';
+  D.fazioni.forEach(f=>{
+    const memCount=(f.members||[]).length;
+    const mems=(f.members||[]).slice(0,3).map(id=>tagHtml(id)).join('');
+    const moreMems=memCount>3?`<span style="font-size:10px;color:var(--text-muted);font-style:italic">+${memCount-3} altri</span>`:'';
+    h+=`<div class="faz-card" onclick="openFazDetail(${f.id})">
+      <div class="faz-lbl">⚔ Fazione${f.motto?` · "${f.motto}"`:''}</div>
+      <div class="faz-name">${f.name}</div>
+      <div class="faz-desc">${f.desc||''}</div>
+      ${mems?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px">${mems}${moreMems}</div>`:''}
+      <div class="faz-footer">
+        <span class="faz-count">${memCount} membro${memCount!==1?'i':''}</span>
+        <span style="font-size:10px;color:var(--text-muted)">${(f.rels||[]).length} relazion${(f.rels||[]).length!==1?'i':'e'}</span>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML=h;
+}
+
+// ── MAGIA ──
+function renderMagia(){
+  const grid=document.getElementById('magGrid');
+  if(!(D.magie||[]).length){grid.innerHTML=`<div class="empty"><div class="empty-icon">✨</div><div class="empty-title">Nessun sistema di magia</div><div class="empty-sub">Definisci i sistemi magici del tuo mondo</div></div>`;return;}
+  let h='';
+  D.magie.forEach(m=>{
+    const rules=(m.rules||[]).filter(Boolean);
+    const users=(m.users||[]).slice(0,3).map(id=>tagHtml(id)).join('');
+    h+=`<div class="mag-card" onclick="openMagDetail(${m.id})">
+      <div class="mag-lbl">✨ Sistema di Magia</div>
+      <div class="mag-name">${m.name}</div>
+      <div class="mag-desc">${m.desc||''}</div>
+      ${rules.length?`<div class="mag-rules">${rules.slice(0,3).map(r=>`<span class="mag-rule-chip">⚠ ${r}</span>`).join('')}${rules.length>3?`<span class="mag-rule-chip">+${rules.length-3}</span>`:''}</div>`:''}
+      ${users?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px">${users}</div>`:''}
+    </div>`;
+  });
+  grid.innerHTML=h;
 }
 
 // ── ARCHI ──
 function renderArcs(){
   const grid=document.getElementById('arcsGrid');
-  if(!D.arcs.length){grid.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">Nessun arco narrativo</div><div class="empty-sub">Crea archi per strutturare i fili narrativi</div></div>`;return;}
+  if(!(D.arcs||[]).length){grid.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">Nessun arco narrativo</div><div class="empty-sub">Crea archi per strutturare i fili narrativi</div></div>`;return;}
   let h='';
   D.arcs.forEach(arc=>{
-    const ph=arc.phases||[], ci=ph.indexOf(arc.currentPhase);
+    const ph=arc.phases||[],ci=ph.indexOf(arc.currentPhase);
     const bar=ph.length?`<div class="arc-bar">${ph.map((p,i)=>`<div class="arc-ph ${i<=ci?'filled':''}" title="${p}"></div>`).join('')}</div>`:'';
     const mems=(arc.members||[]).map(id=>tagHtml(id)).join('');
     h+=`<div class="arc-card" onclick="openArcDetail(${arc.id})">
@@ -848,442 +1026,456 @@ function renderArcs(){
   grid.innerHTML=h;
 }
 
-// ── CONNECTIONS (node-based) ──
+// ── CONNECTIONS ──
 function renderConnections(){
-  // Populate filter
   const cf=document.getElementById('connFilter');
-  const prevVal=cf.value;
-  cf.innerHTML=`<option value="">Tutti gli elementi</option>`;
-  D.elements.forEach(el=>{ cf.innerHTML+=`<option value="${el.id}" ${prevVal==el.id?'selected':''}>${elIcon(el)} ${el.name}</option>`; });
-
+  const prev=cf.value;
+  cf.innerHTML=`<option value="">Tutti</option>`;
+  D.elements.forEach(el=>cf.innerHTML+=`<option value="${el.id}" ${prev==el.id?'selected':''}>${elIcon(el)} ${el.name}</option>`);
   const view=document.getElementById('connView');
-  const filterEl=cf.value?+cf.value:null;
+  const fEl=cf.value?+cf.value:null;
   let nodes=D.elements.filter(el=>{
-    if(filterEl) return el.id===filterEl||(el.tags||[]).includes(filterEl)||backlinks(filterEl).some(b=>b.id===el.id);
-    return (el.tags||[]).length>0||backlinks(el.id).length>0;
+    if(fEl)return el.id===fEl||(el.tags||[]).includes(fEl)||backlinks(fEl).some(b=>b.id===el.id);
+    return(el.tags||[]).length>0||backlinks(el.id).length>0;
   });
-  if(!nodes.length){view.innerHTML=`<div class="empty"><div class="empty-icon">🕸</div><div class="empty-title">Nessuna connessione</div><div class="empty-sub">Usa i tag per collegare gli elementi tra loro</div></div>`;return;}
-
+  if(!nodes.length){view.innerHTML=`<div class="empty"><div class="empty-icon">🕸</div><div class="empty-title">Nessuna connessione</div><div class="empty-sub">Usa i tag per collegare gli elementi</div></div>`;return;}
   let h='';
   nodes.forEach(el=>{
     const col=elColor(el);
     const out=(el.tags||[]).map(t=>byId(t)).filter(Boolean);
     const inc=backlinks(el.id);
-    if(!out.length&&!inc.length) return;
-    const total=out.length+inc.length;
+    if(!out.length&&!inc.length)return;
+    const tot=out.length+inc.length;
     h+=`<div class="conn-node">
       <div class="conn-node-hd" onclick="openDetail(${el.id})">
         <span class="conn-node-dot" style="background:${col}"></span>
         <span class="conn-node-name">${el.name}</span>
         <span class="conn-node-type">${elLabel(el)}</span>
-        <span class="conn-node-count">${total} connessione${total!==1?'i':''}</span>
+        <span class="conn-node-count">${tot}</span>
       </div>
       <div class="conn-rows">
-        ${out.map(t=>`<div class="conn-row" onclick="openDetail(${t.id})">
-          <span class="conn-dir out">→ cita</span>
-          <span style="width:7px;height:7px;border-radius:50%;background:${elColor(t)};display:inline-block;flex-shrink:0"></span>
-          <span class="conn-rname">${t.name}</span>
-          <span class="conn-rtype">${elLabel(t)}</span>
-        </div>`).join('')}
-        ${inc.map(b=>`<div class="conn-row" onclick="openDetail(${b.id})">
-          <span class="conn-dir in">← citato da</span>
-          <span style="width:7px;height:7px;border-radius:50%;background:${elColor(b)};display:inline-block;flex-shrink:0"></span>
-          <span class="conn-rname">${b.name}</span>
-          <span class="conn-rtype">${elLabel(b)}</span>
-        </div>`).join('')}
+        ${out.map(t=>`<div class="conn-row" onclick="openDetail(${t.id})"><span class="conn-dir out">→ cita</span><span style="width:6px;height:6px;border-radius:50%;background:${elColor(t)};display:inline-block;flex-shrink:0"></span><span class="conn-rname">${t.name}</span><span class="conn-rtype">${elLabel(t)}</span></div>`).join('')}
+        ${inc.map(b=>`<div class="conn-row" onclick="openDetail(${b.id})"><span class="conn-dir in">← da</span><span style="width:6px;height:6px;border-radius:50%;background:${elColor(b)};display:inline-block;flex-shrink:0"></span><span class="conn-rname">${b.name}</span><span class="conn-rtype">${elLabel(b)}</span></div>`).join('')}
       </div>
     </div>`;
   });
   view.innerHTML=h||`<div class="empty"><div class="empty-icon">🕸</div><div class="empty-title">Nessuna connessione trovata</div></div>`;
 }
 
-// ── SIDEBAR ──
+// ── SIDEBAR (collapsible tree) ──
+function toggleSbSection(id){
+  sbCollapsed[id]=!sbCollapsed[id];
+  renderSidebar();
+}
 function renderSidebar(){
   const q=document.getElementById('sbSearch').value.toLowerCase();
   let h='';
   allCats().forEach(cat=>{
     const items=D.elements.filter(e=>e.cat===cat.id&&(!q||e.name.toLowerCase().includes(q)));
-    if(!items.length&&q) return;
+    if(!items.length&&q)return;
+    const collapsed=!q&&sbCollapsed[cat.id];
+    const ch=collapsed?'▶':'▼';
+    const subs=getCatSubs(cat.id);
     h+=`<div class="sb-sec">
-      <div class="sb-sec-hd">
-        <span class="sb-sec-lbl"><span class="dot" style="background:${cat.color}"></span>${cat.name}</span>
-        <div class="sb-sec-actions"><button class="sb-btn" onclick="event.stopPropagation();openNewModal('${cat.id}')">+</button></div>
+      <div class="sb-sec-hd" onclick="toggleSbSection('${cat.id}')">
+        <span class="sb-chevron ${collapsed?'':'open'}">${ch}</span>
+        <span class="sb-sec-lbl"><span class="dot" style="background:${cat.color}"></span>${cat.name} <span style="opacity:.5;margin-left:2px">${items.length}</span></span>
+        <div class="sb-sec-actions" onclick="event.stopPropagation()">
+          <button class="sb-btn" onclick="openNewModal('${cat.id}')" title="Aggiungi">+</button>
+        </div>
       </div>
-      <div class="sb-items">
-        ${items.map(el=>{
-          const thumb=el.image?`<img class="sb-thumb" src="${el.image}" alt="">`:`<span style="font-size:11px;opacity:.5">${elIcon(el)}</span>`;
-          const subLbl=el.sub?`<span style="font-size:9px;color:var(--text-muted);font-style:italic"> · ${el.sub}</span>`:'';
-          return `<div class="sb-item ${curDetailId===el.id?'active':''}" onclick="openDetail(${el.id})">${thumb}${el.name}${subLbl}</div>`;
-        }).join('')}
-        ${!items.length?`<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>`:''}
-      </div>
-    </div>`;
+      <div class="sb-children ${collapsed?'collapsed':''}" style="max-height:${collapsed?'0':'2000px'}">
+        <div class="sb-items">`;
+    // Group by subcategory in sidebar too
+    const allSubs=['',...subs];
+    allSubs.forEach(sub=>{
+      const si=sub?items.filter(e=>e.sub===sub):items.filter(e=>!e.sub||e.sub==='');
+      if(!si.length)return;
+      if(sub)h+=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:5px 7px 2px 14px">${sub}</div>`;
+      si.forEach(el=>{
+        const thumb=el.image?`<img class="sb-thumb" src="${el.image}" alt="">`:`<span style="font-size:11px;opacity:.45">${elIcon(el)}</span>`;
+        h+=`<div class="sb-item ${sub?'sb-item-sub':''} ${curDetailId===el.id?'active':''}" onclick="openDetail(${el.id});closeMobSidebar()">${thumb}${el.name}</div>`;
+      });
+    });
+    h+=`</div></div></div>`;
   });
-  // Archi
-  const arcs=D.arcs.filter(a=>!q||a.name.toLowerCase().includes(q));
-  if(arcs.length||!q){
-    h+=`<div class="sb-sec">
-      <div class="sb-sec-hd">
-        <span class="sb-sec-lbl"><span class="dot" style="background:var(--arc)"></span>Archi</span>
-        <div class="sb-sec-actions"><button class="sb-btn" onclick="event.stopPropagation();openArcModal()">+</button></div>
-      </div>
+  // Fazioni
+  const fazItems=(D.fazioni||[]).filter(f=>!q||f.name.toLowerCase().includes(q));
+  if(fazItems.length||!q){
+    const col=!q&&sbCollapsed['__faz'];
+    h+=`<div class="sb-sec"><div class="sb-sec-hd" onclick="toggleSbSection('__faz')">
+      <span class="sb-chevron ${col?'':'open'}">${col?'▶':'▼'}</span>
+      <span class="sb-sec-lbl"><span class="dot" style="background:var(--faz)"></span>Fazioni <span style="opacity:.5;margin-left:2px">${fazItems.length}</span></span>
+      <div class="sb-sec-actions" onclick="event.stopPropagation()"><button class="sb-btn" onclick="openFazModal()">+</button></div>
+    </div>
+    <div class="sb-children ${col?'collapsed':''}" style="max-height:${col?'0':'2000px'}">
       <div class="sb-items">
-        ${arcs.map(a=>`<div class="sb-item ${curArcId===a.id?'active':''}" onclick="openArcDetail(${a.id})"><span style="font-size:11px;opacity:.5">📖</span>${a.name}</div>`).join('')}
-        ${!arcs.length?`<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>`:''}
+        ${fazItems.map(f=>`<div class="sb-item ${curFazId===f.id?'active':''}" onclick="openFazDetail(${f.id});closeMobSidebar()"><span style="font-size:11px;opacity:.45">⚔</span>${f.name}</div>`).join('')}
+        ${!fazItems.length?'<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuna</div>':''}
       </div>
-    </div>`;
+    </div></div>`;
+  }
+  // Magie
+  const magItems=(D.magie||[]).filter(m=>!q||m.name.toLowerCase().includes(q));
+  if(magItems.length||!q){
+    const col=!q&&sbCollapsed['__mag'];
+    h+=`<div class="sb-sec"><div class="sb-sec-hd" onclick="toggleSbSection('__mag')">
+      <span class="sb-chevron ${col?'':'open'}">${col?'▶':'▼'}</span>
+      <span class="sb-sec-lbl"><span class="dot" style="background:var(--mag)"></span>Magia <span style="opacity:.5;margin-left:2px">${magItems.length}</span></span>
+      <div class="sb-sec-actions" onclick="event.stopPropagation()"><button class="sb-btn" onclick="openMagModal()">+</button></div>
+    </div>
+    <div class="sb-children ${col?'collapsed':''}" style="max-height:${col?'0':'2000px'}">
+      <div class="sb-items">
+        ${magItems.map(m=>`<div class="sb-item ${curMagId===m.id?'active':''}" onclick="openMagDetail(${m.id});closeMobSidebar()"><span style="font-size:11px;opacity:.45">✨</span>${m.name}</div>`).join('')}
+        ${!magItems.length?'<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>':''}
+      </div>
+    </div></div>`;
+  }
+  // Archi
+  const arcItems=(D.arcs||[]).filter(a=>!q||a.name.toLowerCase().includes(q));
+  if(arcItems.length||!q){
+    const col=!q&&sbCollapsed['__arc'];
+    h+=`<div class="sb-sec"><div class="sb-sec-hd" onclick="toggleSbSection('__arc')">
+      <span class="sb-chevron ${col?'':'open'}">${col?'▶':'▼'}</span>
+      <span class="sb-sec-lbl"><span class="dot" style="background:var(--arc)"></span>Archi <span style="opacity:.5;margin-left:2px">${arcItems.length}</span></span>
+      <div class="sb-sec-actions" onclick="event.stopPropagation()"><button class="sb-btn" onclick="openArcModal()">+</button></div>
+    </div>
+    <div class="sb-children ${col?'collapsed':''}" style="max-height:${col?'0':'2000px'}">
+      <div class="sb-items">
+        ${arcItems.map(a=>`<div class="sb-item ${curArcId===a.id?'active':''}" onclick="openArcDetail(${a.id});closeMobSidebar()"><span style="font-size:11px;opacity:.45">📖</span>${a.name}</div>`).join('')}
+        ${!arcItems.length?'<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>':''}
+      </div>
+    </div></div>`;
   }
   document.getElementById('sbList').innerHTML=h;
 }
 
-// ══════════════════════════════════════════
-// DETAIL PANEL — ELEMENTI
-// ══════════════════════════════════════════
+// ═══════════════════════════ DETAIL — ELEMENTI ═══════════════════════════
 function openDetail(id){
-  const el=byId(id); if(!el) return;
-  curDetailId=id; curArcId=null;
-  document.getElementById('dpPanel').classList.remove('hidden');
-  document.getElementById('arcPanel').classList.add('hidden');
+  const el=byId(id);if(!el)return;
+  curDetailId=id;curArcId=null;curFazId=null;curMagId=null;
+  const panel=document.getElementById('dpPanel');
+  panel.classList.remove('hidden');
+  if(window.innerWidth<=768)panel.classList.add('mob-open');
+  ['arcPanel','fazPanel','magPanel'].forEach(p=>document.getElementById(p).classList.add('hidden'));
   switchDpTab(dpTab);
-
-  const cat=catById(el.cat);
   const col=elColor(el);
   document.getElementById('dpType').textContent=`${elIcon(el)} ${elLabel(el)}`;
   document.getElementById('dpType').style.color=col;
   document.getElementById('dpName').textContent=el.name;
   document.getElementById('dpSub').textContent=el.sub||'';
-
   const dpImg=document.getElementById('dpImg');
-  if(el.image){dpImg.src=el.image;dpImg.style.display='block';}else{dpImg.style.display='none';}
-
+  if(el.image){dpImg.src=el.image;dpImg.style.display='block';}else dpImg.style.display='none';
   document.getElementById('dpDesc').innerHTML=el.desc?`<div class="dp-lbl">Descrizione</div><div class="dp-txt">${el.desc}</div>`:'';
-
-  const ex=el.extra||{}, ks=Object.keys(ex).filter(k=>ex[k]);
+  const ex=el.extra||{},ks=Object.keys(ex).filter(k=>ex[k]);
   let exH='';
-  if(el.date) exH=`<div class="dp-lbl">Data</div><div class="dp-txt">📅 ${el.date}</div>`;
-  else if(ks.length) exH=`<div style="display:flex;flex-direction:column;gap:8px">${ks.map(k=>`<div><div class="dp-lbl">${k}</div><div class="dp-txt">${ex[k]}</div></div>`).join('')}</div>`;
+  if(el.date)exH=`<div class="dp-lbl">Data</div><div class="dp-txt">📅 ${el.date}</div>`;
+  else if(ks.length)exH=`<div style="display:flex;flex-direction:column;gap:7px">${ks.map(k=>`<div><div class="dp-lbl">${k}</div><div class="dp-txt">${ex[k]}</div></div>`).join('')}</div>`;
   document.getElementById('dpExtra').innerHTML=exH;
-
-  document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
-
+  document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:11px">Nessun tag</span>';
+  // Fazioni
+  const elFaz=fazioniOfEl(id);
+  const fazSec=document.getElementById('dpFazSec');
+  if(elFaz.length){fazSec.style.display='';document.getElementById('dpFazList').innerHTML=elFaz.map(f=>`<span class="tag" style="background:var(--faz-dim);color:var(--faz)" onclick="openFazDetail(${f.id});event.stopPropagation()">⚔ ${f.name}</span>`).join('');}
+  else fazSec.style.display='none';
+  // Magie
+  const elMag=magieOfEl(id);
+  const magSec=document.getElementById('dpMagSec');
+  if(elMag.length){magSec.style.display='';document.getElementById('dpMagList').innerHTML=elMag.map(m=>`<span class="tag" style="background:var(--mag-dim);color:var(--mag)" onclick="openMagDetail(${m.id});event.stopPropagation()">✨ ${m.name}</span>`).join('');}
+  else magSec.style.display='none';
+  // Archi
   const elArcs=arcsByMember(id);
-  const arcsSection=document.getElementById('dpArcsSection');
-  if(elArcs.length){arcsSection.style.display='';document.getElementById('dpArcsList').innerHTML=elArcs.map(a=>`<span class="tag" style="background:var(--arc-dim);color:var(--arc)" onclick="openArcDetail(${a.id});event.stopPropagation()">📖 ${a.name}</span>`).join('');}
-  else arcsSection.style.display='none';
-
+  const arcSec=document.getElementById('dpArcsSec');
+  if(elArcs.length){arcSec.style.display='';document.getElementById('dpArcsList').innerHTML=elArcs.map(a=>`<span class="tag" style="background:var(--arc-dim);color:var(--arc)" onclick="openArcDetail(${a.id});event.stopPropagation()">📖 ${a.name}</span>`).join('');}
+  else arcSec.style.display='none';
+  // Backlinks
   const bls=backlinks(id);
-  document.getElementById('dpBacklinks').innerHTML=bls.length
-    ?bls.map(b=>`<div class="bl-item" onclick="openDetail(${b.id})"><span class="bl-dot" style="${dotStyle(b.id)}"></span><span class="bl-name">${b.name}</span><span class="bl-type">${elLabel(b)}</span></div>`).join('')
-    :'<div style="color:var(--text-muted);font-style:italic;font-size:12px">Non citato altrove</div>';
-
-  // Equipment (only for non-events)
+  document.getElementById('dpBacklinks').innerHTML=bls.length?bls.map(b=>`<div class="bl-item" onclick="openDetail(${b.id})"><span class="bl-dot" style="background:${elColor(b)}"></span><span class="bl-name">${b.name}</span><span class="bl-type">${elLabel(b)}</span></div>`).join(''):'<div style="color:var(--text-muted);font-style:italic;font-size:11px">Non citato altrove</div>';
+  // Equipment
   renderEquipList(el);
-  const equipTab=document.querySelector('#dpTabsBar .dp-tab:nth-child(2)');
-  if(cat&&cat.id==='event'){equipTab.style.display='none';}else{equipTab.style.display='';}
-
+  const eqTab=document.querySelector('#dpTabsBar .dp-tab:nth-child(2)');
+  if(eqTab)eqTab.style.display=el.cat==='event'?'none':'';
   // Changelog
   renderChangelog(el);
-
+  populateTlDateSelects();
   document.getElementById('dpNotes').value=el.notes||'';
   renderSidebar();
 }
-
-function closeDetail(){ document.getElementById('dpPanel').classList.add('hidden'); curDetailId=null; renderSidebar(); }
-
+function closeDetail(){
+  const p=document.getElementById('dpPanel');
+  p.classList.add('hidden');p.classList.remove('mob-open');
+  curDetailId=null;renderSidebar();
+}
 function switchDpTab(tab){
   dpTab=tab;
   const tabs=['info','equip','changelog','notes'];
   document.querySelectorAll('#dpPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
-  tabs.forEach(t=>{ const el=document.getElementById('dtab-'+t); if(el) el.classList.toggle('active',t===tab); });
+  tabs.forEach(t=>{const el=document.getElementById('dtab-'+t);if(el)el.classList.toggle('active',t===tab);});
 }
-
-function saveNotes(){ if(!curDetailId) return; const el=byId(curDetailId); if(!el) return; el.notes=document.getElementById('dpNotes').value; saveD(); }
+function saveNotes(){if(!curDetailId)return;const el=byId(curDetailId);if(!el)return;el.notes=document.getElementById('dpNotes').value;saveD();}
 
 // Equipment
 function renderEquipList(el){
   const list=document.getElementById('dpEquipList');
-  const equip=(el.equip||[]).map(id=>byId(id)).filter(Boolean);
-  if(!equip.length){list.innerHTML='<div style="color:var(--text-muted);font-size:12px;font-style:italic">Nessun oggetto</div>';return;}
-  list.innerHTML=equip.map(obj=>`<div class="equip-item">
-    <span style="font-size:13px">${elIcon(obj)}</span>
-    <span class="equip-name" onclick="openDetail(${obj.id})">${obj.name}</span>
-    <span class="equip-type">${elLabel(obj)}</span>
-    <button class="equip-remove" onclick="removeEquip(${obj.id})">✕</button>
-  </div>`).join('');
+  const eq=(el.equip||[]).map(id=>byId(id)).filter(Boolean);
+  if(!eq.length){list.innerHTML='<div style="color:var(--text-muted);font-size:11px;font-style:italic">Nessun oggetto</div>';return;}
+  list.innerHTML=eq.map(obj=>`<div class="equip-item"><span>${elIcon(obj)}</span><span class="equip-name" onclick="openDetail(${obj.id})">${obj.name}</span><span class="equip-type">${elLabel(obj)}</span><button class="equip-remove" onclick="removeEquip(${obj.id})">✕</button></div>`).join('');
 }
-function showEquipDropdown(){
+function showEquipDrop(){
   const q=document.getElementById('equipInput').value.toLowerCase();
-  const dd=document.getElementById('equipDropdown');
+  const dd=document.getElementById('equipDrop');
   if(!q){dd.classList.remove('open');return;}
-  const el=byId(curDetailId); if(!el) return;
+  const el=byId(curDetailId);if(!el)return;
   const cands=D.elements.filter(e=>e.id!==curDetailId&&!(el.equip||[]).includes(e.id)&&e.name.toLowerCase().includes(q));
   if(!cands.length){dd.classList.remove('open');return;}
   dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addEquip(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${elLabel(e)}</span></div>`).join('');
   dd.classList.add('open');
 }
-function addEquip(id){
-  const el=byId(curDetailId); if(!el) return;
-  if(!el.equip) el.equip=[];
-  if(!el.equip.includes(id)) el.equip.push(id);
-  saveD(); document.getElementById('equipInput').value=''; document.getElementById('equipDropdown').classList.remove('open');
-  renderEquipList(el); toast('Oggetto aggiunto all\'equipaggiamento');
-}
-function removeEquip(id){
-  const el=byId(curDetailId); if(!el) return;
-  el.equip=(el.equip||[]).filter(e=>e!==id);
-  saveD(); renderEquipList(el);
-}
-function equipKeydown(e){ if(e.key==='Escape') document.getElementById('equipDropdown').classList.remove('open'); }
+function addEquip(id){const el=byId(curDetailId);if(!el)return;if(!el.equip)el.equip=[];if(!el.equip.includes(id))el.equip.push(id);saveD();document.getElementById('equipInput').value='';document.getElementById('equipDrop').classList.remove('open');renderEquipList(el);toast('Oggetto aggiunto');}
+function removeEquip(id){const el=byId(curDetailId);if(!el)return;el.equip=(el.equip||[]).filter(e=>e!==id);saveD();renderEquipList(el);}
 
 // Changelog
 function renderChangelog(el){
   const list=document.getElementById('dpChangelog');
   const cl=el.changelog||[];
-  if(!cl.length){list.innerHTML='<div style="color:var(--text-muted);font-size:12px;font-style:italic;padding:4px 0">Nessuna voce di storico</div>';return;}
+  if(!cl.length){list.innerHTML='<div style="color:var(--text-muted);font-size:11px;font-style:italic;padding:3px 0">Nessuna voce</div>';return;}
   list.innerHTML=cl.slice().reverse().map((e,i)=>`<div class="cl-entry">
-    <div class="cl-date">📅 ${e.date||'Momento non specificato'} <button onclick="removeChangelog(${cl.length-1-i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;opacity:.5;float:right" title="Rimuovi">✕</button></div>
+    <div class="cl-date"><span>📅 ${e.date||'Momento non specificato'}</span><button onclick="removeChangelog(${cl.length-1-i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;opacity:.5">✕</button></div>
     <div class="cl-text">${e.text}</div>
   </div>`).join('');
 }
 function addChangelog(){
-  if(!curDetailId) return;
-  const el=byId(curDetailId); if(!el) return;
-  const date=document.getElementById('clDate').value.trim();
+  if(!curDetailId)return;const el=byId(curDetailId);if(!el)return;
+  const selDate=document.getElementById('clDate').value;
+  const customDate=document.getElementById('clDateCustom').value.trim();
+  const date=customDate||selDate;
   const text=document.getElementById('clText').value.trim();
-  if(!text) return;
-  if(!el.changelog) el.changelog=[];
-  el.changelog.push({date, text});
-  saveD(); renderChangelog(el);
-  document.getElementById('clDate').value=''; document.getElementById('clText').value='';
+  if(!text)return;
+  if(!el.changelog)el.changelog=[];
+  el.changelog.push({date,text});
+  saveD();renderChangelog(el);
+  document.getElementById('clDate').value='';document.getElementById('clDateCustom').value='';document.getElementById('clText').value='';
   toast('Voce aggiunta allo storico');
 }
-function removeChangelog(idx){
-  const el=byId(curDetailId); if(!el) return;
-  el.changelog.splice(idx,1); saveD(); renderChangelog(el);
-}
+function removeChangelog(idx){const el=byId(curDetailId);if(!el)return;el.changelog.splice(idx,1);saveD();renderChangelog(el);}
 
-// ══════════════════════════════════════════
-// DETAIL PANEL — ARCHI
-// ══════════════════════════════════════════
+// ═══════════════════════════ DETAIL — FAZIONI ═══════════════════════════
+function openFazDetail(id){
+  const f=fazById(id);if(!f)return;
+  curFazId=id;curDetailId=null;curArcId=null;curMagId=null;
+  const panel=document.getElementById('fazPanel');
+  panel.classList.remove('hidden');
+  if(window.innerWidth<=768)panel.classList.add('mob-open');
+  ['dpPanel','arcPanel','magPanel'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+  switchFazTab(fazTabSt);
+  document.getElementById('fdpName').textContent=f.name;
+  document.getElementById('fdpDesc').innerHTML=f.desc?`<div class="dp-lbl">Descrizione${f.motto?` · <em style="color:var(--gold)">"${f.motto}"</em>`:''}</div><div class="dp-txt">${f.desc}</div>`:'';
+  document.getElementById('fdpMembers').innerHTML=(f.members||[]).map(id=>tagHtml(id)).join('')||'<span style="color:var(--text-muted);font-size:11px;font-style:italic">Nessun membro</span>';
+  // Relations
+  const rels=f.rels||[];
+  if(rels.length){
+    const relTypeLabel={ally:'Alleata',enemy:'Nemica',neutral:'Neutrale'};
+    const relClass={ally:'faz-rel-ally',enemy:'faz-rel-enemy',neutral:'faz-rel-neutral'};
+    document.getElementById('fdpRels').innerHTML=rels.map(r=>{const other=fazById(r.fazId);if(!other)return '';return`<div class="faz-rel-row"><span class="faz-rel-type ${relClass[r.type]}">${relTypeLabel[r.type]}</span><span style="flex:1;color:var(--text);cursor:pointer" onclick="openFazDetail(${other.id})">${other.name}</span></div>`;}).join('');
+  }else document.getElementById('fdpRels').innerHTML='<span style="color:var(--text-muted);font-size:11px;font-style:italic">Nessuna relazione definita</span>';
+  document.getElementById('fdpNotes').value=f.notes||'';
+  renderSidebar();
+}
+function closeFazDetail(){const p=document.getElementById('fazPanel');p.classList.add('hidden');p.classList.remove('mob-open');curFazId=null;renderSidebar();}
+function switchFazTab(tab){fazTabSt=tab;document.querySelectorAll('#fazPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));document.getElementById('faztab-info').classList.toggle('active',tab==='info');document.getElementById('faztab-notes').classList.toggle('active',tab==='notes');}
+function saveFazNotes(){if(!curFazId)return;const f=fazById(curFazId);if(!f)return;f.notes=document.getElementById('fdpNotes').value;saveD();}
+
+// ═══════════════════════════ DETAIL — MAGIA ═══════════════════════════
+function openMagDetail(id){
+  const m=magById(id);if(!m)return;
+  curMagId=id;curDetailId=null;curArcId=null;curFazId=null;
+  const panel=document.getElementById('magPanel');
+  panel.classList.remove('hidden');
+  if(window.innerWidth<=768)panel.classList.add('mob-open');
+  ['dpPanel','arcPanel','fazPanel'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+  switchMagTab(magTabSt);
+  document.getElementById('mdpName').textContent=m.name;
+  document.getElementById('mdpDesc').innerHTML=m.desc?`<div class="dp-lbl">Descrizione</div><div class="dp-txt">${m.desc}</div>`:'';
+  const rules=(m.rules||[]).filter(Boolean);
+  document.getElementById('mdpRules').innerHTML=rules.length?`<div class="dp-lbl">Regole e limitazioni</div><div style="display:flex;flex-direction:column;gap:5px">${rules.map(r=>`<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text-dim)"><span style="color:var(--mag);flex-shrink:0">⚠</span>${r}</div>`).join('')}</div>`:'';
+  document.getElementById('mdpUsers').innerHTML=(m.users||[]).map(id=>tagHtml(id)).join('')||'<span style="color:var(--text-muted);font-size:11px;font-style:italic">Nessun utilizzatore</span>';
+  document.getElementById('mdpNotes').value=m.notes||'';
+  renderSidebar();
+}
+function closeMagDetail(){const p=document.getElementById('magPanel');p.classList.add('hidden');p.classList.remove('mob-open');curMagId=null;renderSidebar();}
+function switchMagTab(tab){magTabSt=tab;document.querySelectorAll('#magPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));document.getElementById('magtab-info').classList.toggle('active',tab==='info');document.getElementById('magtab-notes').classList.toggle('active',tab==='notes');}
+function saveMagNotes(){if(!curMagId)return;const m=magById(curMagId);if(!m)return;m.notes=document.getElementById('mdpNotes').value;saveD();}
+
+// ═══════════════════════════ DETAIL — ARCHI ═══════════════════════════
 function openArcDetail(id){
-  const arc=arcByID(id); if(!arc) return;
-  curArcId=id; curDetailId=null;
-  document.getElementById('arcPanel').classList.remove('hidden');
-  document.getElementById('dpPanel').classList.add('hidden');
+  const arc=arcByID(id);if(!arc)return;
+  curArcId=id;curDetailId=null;curFazId=null;curMagId=null;
+  const panel=document.getElementById('arcPanel');
+  panel.classList.remove('hidden');
+  if(window.innerWidth<=768)panel.classList.add('mob-open');
+  ['dpPanel','fazPanel','magPanel'].forEach(p=>document.getElementById(p).classList.add('hidden'));
   switchArcTab(arcTabSt);
   document.getElementById('adpName').textContent=arc.name;
   document.getElementById('adpDesc').innerHTML=arc.desc?`<div class="dp-lbl">Descrizione</div><div class="dp-txt">${arc.desc}</div>`:'';
-  const ph=arc.phases||[], ci=ph.indexOf(arc.currentPhase);
-  if(ph.length){
-    document.getElementById('adpPhases').innerHTML=`<div class="dp-lbl">Fasi</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">${ph.map((p,i)=>`<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:${i<=ci?'var(--arc-dim)':'var(--surface3)'};color:${i<=ci?'var(--arc)':'var(--text-muted)'}${p===arc.currentPhase?';outline:1px solid var(--arc)':''}">${p===arc.currentPhase?'▶ ':''}${p}</span>`).join('')}</div>`;
-  } else document.getElementById('adpPhases').innerHTML='';
-  document.getElementById('adpMembers').innerHTML=(arc.members||[]).map(id=>tagHtml(id)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun elemento</span>';
+  const ph=arc.phases||[],ci=ph.indexOf(arc.currentPhase);
+  document.getElementById('adpPhases').innerHTML=ph.length?`<div class="dp-lbl">Fasi</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${ph.map((p,i)=>`<span style="font-size:10px;padding:3px 9px;border-radius:20px;background:${i<=ci?'var(--arc-dim)':'var(--surface3)'};color:${i<=ci?'var(--arc)':'var(--text-muted)'}${p===arc.currentPhase?';outline:1px solid var(--arc)':''}">${p===arc.currentPhase?'▶ ':''}${p}</span>`).join('')}</div>`:'';
+  document.getElementById('adpMembers').innerHTML=(arc.members||[]).map(id=>tagHtml(id)).join('')||'<span style="color:var(--text-muted);font-size:11px;font-style:italic">Nessun elemento</span>';
   document.getElementById('adpNotes').value=arc.notes||'';
   renderSidebar();
 }
-function closeArcDetail(){ document.getElementById('arcPanel').classList.add('hidden'); curArcId=null; renderSidebar(); }
-function switchArcTab(tab){
-  arcTabSt=tab;
-  document.querySelectorAll('#arcPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));
-  document.getElementById('arctab-info').classList.toggle('active',tab==='info');
-  document.getElementById('arctab-notes').classList.toggle('active',tab==='notes');
-}
-function saveArcNotes(){ if(!curArcId) return; const arc=arcByID(curArcId); if(!arc) return; arc.notes=document.getElementById('adpNotes').value; saveD(); }
+function closeArcDetail(){const p=document.getElementById('arcPanel');p.classList.add('hidden');p.classList.remove('mob-open');curArcId=null;renderSidebar();}
+function switchArcTab(tab){arcTabSt=tab;document.querySelectorAll('#arcPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',['info','notes'][i]===tab));document.getElementById('arctab-info').classList.toggle('active',tab==='info');document.getElementById('arctab-notes').classList.toggle('active',tab==='notes');}
+function saveArcNotes(){if(!curArcId)return;const arc=arcByID(curArcId);if(!arc)return;arc.notes=document.getElementById('adpNotes').value;saveD();}
 
-// ══════════════════════════════════════════
-// DELETE
-// ══════════════════════════════════════════
+// ═══════════════════════════ DELETE ═══════════════════════════
 function deleteCurrent(){
-  if(!curDetailId) return; const el=byId(curDetailId);
-  showCfm('Elimina elemento',`Eliminare "${el.name}"? I tag che lo citano verranno rimossi.`,()=>{
+  if(!curDetailId)return;const el=byId(curDetailId);
+  showCfm('Elimina',`Eliminare "${el.name}"?`,()=>{
     const id=curDetailId;
     D.elements=D.elements.filter(e=>e.id!==id);
     D.elements.forEach(e=>{e.tags=(e.tags||[]).filter(t=>t!==id);if(e.equip)e.equip=e.equip.filter(i=>i!==id);});
-    D.arcs.forEach(a=>{a.members=(a.members||[]).filter(m=>m!==id);});
-    saveD(); closeDetail(); renderAll(); toast('Elemento eliminato');
+    (D.arcs||[]).forEach(a=>{a.members=(a.members||[]).filter(m=>m!==id);});
+    (D.fazioni||[]).forEach(f=>{f.members=(f.members||[]).filter(m=>m!==id);});
+    (D.magie||[]).forEach(m=>{m.users=(m.users||[]).filter(u=>u!==id);});
+    saveD();closeDetail();renderAll();toast('Elemento eliminato');
   });
 }
-function deleteCurrentArc(){
-  if(!curArcId) return; const arc=arcByID(curArcId);
-  showCfm('Elimina arco',`Eliminare "${arc.name}"?`,()=>{
-    D.arcs=D.arcs.filter(a=>a.id!==curArcId);
-    saveD(); closeArcDetail(); renderAll(); toast('Arco eliminato');
-  });
-}
+function deleteCurrentArc(){if(!curArcId)return;const arc=arcByID(curArcId);showCfm('Elimina arco',`Eliminare "${arc.name}"?`,()=>{D.arcs=D.arcs.filter(a=>a.id!==curArcId);saveD();closeArcDetail();renderAll();toast('Arco eliminato');});}
+function deleteCurrentFaz(){if(!curFazId)return;const f=fazById(curFazId);showCfm('Elimina fazione',`Eliminare "${f.name}"?`,()=>{D.fazioni=D.fazioni.filter(x=>x.id!==curFazId);saveD();closeFazDetail();renderAll();toast('Fazione eliminata');});}
+function deleteCurrentMag(){if(!curMagId)return;const m=magById(curMagId);showCfm('Elimina sistema',`Eliminare "${m.name}"?`,()=>{D.magie=D.magie.filter(x=>x.id!==curMagId);saveD();closeMagDetail();renderAll();toast('Sistema di magia eliminato');});}
 
-// ══════════════════════════════════════════
-// CATEGORY MODAL
-// ══════════════════════════════════════════
+// ═══════════════════════════ CAT MODAL ═══════════════════════════
 function openCatModal(){
-  renderCatList();
-  renderColorSwatches();
-  // Populate sub cat parent
-  const sc=document.getElementById('subCatParent');
-  sc.innerHTML=allCats().map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  renderCatList();renderColorSwatches();
+  document.getElementById('subCatParent').innerHTML=allCats().map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
   document.getElementById('catModalOverlay').classList.add('open');
 }
-function closeCatModal(){ document.getElementById('catModalOverlay').classList.remove('open'); }
-
-function renderColorSwatches(){
-  const wrap=document.getElementById('catColorSwatches');
-  wrap.innerHTML=PALETTE.map(c=>`<div class="swatch ${selColor===c?'sel':''}" style="background:${c}" onclick="selColor='${c}';renderColorSwatches()"></div>`).join('');
-}
-
+function closeCatModal(){document.getElementById('catModalOverlay').classList.remove('open');}
+function renderColorSwatches(){document.getElementById('catColorSwatches').innerHTML=PAL.map(c=>`<div class="swatch ${selColor===c?'sel':''}" style="background:${c}" onclick="selColor='${c}';renderColorSwatches()"></div>`).join('');}
 function renderCatList(){
-  const cl=document.getElementById('catList');
-  cl.innerHTML=allCats().map(cat=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px">
-    <span style="width:10px;height:10px;border-radius:50%;background:${cat.color};flex-shrink:0"></span>
-    <span style="font-size:13px">${cat.icon} ${cat.name}</span>
+  document.getElementById('catList').innerHTML=allCats().map(cat=>`<div style="display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:4px;font-size:12px">
+    <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};flex-shrink:0"></span>
+    <span>${cat.icon} ${cat.name}</span>
     ${cat.subs&&cat.subs.length?`<span style="font-size:10px;color:var(--text-muted)">[${cat.subs.join(', ')}]</span>`:''}
-    <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${D.elements.filter(e=>e.cat===cat.id).length} elementi</span>
-    ${!cat.builtin?`<button class="btn-d" onclick="deleteCat('${cat.id}')" style="padding:2px 7px;font-size:10px">✕</button>`:'<span style="font-size:10px;color:var(--text-muted);font-style:italic">built-in</span>'}
+    <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${D.elements.filter(e=>e.cat===cat.id).length} el.</span>
+    ${!cat.builtin?`<button class="btn-d" onclick="deleteCat('${cat.id}')" style="padding:1px 6px;font-size:10px">✕</button>`:'<span style="font-size:9px;color:var(--text-muted)">built-in</span>'}
   </div>`).join('');
 }
-
 function addCustomCat(){
   const name=document.getElementById('newCatName').value.trim();
   const icon=document.getElementById('newCatIcon').value.trim()||'📁';
   if(!name){document.getElementById('newCatName').focus();return;}
-  const id='custom_'+Date.now();
-  // compute dim color (darken)
-  D.cats.push({id,name,icon,color:selColor,colorDim:hexToDim(selColor),subs:[]});
-  document.getElementById('newCatName').value=''; document.getElementById('newCatIcon').value='';
-  saveD(); renderCatList(); populateCatFields(); renderAll(); toast('Categoria creata');
-  // update sub parent
-  const sc=document.getElementById('subCatParent');
-  sc.innerHTML=allCats().map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  const id='cat_'+Date.now();
+  D.cats.push({id,name,icon,color:selColor,colorDim:hexDim(selColor),subs:[]});
+  document.getElementById('newCatName').value='';document.getElementById('newCatIcon').value='';
+  saveD();renderCatList();populateCatFields();renderAll();toast('Categoria creata');
+  document.getElementById('subCatParent').innerHTML=allCats().map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
 }
-
-function hexToDim(hex){
-  // Simple darkening: parse and reduce brightness
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  return `rgb(${Math.round(r*.22)},${Math.round(g*.22)},${Math.round(b*.22)})`;
-}
-
+function hexDim(hex){try{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgb(${Math.round(r*.2)},${Math.round(g*.2)},${Math.round(b*.2)})`;}catch(e){return'#222';}}
 function addSubCat(){
-  const parentId=document.getElementById('subCatParent').value;
-  const sub=document.getElementById('newSubCatName').value.trim();
-  if(!sub) return;
-  const cat=allCats().find(c=>c.id===parentId);
-  if(!cat) return;
-  // For builtins, store in D.cats override
-  if(cat.builtin){
-    let override=D.cats.find(c=>c.id===parentId+'_override');
-    if(!override){ override={id:parentId+'_override',_override:parentId,subs:[]}; D.cats.push(override); }
-    // actually we'll store subcategories in a separate subCats map
-    if(!D.subCats) D.subCats={};
-    if(!D.subCats[parentId]) D.subCats[parentId]=[];
-    if(!D.subCats[parentId].includes(sub)) D.subCats[parentId].push(sub);
-  } else {
-    if(!cat.subs) cat.subs=[];
-    if(!cat.subs.includes(sub)) cat.subs.push(sub);
-  }
+  const pid=document.getElementById('subCatParent').value;
+  const sub=document.getElementById('newSubCatName').value.trim();if(!sub)return;
+  if(!D.subCats)D.subCats={};
+  if(!D.subCats[pid])D.subCats[pid]=[];
+  if(!D.subCats[pid].includes(sub))D.subCats[pid].push(sub);
+  // Also update custom cat
+  const cc=D.cats.find(c=>c.id===pid);if(cc){if(!cc.subs)cc.subs=[];if(!cc.subs.includes(sub))cc.subs.push(sub);}
   document.getElementById('newSubCatName').value='';
-  saveD(); renderCatList(); renderAll(); toast('Sottocategoria aggiunta');
+  saveD();renderCatList();renderAll();toast('Sottocategoria aggiunta');
 }
-
 function deleteCat(id){
-  const count=D.elements.filter(e=>e.cat===id).length;
-  showCfm('Elimina categoria',`Eliminare questa categoria? ${count?`${count} elementi verranno rimossi.`:''}`,()=>{
+  const cnt=D.elements.filter(e=>e.cat===id).length;
+  showCfm('Elimina categoria',`Eliminare? ${cnt?`${cnt} elementi verranno rimossi.`:''}`,()=>{
     D.cats=D.cats.filter(c=>c.id!==id);
-    if(count) D.elements=D.elements.filter(e=>e.cat!==id);
-    saveD(); renderCatList(); renderAll(); toast('Categoria eliminata');
+    if(cnt)D.elements=D.elements.filter(e=>e.cat!==id);
+    saveD();renderCatList();renderAll();toast('Categoria eliminata');
   });
 }
-
 function getCatSubs(catId){
-  const cat=catById(catId);
-  if(!cat) return [];
-  if(cat.builtin){
-    return (D.subCats&&D.subCats[catId])||[];
-  }
-  return cat.subs||[];
+  const c=catById(catId);if(!c)return[];
+  if(c.builtin)return(D.subCats&&D.subCats[catId])||[];
+  return c.subs||[];
 }
 
-// ══════════════════════════════════════════
-// ELEMENT MODAL
-// ══════════════════════════════════════════
-let selTags=[], curImg='';
-
+// ═══════════════════════════ ELEMENT MODAL ═══════════════════════════
+let selTags=[],curImg='';
 function openNewModal(catId){
-  selTags=[]; curImg='';
+  selTags=[];curImg='';
   document.getElementById('editingId').value='';
   document.getElementById('modalTitle').textContent='Nuovo elemento';
-  ['fName','fDesc','fDate'].forEach(id=>document.getElementById(id).value='');
-  resetImgPrev();
-  populateCatFields(catId||'char');
-  renderTagChips();
+  ['fName','fDesc'].forEach(id=>document.getElementById(id).value='');
+  resetImgPrev();populateCatFields(catId||'char');renderTagChips();
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('fName').focus(),80);
 }
-
 function editCurrent(){
-  if(!curDetailId) return; const el=byId(curDetailId); if(!el) return;
-  selTags=[...(el.tags||[])]; curImg=el.image||'';
+  if(!curDetailId)return;const el=byId(curDetailId);if(!el)return;
+  selTags=[...(el.tags||[])];curImg=el.image||'';
   document.getElementById('editingId').value=el.id;
-  document.getElementById('modalTitle').textContent='Modifica elemento';
+  document.getElementById('modalTitle').textContent='Modifica';
   document.getElementById('fName').value=el.name;
   document.getElementById('fDesc').value=el.desc||'';
-  document.getElementById('fDate').value=el.date||'';
   if(el.image){document.getElementById('fImgPreview').src=el.image;document.getElementById('fImgPreview').style.display='block';document.getElementById('fImgRemove').style.display='inline-block';}
   else resetImgPrev();
   document.getElementById('fImgInput').value='';
-  populateCatFields(el.cat, el.sub);
-  const ex=el.extra||{}; ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i)i.value=ex[k]||'';});
+  populateCatFields(el.cat,el.sub);
+  if(el.date){
+    const sel=document.getElementById('fDateSel');
+    if(sel){const opt=Array.from(sel.options).find(o=>o.value===el.date);if(opt){sel.value=el.date;document.getElementById('fDate').style.display='none';}else{sel.value='__custom__';document.getElementById('fDate').style.display='block';document.getElementById('fDate').value=el.date;}}
+  }
+  const ex=el.extra||{};['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i)i.value=ex[k]||'';});
   renderTagChips();
   document.getElementById('modalOverlay').classList.add('open');
 }
-
-function populateCatFields(selectedCat, selectedSub){
+function populateCatFields(selCat,selSub){
   const sel=document.getElementById('fCat');
-  sel.innerHTML=allCats().map(c=>`<option value="${c.id}" ${c.id===selectedCat?'selected':''}>${c.icon} ${c.name}</option>`).join('');
-  updateSubCatField(selectedSub);
-  updateExtraFields();
+  sel.innerHTML=allCats().map(c=>`<option value="${c.id}" ${c.id===selCat?'selected':''}>${c.icon} ${c.name}</option>`).join('');
+  updateSubCatField(selSub);updateExtraFields();
+  // Populate date select
+  const dates=allEventDates();
+  const dSel=document.getElementById('fDateSel');
+  if(dSel){dSel.innerHTML=`<option value="">Seleziona data esistente…</option>`+dates.map(d=>`<option value="${d}">${d}</option>`).join('')+`<option value="__custom__">— Nuova data —</option>`;}
 }
-
-function updateSubCatField(selectedSub){
+function updateSubCatField(selSub){
   const catId=document.getElementById('fCat').value;
   const subs=getCatSubs(catId);
-  const group=document.getElementById('fSubCatGroup');
-  if(subs.length){
-    group.style.display='';
-    document.getElementById('fSubCat').innerHTML=`<option value="">Nessuna</option>`+subs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
-  } else { group.style.display='none'; }
+  const grp=document.getElementById('fSubCatGroup');
+  if(subs.length){grp.style.display='';document.getElementById('fSubCat').innerHTML=`<option value="">Nessuna</option>`+subs.map(s=>`<option value="${s}" ${s===selSub?'selected':''}>${s}</option>`).join('');}
+  else grp.style.display='none';
   updateExtraFields();
 }
-
 function updateExtraFields(){
   const catId=document.getElementById('fCat').value;
   document.getElementById('fDateGroup').style.display=catId==='event'?'block':'none';
-  const extraDefs={char:[['ruolo','Ruolo narrativo'],['età','Età']],place:[['regione','Regione / Area']],object:[['materiale','Materiale / Origine']],event:[]};
-  document.getElementById('fExtraGroup').innerHTML=(extraDefs[catId]||[]).map(([k,l])=>`<div class="fg"><label class="fl">${l}</label><input class="fi" id="fExtra_${k}" placeholder=""></div>`).join('');
+  const defs={char:[['ruolo','Ruolo narrativo'],['età','Età']],place:[['regione','Regione']],object:[['materiale','Materiale']],event:[]};
+  document.getElementById('fExtraGroup').innerHTML=(defs[catId]||[]).map(([k,l])=>`<div class="fg"><label class="fl">${l}</label><input class="fi" id="fExtra_${k}"></div>`).join('');
 }
-
+function syncDateSelToInput(){
+  const sel=document.getElementById('fDateSel').value;
+  const inp=document.getElementById('fDate');
+  if(sel==='__custom__'){inp.style.display='block';inp.value='';inp.focus();}
+  else{inp.style.display='none';inp.value=sel;}
+}
 function saveElement(){
-  const name=document.getElementById('fName').value.trim(); if(!name){document.getElementById('fName').focus();return;}
+  const name=document.getElementById('fName').value.trim();if(!name){document.getElementById('fName').focus();return;}
   const cat=document.getElementById('fCat').value;
-  const subEl=document.getElementById('fSubCat'); const sub=subEl?subEl.value:'';
+  const subEl=document.getElementById('fSubCat');const sub=subEl?subEl.value:'';
   const desc=document.getElementById('fDesc').value.trim();
-  const date=document.getElementById('fDate').value.trim();
-  const extra={};
-  ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
+  const selDate=document.getElementById('fDateSel').value;
+  const fDateVal=document.getElementById('fDate').value.trim();
+  const date=selDate==='__custom__'?fDateVal:(selDate||fDateVal);
+  const extra={};['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
   const editId=document.getElementById('editingId').value;
-  if(editId){
-    const el=byId(editId); Object.assign(el,{name,cat,sub,desc,date,extra,tags:[...selTags],image:curImg});
-  } else {
-    D.elements.push({id:D.nextId++,cat,sub,name,desc,date,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[]});
-  }
-  saveD(); closeModal(); renderAll();
-  if(editId) openDetail(+editId);
+  if(editId){const el=byId(editId);Object.assign(el,{name,cat,sub,desc,date,extra,tags:[...selTags],image:curImg});}
+  else D.elements.push({id:D.nextId++,cat,sub,name,desc,date,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[]});
+  saveD();closeModal();renderAll();
+  if(editId)openDetail(+editId);
   toast(editId?'Elemento aggiornato':'Elemento creato');
 }
-
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
-function previewImage(event){ const file=event.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=e=>{curImg=e.target.result;document.getElementById('fImgPreview').src=curImg;document.getElementById('fImgPreview').style.display='block';document.getElementById('fImgRemove').style.display='inline-block';}; r.readAsDataURL(file); }
-function removeImage(){ curImg=''; resetImgPrev(); }
-function resetImgPrev(){ document.getElementById('fImgPreview').style.display='none'; document.getElementById('fImgPreview').src=''; document.getElementById('fImgRemove').style.display='none'; document.getElementById('fImgInput').value=''; }
-
-// TAG INPUT
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function previewImage(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=x=>{curImg=x.target.result;document.getElementById('fImgPreview').src=curImg;document.getElementById('fImgPreview').style.display='block';document.getElementById('fImgRemove').style.display='inline-block';};r.readAsDataURL(f);}
+function removeImage(){curImg='';resetImgPrev();}
+function resetImgPrev(){document.getElementById('fImgPreview').style.display='none';document.getElementById('fImgPreview').src='';document.getElementById('fImgRemove').style.display='none';document.getElementById('fImgInput').value='';}
 function showTagDrop(){
   const q=document.getElementById('tagInput').value.toLowerCase();
   const dd=document.getElementById('tagDrop');
@@ -1293,14 +1485,119 @@ function showTagDrop(){
   dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addTag(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${elLabel(e)}</span></div>`).join('');
   dd.classList.add('open');
 }
-function addTag(id){ if(!selTags.includes(id))selTags.push(id); document.getElementById('tagInput').value=''; document.getElementById('tagDrop').classList.remove('open'); renderTagChips(); }
-function removeTag(id){ selTags=selTags.filter(t=>t!==id); renderTagChips(); }
-function tagKd(e){ if(e.key==='Escape')document.getElementById('tagDrop').classList.remove('open'); }
-function renderTagChips(){ document.getElementById('tagChips').innerHTML=selTags.map(id=>{const el=byId(id);if(!el)return '';return `<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeTag(${el.id})">×</button></span>`;}).join(''); }
+function addTag(id){if(!selTags.includes(id))selTags.push(id);document.getElementById('tagInput').value='';document.getElementById('tagDrop').classList.remove('open');renderTagChips();}
+function removeTag(id){selTags=selTags.filter(t=>t!==id);renderTagChips();}
+function tagKd(e){if(e.key==='Escape')document.getElementById('tagDrop').classList.remove('open');}
+function renderTagChips(){document.getElementById('tagChips').innerHTML=selTags.map(id=>{const el=byId(id);if(!el)return'';return`<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeTag(${el.id})">×</button></span>`;}).join('');}
 
-// ══════════════════════════════════════════
-// ARC MODAL
-// ══════════════════════════════════════════
+// ═══════════════════════════ FAZIONE MODAL ═══════════════════════════
+let selFazMembers=[],fazRels=[];
+function openFazModal(){
+  selFazMembers=[];fazRels=[];
+  document.getElementById('editingFazId').value='';
+  document.getElementById('fazModalTitle').textContent='Nuova fazione';
+  ['ffName','ffDesc','ffMotto'].forEach(id=>document.getElementById(id).value='');
+  renderFazMemChips();renderFazRelList();
+  document.getElementById('fazModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('ffName').focus(),80);
+}
+function editCurrentFaz(){
+  if(!curFazId)return;const f=fazById(curFazId);if(!f)return;
+  selFazMembers=[...(f.members||[])];fazRels=[...(f.rels||[]).map(r=>({...r}))];
+  document.getElementById('editingFazId').value=f.id;
+  document.getElementById('fazModalTitle').textContent='Modifica fazione';
+  document.getElementById('ffName').value=f.name;
+  document.getElementById('ffDesc').value=f.desc||'';
+  document.getElementById('ffMotto').value=f.motto||'';
+  renderFazMemChips();renderFazRelList();
+  document.getElementById('fazModalOverlay').classList.add('open');
+}
+function saveFaz(){
+  const name=document.getElementById('ffName').value.trim();if(!name){document.getElementById('ffName').focus();return;}
+  const desc=document.getElementById('ffDesc').value.trim();
+  const motto=document.getElementById('ffMotto').value.trim();
+  const editId=document.getElementById('editingFazId').value;
+  if(editId){const f=fazById(editId);Object.assign(f,{name,desc,motto,members:[...selFazMembers],rels:[...fazRels]});}
+  else{if(!D.fazioni)D.fazioni=[];D.fazioni.push({id:D.nextFazId++,name,desc,motto,members:[...selFazMembers],rels:[...fazRels],notes:''});}
+  saveD();closeFazModal();renderAll();toast(editId?'Fazione aggiornata':'Fazione creata');
+}
+function closeFazModal(){document.getElementById('fazModalOverlay').classList.remove('open');}
+function showFazMemDrop(){
+  const q=document.getElementById('fazMemInput').value.toLowerCase();
+  const dd=document.getElementById('fazMemDrop');
+  const cands=D.elements.filter(e=>e.cat==='char'&&!selFazMembers.includes(e.id)&&e.name.toLowerCase().includes(q));
+  if(!cands.length||!q){dd.classList.remove('open');return;}
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addFazMem(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span></div>`).join('');
+  dd.classList.add('open');
+}
+function addFazMem(id){if(!selFazMembers.includes(id))selFazMembers.push(id);document.getElementById('fazMemInput').value='';document.getElementById('fazMemDrop').classList.remove('open');renderFazMemChips();}
+function removeFazMem(id){selFazMembers=selFazMembers.filter(m=>m!==id);renderFazMemChips();}
+function renderFazMemChips(){document.getElementById('fazMemChips').innerHTML=selFazMembers.map(id=>{const el=byId(id);if(!el)return'';return`<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeFazMem(${el.id})">×</button></span>`;}).join('');}
+function showFazRelDrop(){
+  const q=document.getElementById('fazRelInput').value.toLowerCase();
+  const dd=document.getElementById('fazRelDrop');
+  const editId=+document.getElementById('editingFazId').value||-1;
+  const cands=(D.fazioni||[]).filter(f=>f.id!==editId&&!fazRels.find(r=>r.fazId===f.id)&&f.name.toLowerCase().includes(q));
+  if(!cands.length||!q){dd.classList.remove('open');return;}
+  dd.innerHTML=cands.map(f=>`<div class="topt" onclick="addFazRel(${f.id})"><span style="font-size:11px">⚔</span><span>${f.name}</span></div>`).join('');
+  dd.classList.add('open');
+}
+function addFazRel(fazId){
+  const type=document.getElementById('fazRelType').value;
+  if(!fazRels.find(r=>r.fazId===fazId))fazRels.push({fazId,type});
+  document.getElementById('fazRelInput').value='';document.getElementById('fazRelDrop').classList.remove('open');renderFazRelList();
+}
+function removeFazRel(fazId){fazRels=fazRels.filter(r=>r.fazId!==fazId);renderFazRelList();}
+function renderFazRelList(){
+  const relLabel={ally:'Alleata',enemy:'Nemica',neutral:'Neutrale'};
+  document.getElementById('fazRelList').innerHTML=fazRels.map(r=>{const f=fazById(r.fazId);if(!f)return'';return`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text-muted)">${relLabel[r.type]}</span><span style="flex:1;color:var(--text)">${f.name}</span><button onclick="removeFazRel(${f.id})" style="background:none;border:none;color:#c06060;cursor:pointer;font-size:11px">✕</button></div>`;}).join('');
+}
+
+// ═══════════════════════════ MAGIA MODAL ═══════════════════════════
+let selMagUsers=[];
+function openMagModal(){
+  selMagUsers=[];
+  document.getElementById('editingMagId').value='';
+  document.getElementById('magModalTitle').textContent='Nuovo sistema di magia';
+  ['mfName','mfDesc','mfRules'].forEach(id=>document.getElementById(id).value='');
+  renderMagUserChips();
+  document.getElementById('magModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('mfName').focus(),80);
+}
+function editCurrentMag(){
+  if(!curMagId)return;const m=magById(curMagId);if(!m)return;
+  selMagUsers=[...(m.users||[])];
+  document.getElementById('editingMagId').value=m.id;
+  document.getElementById('magModalTitle').textContent='Modifica sistema';
+  document.getElementById('mfName').value=m.name;
+  document.getElementById('mfDesc').value=m.desc||'';
+  document.getElementById('mfRules').value=(m.rules||[]).join('\n');
+  renderMagUserChips();
+  document.getElementById('magModalOverlay').classList.add('open');
+}
+function saveMag(){
+  const name=document.getElementById('mfName').value.trim();if(!name){document.getElementById('mfName').focus();return;}
+  const desc=document.getElementById('mfDesc').value.trim();
+  const rules=document.getElementById('mfRules').value.split('\n').map(r=>r.trim()).filter(Boolean);
+  const editId=document.getElementById('editingMagId').value;
+  if(editId){const m=magById(editId);Object.assign(m,{name,desc,rules,users:[...selMagUsers]});}
+  else{if(!D.magie)D.magie=[];D.magie.push({id:D.nextMagId++,name,desc,rules,users:[...selMagUsers],notes:''});}
+  saveD();closeMagModal();renderAll();toast(editId?'Sistema aggiornato':'Sistema creato');
+}
+function closeMagModal(){document.getElementById('magModalOverlay').classList.remove('open');}
+function showMagUserDrop(){
+  const q=document.getElementById('magUserInput').value.toLowerCase();
+  const dd=document.getElementById('magUserDrop');
+  const cands=D.elements.filter(e=>!selMagUsers.includes(e.id)&&e.name.toLowerCase().includes(q));
+  if(!cands.length||!q){dd.classList.remove('open');return;}
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addMagUser(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${elLabel(e)}</span></div>`).join('');
+  dd.classList.add('open');
+}
+function addMagUser(id){if(!selMagUsers.includes(id))selMagUsers.push(id);document.getElementById('magUserInput').value='';document.getElementById('magUserDrop').classList.remove('open');renderMagUserChips();}
+function removeMagUser(id){selMagUsers=selMagUsers.filter(u=>u!==id);renderMagUserChips();}
+function renderMagUserChips(){document.getElementById('magUserChips').innerHTML=selMagUsers.map(id=>{const el=byId(id);if(!el)return'';return`<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeMagUser(${el.id})">×</button></span>`;}).join('');}
+
+// ═══════════════════════════ ARC MODAL ═══════════════════════════
 let selArcMembers=[];
 function openArcModal(){
   selArcMembers=[];
@@ -1312,7 +1609,7 @@ function openArcModal(){
   setTimeout(()=>document.getElementById('afName').focus(),80);
 }
 function editCurrentArc(){
-  if(!curArcId) return; const arc=arcByID(curArcId); if(!arc) return;
+  if(!curArcId)return;const arc=arcByID(curArcId);if(!arc)return;
   selArcMembers=[...(arc.members||[])];
   document.getElementById('editingArcId').value=arc.id;
   document.getElementById('arcModalTitle').textContent='Modifica arco';
@@ -1324,70 +1621,62 @@ function editCurrentArc(){
   document.getElementById('arcModalOverlay').classList.add('open');
 }
 function saveArc(){
-  const name=document.getElementById('afName').value.trim(); if(!name){document.getElementById('afName').focus();return;}
+  const name=document.getElementById('afName').value.trim();if(!name){document.getElementById('afName').focus();return;}
   const desc=document.getElementById('afDesc').value.trim();
   const pRaw=document.getElementById('afPhases').value.trim();
   const phases=pRaw?pRaw.split(',').map(p=>p.trim()).filter(Boolean):[];
   const currentPhase=document.getElementById('afCurPhase').value.trim();
   const editId=document.getElementById('editingArcId').value;
   if(editId){const arc=arcByID(editId);Object.assign(arc,{name,desc,phases,currentPhase,members:[...selArcMembers]});}
-  else D.arcs.push({id:D.nextArcId++,name,desc,phases,currentPhase,members:[...selArcMembers],notes:''});
-  saveD(); closeArcModal(); renderAll(); toast(editId?'Arco aggiornato':'Arco creato');
+  else{if(!D.arcs)D.arcs=[];D.arcs.push({id:D.nextArcId++,name,desc,phases,currentPhase,members:[...selArcMembers],notes:''});}
+  saveD();closeArcModal();renderAll();toast(editId?'Arco aggiornato':'Arco creato');
 }
-function closeArcModal(){ document.getElementById('arcModalOverlay').classList.remove('open'); }
-
+function closeArcModal(){document.getElementById('arcModalOverlay').classList.remove('open');}
 function showArcTagDrop(){
   const q=document.getElementById('arcTagInput').value.toLowerCase();
   const dd=document.getElementById('arcTagDrop');
   const cands=D.elements.filter(e=>!selArcMembers.includes(e.id)&&e.name.toLowerCase().includes(q));
   if(!cands.length||!q){dd.classList.remove('open');return;}
-  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addArcMember(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${elLabel(e)}</span></div>`).join('');
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addArcMember(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span></div>`).join('');
   dd.classList.add('open');
 }
-function addArcMember(id){ if(!selArcMembers.includes(id))selArcMembers.push(id); document.getElementById('arcTagInput').value=''; document.getElementById('arcTagDrop').classList.remove('open'); renderArcTagChips(); }
-function removeArcMember(id){ selArcMembers=selArcMembers.filter(m=>m!==id); renderArcTagChips(); }
-function arcTagKd(e){ if(e.key==='Escape')document.getElementById('arcTagDrop').classList.remove('open'); }
-function renderArcTagChips(){ document.getElementById('arcTagChips').innerHTML=selArcMembers.map(id=>{const el=byId(id);if(!el)return '';return `<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeArcMember(${el.id})">×</button></span>`;}).join(''); }
+function addArcMember(id){if(!selArcMembers.includes(id))selArcMembers.push(id);document.getElementById('arcTagInput').value='';document.getElementById('arcTagDrop').classList.remove('open');renderArcTagChips();}
+function removeArcMember(id){selArcMembers=selArcMembers.filter(m=>m!==id);renderArcTagChips();}
+function arcTagKd(e){if(e.key==='Escape')document.getElementById('arcTagDrop').classList.remove('open');}
+function renderArcTagChips(){document.getElementById('arcTagChips').innerHTML=selArcMembers.map(id=>{const el=byId(id);if(!el)return'';return`<span class="tc" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}<button onclick="removeArcMember(${el.id})">×</button></span>`;}).join('');}
 
-// Close dropdowns on outside click
-document.addEventListener('click',e=>{ if(!e.target.closest('.tac')) document.querySelectorAll('.tdrop').forEach(d=>d.classList.remove('open')); });
+// Close dropdowns
+document.addEventListener('click',e=>{if(!e.target.closest('.tac')&&!e.target.closest('[onclick*="Drop"]'))document.querySelectorAll('.tdrop').forEach(d=>d.classList.remove('open'));});
 
-// ══════════════════════════════════════════
-// EXPORT / IMPORT
-// ══════════════════════════════════════════
+// ═══════════════════════════ EXPORT / IMPORT ═══════════════════════════
 function exportData(){
-  const json=JSON.stringify(D,null,2);
-  const blob=new Blob([json],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=`storyworld_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
-  toast('📦 Esportato con successo');
+  const a=document.createElement('a');a.href=url;a.download=`storyworld_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);
+  toast('📦 Esportato');
 }
-function importData(){ document.getElementById('importInput').click(); }
-function handleImport(event){
-  const file=event.target.files[0]; if(!file) return;
+function importData(){document.getElementById('importInput').click();}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=e=>{
+  r.onload=x=>{
     try{
-      const imp=JSON.parse(e.target.result);
-      if(!imp.elements) throw new Error();
-      showCfm('Importa dati','Sostituire tutti i dati attuali con quelli importati?',()=>{
-        D=imp; if(!D.cats)D.cats=[]; if(!D.arcs)D.arcs=[]; if(!D.nextArcId)D.nextArcId=D.arcs.length?Math.max(...D.arcs.map(a=>a.id))+1:1;
-        saveD(); closeDetail(); closeArcDetail(); renderAll(); toast('✅ Importato con successo');
+      const imp=JSON.parse(x.target.result);if(!imp.elements)throw new Error();
+      showCfm('Importa dati','Sostituire tutti i dati?',()=>{
+        D=imp;if(!D.cats)D.cats=[];if(!D.arcs)D.arcs=[];if(!D.fazioni)D.fazioni=[];if(!D.magie)D.magie=[];if(!D.chapters)D.chapters=[];
+        ['nextArcId','nextFazId','nextMagId'].forEach(k=>{if(!D[k])D[k]=1;});
+        saveD();closeDetail();closeArcDetail();closeFazDetail();closeMagDetail();renderAll();toast('✅ Importato');
       });
-    }catch(err){toast('❌ File JSON non valido');}
+    }catch(err){toast('❌ File non valido');}
   };
-  r.readAsText(file); event.target.value='';
+  r.readAsText(file);e.target.value='';
 }
 
-// ══════════════════════════════════════════
-// RENDER ALL
-// ══════════════════════════════════════════
-function renderAll(){ renderSidebar(); renderMain(); }
+// ═══════════════════════════ RENDER ALL ═══════════════════════════
+function renderAll(){renderSidebar();renderMain();}
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-loadD(); seed(); renderAll();
+// ═══════════════════════════ INIT ═══════════════════════════
+loadD();seed();renderAll();
 </script>
 </body>
 </html>
