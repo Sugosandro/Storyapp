@@ -29,7 +29,65 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 nav{display:flex;gap:2px;flex:1;overflow-x:auto}
 nav button{background:none;border:none;color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:14px;padding:6px 13px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap}
 nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{color:var(--gold);background:var(--gold-glow);font-weight:600}
-.hact{display:flex;gap:5px;margin-left:auto;flex-shrink:0}
+.hact{display:flex;gap:6px;margin-left:auto;flex-shrink:0;align-items:center}
+
+/* GLOBAL SEARCH */
+.global-search{position:relative;display:flex;align-items:center}
+.global-search input{background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-family:'Crimson Pro',serif;font-size:13px;padding:5px 14px 5px 34px;outline:none;width:200px;transition:all .3s}
+.global-search input:focus{border-color:var(--gold-dim);width:280px}
+.global-search input::placeholder{color:var(--text-muted)}
+.global-search .gs-icon{position:absolute;left:11px;font-size:13px;color:var(--text-muted);pointer-events:none}
+.gs-results{position:absolute;top:calc(100% + 6px);left:0;width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:400;max-height:480px;overflow-y:auto;display:none}
+.gs-results.open{display:block}
+.gs-section{padding:6px 0}
+.gs-section-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);padding:4px 14px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.gs-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
+.gs-item:hover{background:var(--surface2)}
+.gs-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gs-item-name{font-size:13px;color:var(--text);flex:1}
+.gs-item-sub{font-size:11px;color:var(--text-muted);font-style:italic}
+.gs-item-ctx{font-size:11px;color:var(--text-dim);font-style:italic;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gs-empty{padding:16px;text-align:center;color:var(--text-muted);font-style:italic;font-size:13px}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;font-style:normal;letter-spacing:.04em}
+.status-draft{background:#2a2210;color:#c9a84c;border:1px solid #4a3a10}
+.status-wip{background:#1a2a3a;color:#7ab8d4;border:1px solid #1a4060}
+.status-done{background:#1a3020;color:#8fbd7c;border:1px solid #1a4828}
+.status-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* POWERS TAB */
+.powers-list{display:flex;flex-direction:column;gap:8px}
+.power-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;position:relative}
+.power-name{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.power-desc{font-size:13px;color:var(--text-dim);line-height:1.6}
+.power-meta{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.power-mag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--mag-dim,#1a3830);color:var(--mag,#a0d0c0);cursor:pointer}
+.power-lvl{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface3);color:var(--text-muted)}
+.power-remove{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;opacity:.5;transition:opacity .2s;line-height:1}
+.power-remove:hover{opacity:1;color:#c06060}
+
+/* SPATIAL TIMELINE */
+.spatial-tl{display:flex;flex-direction:column;gap:3px}
+.spatial-entry{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.spatial-entry:last-child{border-bottom:none}
+.spatial-date{color:var(--text-muted);font-size:11px;min-width:120px;flex-shrink:0;font-style:italic}
+.spatial-place{display:flex;align-items:center;gap:5px;color:var(--place);cursor:pointer}
+.spatial-place:hover{opacity:.7}
+.spatial-text{color:var(--text-dim);font-size:11px;margin-top:2px}
+
+/* MAP PATHS */
+.map-path-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+/* WORLD FILTERS */
+.world-filters{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.world-filter-lbl{font-size:11px;color:var(--text-muted);margin-right:4px}
+.world-filter{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:12px;padding:3px 11px;border-radius:20px;cursor:pointer;transition:all .2s}
+.world-filter.active{border-color:var(--gold-dim);color:var(--gold);background:var(--gold-glow)}
+
+/* MARKDOWN EXPORT BUTTON */
+.btn-md{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:11px;padding:3px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
+.btn-md:hover{border-color:var(--border-light);color:var(--text)}
 .btn-sm{background:none;border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:5px 11px;border-radius:var(--r);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Crimson Pro',serif}
 .btn-sm:hover{border-color:var(--border-light);color:var(--text)}
 
@@ -410,6 +468,11 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <button onclick="sv('arcs')">📖 Archi</button>
     <button onclick="sv('connections')">🕸 Connessioni</button>
   </nav>
+  <div class="global-search">
+    <span class="gs-icon">🔍</span>
+    <input type="text" id="globalSearch" placeholder="Cerca ovunque…" oninput="globalSearchInput()" onkeydown="globalSearchKey(event)" autocomplete="off">
+    <div class="gs-results" id="gsResults"></div>
+  </div>
   <div class="hact">
     <button class="btn-sm" onclick="openCatModal()">⚙ Categorie</button>
     <button class="btn-sm" onclick="syncGDrive()" id="driveBtn" title="Sincronizza con Google Drive">☁ Drive</button>
@@ -454,8 +517,16 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <div class="view-hd">
       <div class="view-title">Il tuo <span>Mondo</span></div>
       <div class="vhact">
+        <button class="btn-md" onclick="exportMarkdown()" title="Esporta in Markdown">📄 MD</button>
         <button class="btn-p" onclick="openNewModal()">+ Nuovo elemento</button>
       </div>
+    </div>
+    <div class="world-filters">
+      <span class="world-filter-lbl">Stato:</span>
+      <button class="world-filter active" onclick="setWorldFilter(this,'')">Tutti</button>
+      <button class="world-filter" onclick="setWorldFilter(this,'draft')">✏ Bozza</button>
+      <button class="world-filter" onclick="setWorldFilter(this,'wip')">🔵 In sviluppo</button>
+      <button class="world-filter" onclick="setWorldFilter(this,'done')">✅ Definitivo</button>
     </div>
     <div id="worldContent"></div>
   </div>
@@ -622,7 +693,9 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   </div>
   <div class="dp-tabs" id="dpTabsBar">
     <button class="dp-tab active" onclick="switchDpTab('info')">Scheda</button>
-    <button class="dp-tab" onclick="switchDpTab('equip')">Equipaggiamento</button>
+    <button class="dp-tab" onclick="switchDpTab('powers')" id="dpPowersTab">Poteri</button>
+    <button class="dp-tab" onclick="switchDpTab('equip')">Equip.</button>
+    <button class="dp-tab" onclick="switchDpTab('spatial')">📍 Percorso</button>
     <button class="dp-tab" onclick="switchDpTab('changelog')">Storico</button>
     <button class="dp-tab" onclick="switchDpTab('notes')">Note</button>
   </div>
@@ -654,6 +727,43 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       </div>
     </div>
     <!-- EQUIPMENT -->
+    <div class="dp-tc" id="dtab-powers">
+      <div class="dp-sec">
+        <div class="dp-lbl" style="margin-bottom:10px">Poteri e Abilità</div>
+        <div class="powers-list" id="dpPowersList"></div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div class="dp-lbl">Aggiungi potere / abilità</div>
+          <input class="fi" id="pwName" placeholder="Nome del potere" style="font-size:13px;margin-bottom:6px">
+          <textarea class="ft" id="pwDesc" placeholder="Descrizione, effetti, limitazioni…" style="min-height:60px;font-size:13px;margin-bottom:6px"></textarea>
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <select class="fi" id="pwMag" style="font-size:12px;padding:6px 8px;flex:1">
+              <option value="">✨ Sistema di magia (opz.)</option>
+            </select>
+            <select class="fi" id="pwLvl" style="font-size:12px;padding:6px 8px;width:130px">
+              <option value="">Intensità…</option>
+              <option value="Bassa">🔵 Bassa</option>
+              <option value="Media">🟡 Media</option>
+              <option value="Alta">🔴 Alta</option>
+              <option value="Leggendaria">⭐ Leggendaria</option>
+            </select>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn-p" onclick="addPower()" style="font-size:12px;padding:5px 13px">+ Aggiungi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dp-tc" id="dtab-spatial">
+      <div class="dp-sec">
+        <div class="dp-lbl" style="margin-bottom:10px">Percorso spaziale</div>
+        <div class="spatial-tl" id="dpSpatialTl"></div>
+        <div id="dpSpatialEmpty" style="color:var(--text-muted);font-size:13px;font-style:italic;display:none">
+          Aggiungi voci allo <strong>Storico</strong> con un luogo per tracciare gli spostamenti.
+        </div>
+      </div>
+    </div>
+
     <div class="dp-tc" id="dtab-equip">
       <div class="dp-sec">
         <div class="dp-lbl" style="margin-bottom:10px">Oggetti posseduti</div>
@@ -850,6 +960,13 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       </div>
     </div>
     <div class="fg"><label class="fl">Nome</label><input class="fi" id="fName" placeholder="Nome elemento" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Stato</label>
+      <select class="fs" id="fStatus">
+        <option value="draft">✏ Bozza</option>
+        <option value="wip">🔵 In sviluppo</option>
+        <option value="done">✅ Definitivo</option>
+      </select>
+    </div>
     <div class="fg" id="fDateGroup" style="display:none"><label class="fl">Data / Momento narrativo</label><input class="fi" id="fDate" placeholder="Es. Anno 1247, Giorno 3"></div>
     <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="fDesc" placeholder="Descrivi questo elemento…"></textarea></div>
     <div id="fExtraGroup"></div>
@@ -1001,12 +1118,16 @@ let D = {
 
 function loadD(){
   try{ const s=localStorage.getItem('sw_v4'); if(s) D=JSON.parse(s); }catch(e){}
-  // migrate older saves
-  if(!D.map) D.map = { image:'', pois:[] };
+  if(!D.map) D.map={image:'',pois:[]};
   if(!D.fazioni) D.fazioni=[];
   if(!D.magie) D.magie=[];
   if(!D.nextFazId) D.nextFazId=1;
   if(!D.nextMagId) D.nextMagId=1;
+  // Migrate elements
+  (D.elements||[]).forEach(el=>{
+    if(!el.powers) el.powers=[];
+    if(!el.status) el.status='draft';
+  });
 }
 function saveD(){ try{ localStorage.setItem('sw_v4', JSON.stringify(D)); }catch(e){} }
 
@@ -1096,14 +1217,15 @@ function renderMain(){
 // ── WORLD ──
 function renderWorld(){
   const wc=document.getElementById('worldContent');
-  // Group by category, then subcategory
   const cats=allCats().filter(c=>c.id!=='event');
+  const statusClasses={draft:'status-draft',wip:'status-wip',done:'status-done'};
+  const statusLabels={draft:'✏ Bozza',wip:'🔵 In sviluppo',done:'✅ Definitivo'};
   let html='';
   cats.forEach(cat=>{
-    const items=D.elements.filter(e=>e.cat===cat.id);
+    let items=D.elements.filter(e=>e.cat===cat.id);
+    if(worldStatusFilter) items=items.filter(e=>(e.status||'draft')===worldStatusFilter);
     if(!items.length) return;
-    // subcategories
-    const subs=['',...(cat.subs||[])];
+    const subs=['',...getCatSubs(cat.id)];
     subs.forEach(sub=>{
       const subItems=sub?items.filter(e=>e.sub===sub):items.filter(e=>!e.sub||e.sub==='');
       if(!subItems.length) return;
@@ -1114,19 +1236,25 @@ function renderWorld(){
         const arcsH=arcsByMember(el.id).map(a=>`<div class="card-arc">📖 ${a.name}</div>`).join('');
         const fazH=fazioniOfEl(el.id).map(f=>`<div class="card-arc" style="background:#4a3810;color:#f0c060">⚔ ${f.name}</div>`).join('');
         const magH=magieOfEl(el.id).map(m=>`<div class="card-arc" style="background:#1a3830;color:#a0d0c0">✨ ${m.name}</div>`).join('');
+        const pwH=(el.powers||[]).length?`<div class="card-arc" style="background:#2a1a3a;color:#c4a0e4">⚡ ${el.powers.length} poter${el.powers.length!==1?'i':'e'}</div>`:'';
+        const stBadge=el.status&&el.status!=='draft'?`<span class="status-badge ${statusClasses[el.status]||''}" style="margin-top:5px">${statusLabels[el.status]||el.status}</span>`:'';
         const imgH=el.image?`<img class="card-img" src="${el.image}" alt="">`:`<div class="card-img-ph">${elIcon(el)}</div>`;
-        html+=`<div class="card" style="border-top-color:${elColor(el)};--ct:${elColor(el)}" onclick="openDetail(${el.id})">
+        html+=`<div class="card" style="border-top:3px solid ${elColor(el)}" onclick="openDetail(${el.id})">
           ${imgH}<div class="card-body">
           <div class="card-type" style="color:${elColor(el)}">${elIcon(el)} ${elLabel(el)}</div>
           <div class="card-name">${el.name}</div>
           <div class="card-desc">${el.desc||'<em style="opacity:.35">Nessuna descrizione</em>'}</div>
-          ${tagsH?`<div class="card-tags">${tagsH}</div>`:''}${arcsH}${fazH}${magH}
+          ${tagsH?`<div class="card-tags">${tagsH}</div>`:''}${arcsH}${fazH}${magH}${pwH}${stBadge}
           </div></div>`;
       });
       html+='</div><div style="margin-bottom:22px"></div>';
     });
   });
-  wc.innerHTML=html||`<div class="empty"><div class="empty-icon">🌍</div><div class="empty-title">Il mondo è vuoto</div><div class="empty-sub">Inizia creando il primo elemento</div></div>`;
+  if(!html){
+    const msg=worldStatusFilter?`Nessun elemento con stato "${statusLabels[worldStatusFilter]}"`:'Il mondo è vuoto';
+    html=`<div class="empty"><div class="empty-icon">🌍</div><div class="empty-title">${msg}</div><div class="empty-sub">Inizia creando il primo elemento</div></div>`;
+  }
+  wc.innerHTML=html;
 }
 
 // ── TIMELINE ──
@@ -1353,6 +1481,7 @@ function renderMapPins(){
   } else {
     info.textContent = '';
   }
+  renderMapPaths();
 }
 
 function getElementsAtPlaceInPeriod(placeId, period){
@@ -1932,7 +2061,12 @@ function openDetail(id){
   document.getElementById('dpType').textContent=`${elIcon(el)} ${elLabel(el)}`;
   document.getElementById('dpType').style.color=col;
   document.getElementById('dpName').textContent=el.name;
-  document.getElementById('dpSub').textContent=el.sub||'';
+  // Status badge
+  const statusLabels={draft:'✏ Bozza',wip:'🔵 In sviluppo',done:'✅ Definitivo'};
+  const statusClasses={draft:'status-draft',wip:'status-wip',done:'status-done'};
+  const sub = document.getElementById('dpSub');
+  const statusHtml = el.status ? `<span class="status-badge ${statusClasses[el.status]||''}">${statusLabels[el.status]||el.status}</span>` : '';
+  sub.innerHTML = (el.sub ? `<span>${el.sub}</span> ` : '') + statusHtml;
 
   const dpImg=document.getElementById('dpImg');
   if(el.image){dpImg.src=el.image;dpImg.style.display='block';}else{dpImg.style.display='none';}
@@ -1994,10 +2128,12 @@ function closeDetail(){
 
 function switchDpTab(tab){
   dpTab=tab;
-  const tabs=['info','equip','changelog','notes'];
+  const tabs=['info','powers','equip','spatial','changelog','notes'];
   document.querySelectorAll('#dpPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
   tabs.forEach(t=>{ const el=document.getElementById('dtab-'+t); if(el) el.classList.toggle('active',t===tab); });
   if(tab==='changelog') populateClPlaceSelect();
+  if(tab==='powers'){ const el=byId(curDetailId); if(el){ populatePwMagSelect(); renderPowersList(el); } }
+  if(tab==='spatial'){ const el=byId(curDetailId); if(el) renderSpatialTl(el); }
 }
 
 function saveNotes(){ if(!curDetailId) return; const el=byId(curDetailId); if(!el) return; el.notes=document.getElementById('dpNotes').value; saveD(); }
@@ -2357,6 +2493,7 @@ function editCurrent(){
   document.getElementById('modalTitle').textContent='Modifica elemento';
   document.getElementById('fName').value=el.name;
   document.getElementById('fDesc').value=el.desc||'';
+  document.getElementById('fStatus').value=el.status||'draft';
   document.getElementById('fDate').value=el.date||'';
   if(el.image){document.getElementById('fImgPreview').src=el.image;document.getElementById('fImgPreview').style.display='block';document.getElementById('fImgRemove').style.display='inline-block';}
   else resetImgPrev();
@@ -2398,13 +2535,14 @@ function saveElement(){
   const subEl=document.getElementById('fSubCat'); const sub=subEl?subEl.value:'';
   const desc=document.getElementById('fDesc').value.trim();
   const date=document.getElementById('fDate').value.trim();
+  const status=document.getElementById('fStatus').value||'draft';
   const extra={};
   ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
   const editId=document.getElementById('editingId').value;
   if(editId){
-    const el=byId(editId); Object.assign(el,{name,cat,sub,desc,date,extra,tags:[...selTags],image:curImg});
+    const el=byId(editId); Object.assign(el,{name,cat,sub,desc,date,status,extra,tags:[...selTags],image:curImg});
   } else {
-    D.elements.push({id:D.nextId++,cat,sub,name,desc,date,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[]});
+    D.elements.push({id:D.nextId++,cat,sub,name,desc,date,status,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[],powers:[]});
   }
   saveD(); closeModal(); renderAll();
   if(editId) openDetail(+editId);
@@ -2602,6 +2740,394 @@ function handleImport(event){
 // ══════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// GLOBAL SEARCH
+// ══════════════════════════════════════════
+function globalSearchInput(){
+  const q = document.getElementById('globalSearch').value.trim().toLowerCase();
+  const res = document.getElementById('gsResults');
+  if(q.length < 2){ res.classList.remove('open'); return; }
+
+  const sections = [];
+
+  // Elements
+  const elMatches = D.elements.filter(e => {
+    if(e.name.toLowerCase().includes(q)) return true;
+    if((e.desc||'').toLowerCase().includes(q)) return true;
+    if((e.changelog||[]).some(c => c.text.toLowerCase().includes(q) || c.date.toLowerCase().includes(q))) return true;
+    if((e.powers||[]).some(p => p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))) return true;
+    return false;
+  });
+  if(elMatches.length){
+    sections.push(`<div class="gs-section">
+      <div class="gs-section-lbl">Elementi (${elMatches.length})</div>
+      ${elMatches.slice(0,6).map(e=>{
+        // Find matching context
+        let ctx = '';
+        const cl = (e.changelog||[]).find(c=>c.text.toLowerCase().includes(q));
+        if(cl) ctx = cl.text.slice(0,60)+'…';
+        const pw = (e.powers||[]).find(p=>p.name.toLowerCase().includes(q));
+        if(pw) ctx = '⚡ '+pw.name;
+        return `<div class="gs-item" onclick="openDetail(${e.id});closeGlobalSearch()">
+          <span class="gs-item-dot" style="background:${elColor(e)}"></span>
+          <span class="gs-item-name">${highlight(e.name,q)}</span>
+          <span class="gs-item-sub">${elLabel(e)}</span>
+          ${ctx?`<span class="gs-item-ctx">${ctx}</span>`:''}
+        </div>`;
+      }).join('')}
+    </div>`);
+  }
+
+  // Fazioni
+  const fazMatches = (D.fazioni||[]).filter(f=>f.name.toLowerCase().includes(q)||(f.desc||'').toLowerCase().includes(q));
+  if(fazMatches.length){
+    sections.push(`<div class="gs-section">
+      <div class="gs-section-lbl">Fazioni</div>
+      ${fazMatches.slice(0,4).map(f=>`<div class="gs-item" onclick="openFazDetail(${f.id});closeGlobalSearch()">
+        <span class="gs-item-dot" style="background:#f0c060"></span>
+        <span class="gs-item-name">${highlight(f.name,q)}</span>
+        <span class="gs-item-sub">Fazione</span>
+      </div>`).join('')}
+    </div>`);
+  }
+
+  // Magie
+  const magMatches = (D.magie||[]).filter(m=>m.name.toLowerCase().includes(q)||(m.desc||'').toLowerCase().includes(q));
+  if(magMatches.length){
+    sections.push(`<div class="gs-section">
+      <div class="gs-section-lbl">Magia</div>
+      ${magMatches.slice(0,4).map(m=>`<div class="gs-item" onclick="openMagDetail(${m.id});closeGlobalSearch()">
+        <span class="gs-item-dot" style="background:#a0d0c0"></span>
+        <span class="gs-item-name">${highlight(m.name,q)}</span>
+        <span class="gs-item-sub">Sistema di magia</span>
+      </div>`).join('')}
+    </div>`);
+  }
+
+  // Archi
+  const arcMatches = (D.arcs||[]).filter(a=>a.name.toLowerCase().includes(q)||(a.desc||'').toLowerCase().includes(q));
+  if(arcMatches.length){
+    sections.push(`<div class="gs-section">
+      <div class="gs-section-lbl">Archi narrativi</div>
+      ${arcMatches.slice(0,4).map(a=>`<div class="gs-item" onclick="openArcDetail(${a.id});closeGlobalSearch()">
+        <span class="gs-item-dot" style="background:var(--arc)"></span>
+        <span class="gs-item-name">${highlight(a.name,q)}</span>
+        <span class="gs-item-sub">Arco</span>
+      </div>`).join('')}
+    </div>`);
+  }
+
+  if(!sections.length){
+    res.innerHTML = `<div class="gs-empty">Nessun risultato per "<strong>${q}</strong>"</div>`;
+  } else {
+    res.innerHTML = sections.join('');
+  }
+  res.classList.add('open');
+}
+
+function highlight(text, q){
+  const idx = text.toLowerCase().indexOf(q);
+  if(idx < 0) return text;
+  return text.slice(0,idx) + `<mark style="background:var(--gold-glow);color:var(--gold);border-radius:2px">${text.slice(idx,idx+q.length)}</mark>` + text.slice(idx+q.length);
+}
+
+function closeGlobalSearch(){
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('gsResults').classList.remove('open');
+}
+
+function globalSearchKey(e){
+  if(e.key === 'Escape') closeGlobalSearch();
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.global-search')) closeGlobalSearch();
+});
+
+// ══════════════════════════════════════════
+// STATUS FILTER
+// ══════════════════════════════════════════
+let worldStatusFilter = '';
+
+function setWorldFilter(btn, status){
+  worldStatusFilter = status;
+  document.querySelectorAll('.world-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWorld();
+}
+
+// ══════════════════════════════════════════
+// POWERS
+// ══════════════════════════════════════════
+function populatePwMagSelect(){
+  const sel = document.getElementById('pwMag'); if(!sel) return;
+  sel.innerHTML = `<option value="">✨ Sistema di magia (opz.)</option>`
+    + (D.magie||[]).map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+
+function renderPowersList(el){
+  const list = document.getElementById('dpPowersList');
+  const powers = el.powers||[];
+  if(!powers.length){
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-style:italic">Nessun potere o abilità</div>';
+    return;
+  }
+  list.innerHTML = powers.map((pw,i) => {
+    const mag = pw.magId ? magById(pw.magId) : null;
+    const lvlColors = {Bassa:'var(--char)',Media:'var(--gold)',Alta:'#e06060',Leggendaria:'var(--arc)'};
+    return `<div class="power-item">
+      <button class="power-remove" onclick="removePower(${i})" title="Rimuovi">✕</button>
+      <div class="power-name">
+        ⚡ ${pw.name}
+        ${pw.lvl?`<span class="power-lvl" style="color:${lvlColors[pw.lvl]||'var(--text-muted)'}">${pw.lvl}</span>`:''}
+      </div>
+      ${pw.desc?`<div class="power-desc">${pw.desc}</div>`:''}
+      <div class="power-meta">
+        ${mag?`<span class="power-mag" onclick="openMagDetail(${mag.id})">✨ ${mag.name}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addPower(){
+  if(!curDetailId) return;
+  const el = byId(curDetailId); if(!el) return;
+  const name = document.getElementById('pwName').value.trim();
+  if(!name){ document.getElementById('pwName').focus(); return; }
+  const desc = document.getElementById('pwDesc').value.trim();
+  const magId = document.getElementById('pwMag').value;
+  const lvl = document.getElementById('pwLvl').value;
+  if(!el.powers) el.powers = [];
+  el.powers.push({ name, desc, magId: magId?+magId:null, lvl });
+  saveD();
+  document.getElementById('pwName').value = '';
+  document.getElementById('pwDesc').value = '';
+  document.getElementById('pwMag').value = '';
+  document.getElementById('pwLvl').value = '';
+  renderPowersList(el);
+  toast('⚡ Potere aggiunto');
+}
+
+function removePower(idx){
+  const el = byId(curDetailId); if(!el) return;
+  el.powers.splice(idx,1);
+  saveD(); renderPowersList(el);
+}
+
+// ══════════════════════════════════════════
+// SPATIAL TIMELINE
+// ══════════════════════════════════════════
+function renderSpatialTl(el){
+  const entries = (el.changelog||[]).filter(c => c.placeId);
+  const empty = document.getElementById('dpSpatialEmpty');
+  const tl = document.getElementById('dpSpatialTl');
+  if(!entries.length){
+    tl.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  const sorted = [...entries].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  tl.innerHTML = sorted.map((e,i) => {
+    const place = byId(e.placeId);
+    const arrow = i > 0 ? '<div style="color:var(--text-muted);font-size:11px;padding-left:130px;margin:-2px 0">↓</div>' : '';
+    return `${arrow}<div class="spatial-entry">
+      <span class="spatial-date">${e.date||'Data non specificata'}</span>
+      <div>
+        ${place ? `<div class="spatial-place" onclick="openDetail(${place.id})">📍 ${place.name}</div>` : '<span style="color:var(--text-muted);font-size:11px">Luogo non trovato</span>'}
+        ${e.text ? `<div class="spatial-text">${e.text.slice(0,80)}${e.text.length>80?'…':''}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// MAP PATHS (spostamenti)
+// ══════════════════════════════════════════
+function renderMapPaths(){
+  // Remove old SVG
+  const old = document.getElementById('mapPathSvg');
+  if(old) old.remove();
+  if(!D.map||!D.map.image) return;
+
+  const period = document.getElementById('mapTimeSel').value;
+  const pois = D.map.pois||[];
+  if(!pois.length) return;
+
+  // For each element with spatial data, draw path between POIs in order
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.id = 'mapPathSvg';
+  svg.setAttribute('class','map-path-svg');
+  svg.style.width = mapState.imgW+'px';
+  svg.style.height = mapState.imgH+'px';
+
+  D.elements.forEach(el => {
+    const entries = (el.changelog||[])
+      .filter(c=>c.placeId && c.date)
+      .filter(c=>!period||c.date<=period)
+      .sort((a,b)=>a.date.localeCompare(b.date));
+    if(entries.length < 2) return;
+
+    const col = elColor(el);
+    for(let i=0; i<entries.length-1; i++){
+      const fromPoi = pois.find(p=>+p.placeId===+entries[i].placeId);
+      const toPoi   = pois.find(p=>+p.placeId===+entries[i+1].placeId);
+      if(!fromPoi||!toPoi||fromPoi.id===toPoi.id) continue;
+
+      const x1 = fromPoi.x * mapState.imgW;
+      const y1 = fromPoi.y * mapState.imgH;
+      const x2 = toPoi.x * mapState.imgW;
+      const y2 = toPoi.y * mapState.imgH;
+
+      // Curved path
+      const mx = (x1+x2)/2, my = (y1+y2)/2 - 30;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke',col);
+      path.setAttribute('stroke-width','2');
+      path.setAttribute('stroke-opacity','0.6');
+      path.setAttribute('stroke-dasharray','5,4');
+      path.setAttribute('marker-end','url(#arrow-'+el.id+')');
+
+      // Arrow marker
+      const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg','defs'));
+      const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+      marker.setAttribute('id','arrow-'+el.id);
+      marker.setAttribute('markerWidth','8');
+      marker.setAttribute('markerHeight','8');
+      marker.setAttribute('refX','6');
+      marker.setAttribute('refY','3');
+      marker.setAttribute('orient','auto');
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg','path');
+      arrow.setAttribute('d','M0,0 L0,6 L8,3 z');
+      arrow.setAttribute('fill',col);
+      arrow.setAttribute('opacity','0.7');
+      marker.appendChild(arrow);
+      defs.appendChild(marker);
+      svg.appendChild(path);
+    }
+  });
+
+  document.getElementById('mapCanvas').appendChild(svg);
+}
+
+// ══════════════════════════════════════════
+// MARKDOWN EXPORT
+// ══════════════════════════════════════════
+function exportMarkdown(){
+  let md = `# StoryWorld — Esportazione\n*Esportato il ${new Date().toLocaleDateString('it-IT')}*\n\n---\n\n`;
+
+  const cats = allCats().filter(c=>c.id!=='event');
+  cats.forEach(cat => {
+    const items = D.elements.filter(e=>e.cat===cat.id);
+    if(!items.length) return;
+    md += `# ${cat.icon} ${cat.name}\n\n`;
+    items.forEach(el => {
+      md += `## ${el.name}\n`;
+      if(el.status){ const sl={draft:'Bozza',wip:'In sviluppo',done:'Definitivo'}; md += `*Stato: ${sl[el.status]||el.status}*\n`; }
+      if(el.sub) md += `*Sottocategoria: ${el.sub}*\n`;
+      md += '\n';
+      if(el.desc) md += `${el.desc}\n\n`;
+      // Extra fields
+      const ex = el.extra||{};
+      Object.keys(ex).filter(k=>ex[k]).forEach(k=>{ md += `**${k}:** ${ex[k]}  \n`; });
+      if(Object.keys(ex).filter(k=>ex[k]).length) md += '\n';
+      // Powers
+      if((el.powers||[]).length){
+        md += `### ⚡ Poteri e Abilità\n`;
+        el.powers.forEach(pw=>{
+          md += `- **${pw.name}**${pw.lvl?' ('+pw.lvl+')':''}`;
+          if(pw.desc) md += `\n  ${pw.desc}`;
+          md += '\n';
+        });
+        md += '\n';
+      }
+      // Equipment
+      if((el.equip||[]).length){
+        md += `### 🎒 Equipaggiamento\n`;
+        el.equip.forEach(id=>{ const obj=byId(id); if(obj) md += `- ${obj.name}\n`; });
+        md += '\n';
+      }
+      // Tags
+      if((el.tags||[]).length){
+        const tagNames = el.tags.map(id=>{ const t=byId(id); return t?t.name:null; }).filter(Boolean);
+        if(tagNames.length) md += `**Collegato a:** ${tagNames.join(', ')}\n\n`;
+      }
+      // Changelog
+      if((el.changelog||[]).length){
+        md += `### 📅 Storico\n`;
+        el.changelog.forEach(c=>{
+          const place = c.placeId?byId(c.placeId):null;
+          md += `- **${c.date||'?'}**${place?' @ '+place.name:''}: ${c.text}\n`;
+        });
+        md += '\n';
+      }
+      // Notes
+      if(el.notes) md += `### 📝 Note\n${el.notes}\n\n`;
+      md += '---\n\n';
+    });
+  });
+
+  // Fazioni
+  if((D.fazioni||[]).length){
+    md += `# ⚔ Fazioni\n\n`;
+    D.fazioni.forEach(f=>{
+      md += `## ${f.name}\n`;
+      if(f.motto) md += `*"${f.motto}"*\n\n`;
+      if(f.desc) md += `${f.desc}\n\n`;
+      if((f.members||[]).length){
+        const names = f.members.map(id=>{ const el=byId(id); return el?el.name:null; }).filter(Boolean);
+        md += `**Membri:** ${names.join(', ')}\n\n`;
+      }
+      if((f.rels||[]).length){
+        const rl={ally:'Alleata',enemy:'Nemica',neutral:'Neutrale'};
+        f.rels.forEach(r=>{ const other=fazById(r.fazId); if(other) md += `**${rl[r.type]}:** ${other.name}  \n`; });
+        md += '\n';
+      }
+      if(f.notes) md += `### Note\n${f.notes}\n\n`;
+      md += '---\n\n';
+    });
+  }
+
+  // Magie
+  if((D.magie||[]).length){
+    md += `# ✨ Sistemi di Magia\n\n`;
+    D.magie.forEach(m=>{
+      md += `## ${m.name}\n`;
+      if(m.desc) md += `${m.desc}\n\n`;
+      if((m.rules||[]).length){
+        md += `### Regole\n`;
+        m.rules.forEach(r=>{ md += `- ${r}\n`; });
+        md += '\n';
+      }
+      if(m.notes) md += `### Note\n${m.notes}\n\n`;
+      md += '---\n\n';
+    });
+  }
+
+  // Events
+  const events = D.elements.filter(e=>e.cat==='event'&&e.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if(events.length){
+    md += `# ⏳ Timeline\n\n`;
+    events.forEach(e=>{
+      md += `## ${e.date} — ${e.name}\n`;
+      if(e.desc) md += `${e.desc}\n\n`;
+      md += '---\n\n';
+    });
+  }
+
+  // Download
+  const blob = new Blob([md], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `storyworld_${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📄 Markdown esportato');
+}
+
 function renderAll(){ renderSidebar(); renderMain(); }
 
 // ══════════════════════════════════════════
