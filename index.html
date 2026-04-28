@@ -448,8 +448,8 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   .tl-range{flex-wrap:wrap}
   .tl-range input{width:120px;flex:1}
 
-  /* modals sheet from bottom */
-  .modal-overlay{align-items:flex-end;padding:0}
+  /* modals sheet from bottom — must be above .dp (z-index:210) */
+  .modal-overlay{align-items:flex-end;padding:0;z-index:220}
   .modal{max-width:100%;width:100%;border-radius:14px 14px 0 0;max-height:92vh}
 
   /* conn toolbar */
