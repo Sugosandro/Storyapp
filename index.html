@@ -622,6 +622,10 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       <select id="mapTimeSel" onchange="renderMapPins()">
         <option value="">Tutti i periodi</option>
       </select>
+      <label style="margin-left:10px">Elemento</label>
+      <select id="mapElSel" onchange="renderMapPins()">
+        <option value="">Tutti gli elementi</option>
+      </select>
       <span class="map-time-info" id="mapTimeInfo"></span>
     </div>
   </div>
@@ -1438,6 +1442,15 @@ function populateMapTimeSel(){
   dates.sort();
   sel.innerHTML = `<option value="">Tutti i periodi</option>`
     + dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+
+  // Populate element filter: only elements with spatial data (changelog + placeId)
+  const elSel = document.getElementById('mapElSel');
+  const prevEl = elSel ? elSel.value : '';
+  const spatialEls = D.elements.filter(el=>(el.changelog||[]).some(c=>c.placeId));
+  if(elSel){
+    elSel.innerHTML = `<option value="">Tutti gli elementi</option>`
+      + spatialEls.map(el=>`<option value="${el.id}" ${el.id==prevEl?'selected':''}>${elIcon(el)} ${el.name}</option>`).join('');
+  }
 }
 
 function renderMapPins(){
@@ -1446,13 +1459,20 @@ function renderMapPins(){
   document.querySelectorAll('.map-pin').forEach(p=>p.remove());
   const canvas = document.getElementById('mapCanvas');
   const period = document.getElementById('mapTimeSel').value;
+  const elSelEl = document.getElementById('mapElSel');
+  const filterElId = elSelEl ? (elSelEl.value ? +elSelEl.value : null) : null;
   const info = document.getElementById('mapTimeInfo');
 
   (D.map.pois||[]).forEach(poi => {
     const place = byId(poi.placeId);
     // Find who is here in selected period
-    const present = period ? getElementsAtPlaceInPeriod(poi.placeId, period) : [];
+    let present = period ? getElementsAtPlaceInPeriod(poi.placeId, period) : [];
+    if(filterElId) present = present.filter(el=>el.id===filterElId);
     const isActive = !period || present.length > 0;
+    // If filtering by element and no period, check if element ever visited this place
+    const elVisited = filterElId && !period ? D.elements.find(el=>el.id===filterElId&&(el.changelog||[]).some(c=>+c.placeId===+poi.placeId)) : null;
+    const showPin = filterElId ? (elVisited || present.length > 0) : true;
+    if(!showPin && filterElId && !period) return; // hide pins not visited by filtered element
 
     const pin = document.createElement('div');
     pin.className = 'map-pin';
@@ -1460,7 +1480,9 @@ function renderMapPins(){
     pin.style.top  = (poi.y * mapState.imgH) + 'px';
     pin.dataset.poiId = poi.id;
 
-    const bodyClass = isActive && period ? 'map-pin-body active-period' : 'map-pin-body';
+    // Highlight if the filtered element was/is here
+    const isHighlighted = filterElId && (elVisited || present.length > 0);
+    const bodyClass = (isActive && period) || isHighlighted ? 'map-pin-body active-period' : 'map-pin-body';
     const icon = place ? elIcon(place) : '📍';
     const presenceDot = (period && present.length > 0)
       ? `<div class="map-pin-presence">${present.length}</div>` : '';
@@ -1478,8 +1500,16 @@ function renderMapPins(){
   });
 
   if(period){
-    const total = (D.map.pois||[]).reduce((n,poi)=>n+getElementsAtPlaceInPeriod(poi.placeId,period).length,0);
+    let total = (D.map.pois||[]).reduce((n,poi)=>{
+      let p = getElementsAtPlaceInPeriod(poi.placeId,period);
+      if(filterElId) p = p.filter(el=>el.id===filterElId);
+      return n+p.length;
+    },0);
     info.textContent = total > 0 ? `${total} presenza${total!==1?'e':''} in questo periodo` : 'Nessuna presenza in questo periodo';
+  } else if(filterElId){
+    const el=byId(filterElId);
+    const stops=(el&&el.changelog||[]).filter(c=>c.placeId).length;
+    info.textContent = el ? `${stops} tappa${stops!==1?'e':''} di ${el.name}` : '';
   } else {
     info.textContent = '';
   }
@@ -2206,11 +2236,18 @@ function addEquip(id){
   const el=byId(curDetailId); if(!el) return;
   if(!el.equip) el.equip=[];
   if(!el.equip.includes(id)) el.equip.push(id);
+  // Auto-tag: aggiungi l'oggetto ai tag del personaggio (e viceversa)
+  if(!el.tags) el.tags=[];
+  if(!el.tags.includes(id)) { el.tags.push(id); }
+  const obj=byId(id);
+  if(obj){ if(!obj.tags) obj.tags=[]; if(!obj.tags.includes(el.id)) obj.tags.push(el.id); }
   saveD();
   document.getElementById('equipInput').value='';
   document.getElementById('equipDropdown').classList.remove('open');
   renderEquipList(el);
-  toast('Oggetto aggiunto');
+  // Refresh tag display
+  document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
+  toast('Oggetto aggiunto · 🏷 tag aggiunto automaticamente');
 }
 
 function removeEquip(id){
@@ -2255,11 +2292,24 @@ function addChangelog(){
   if(!text) return;
   if(!el.changelog) el.changelog=[];
   el.changelog.push({date, text, placeId:placeId?+placeId:null});
+  // Auto-tag: se è selezionato un luogo, aggiungilo ai tag
+  let autoTagged = false;
+  if(placeId){
+    if(!el.tags) el.tags=[];
+    if(!el.tags.includes(+placeId)){ el.tags.push(+placeId); autoTagged=true; }
+    // e aggiungi questo elemento ai tag del luogo
+    const place=byId(+placeId);
+    if(place){ if(!place.tags) place.tags=[]; if(!place.tags.includes(el.id)) place.tags.push(el.id); }
+  }
   saveD(); renderChangelog(el);
+  // Refresh tag display
+  if(autoTagged){
+    document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
+  }
   document.getElementById('clDate').value='';
   document.getElementById('clPlace').value='';
   document.getElementById('clText').value='';
-  toast('Voce aggiunta allo storico');
+  toast(autoTagged ? 'Voce aggiunta · 🏷 tag luogo aggiunto' : 'Voce aggiunta allo storico');
 }
 function removeChangelog(idx){
   const el=byId(curDetailId); if(!el) return;
@@ -2448,13 +2498,21 @@ function renderColorSwatches(){
 
 function renderCatList(){
   const cl=document.getElementById('catList');
-  cl.innerHTML=allCats().map(cat=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px">
-    <span style="width:10px;height:10px;border-radius:50%;background:${cat.color};flex-shrink:0"></span>
-    <span style="font-size:13px">${cat.icon} ${cat.name}</span>
-    ${cat.subs&&cat.subs.length?`<span style="font-size:10px;color:var(--text-muted)">[${cat.subs.join(', ')}]</span>`:''}
-    <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${D.elements.filter(e=>e.cat===cat.id).length} elementi</span>
-    ${!cat.builtin?`<button class="btn-d" onclick="deleteCat('${cat.id}')" style="padding:2px 7px;font-size:10px">✕</button>`:'<span style="font-size:10px;color:var(--text-muted);font-style:italic">built-in</span>'}
-  </div>`).join('');
+  cl.innerHTML=allCats().map(cat=>{
+    const subs=getCatSubs(cat.id);
+    const subsHtml=subs.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${subs.map(s=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;background:${cat.colorDim||'var(--surface3)'};color:${cat.color||'var(--text-dim)'}">${s}<button onclick="deleteSubCat('${cat.id}','${s}');event.stopPropagation()" style="background:none;border:none;color:inherit;cursor:pointer;opacity:.6;font-size:11px;padding:0 0 0 3px;line-height:1">✕</button></span>`).join('')}</div>`
+      : '';
+    return `<div style="display:flex;align-items:flex-start;flex-direction:column;gap:4px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px">
+    <div style="display:flex;align-items:center;gap:8px;width:100%">
+      <span style="width:10px;height:10px;border-radius:50%;background:${cat.color};flex-shrink:0"></span>
+      <span style="font-size:13px">${cat.icon} ${cat.name}</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${D.elements.filter(e=>e.cat===cat.id).length} el.</span>
+      ${!cat.builtin?`<button class="btn-d" onclick="deleteCat('${cat.id}')" style="padding:2px 7px;font-size:10px">✕</button>`:'<span style="font-size:10px;color:var(--text-muted);font-style:italic">built-in</span>'}
+    </div>
+    ${subsHtml}
+  </div>`;
+  }).join('');
 }
 
 function addCustomCat(){
@@ -2497,6 +2555,18 @@ function addSubCat(){
   }
   document.getElementById('newSubCatName').value='';
   saveD(); renderCatList(); renderAll(); toast('Sottocategoria aggiunta');
+}
+
+function deleteSubCat(catId, sub){
+  const cat=catById(catId); if(!cat) return;
+  if(cat.builtin){
+    if(D.subCats&&D.subCats[catId]){
+      D.subCats[catId]=D.subCats[catId].filter(s=>s!==sub);
+    }
+  } else {
+    if(cat.subs) cat.subs=cat.subs.filter(s=>s!==sub);
+  }
+  saveD(); renderCatList(); renderAll(); toast('Sottocategoria rimossa');
 }
 
 function deleteCat(id){
@@ -2587,11 +2657,31 @@ function saveElement(){
   const extra={};
   ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
   const editId=document.getElementById('editingId').value;
+  let savedEl;
   if(editId){
     const el=byId(editId); Object.assign(el,{name,cat,sub,desc,date,status,extra,tags:[...selTags],image:curImg});
+    savedEl=el;
   } else {
-    D.elements.push({id:D.nextId++,cat,sub,name,desc,date,status,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[],powers:[]});
+    savedEl={id:D.nextId++,cat,sub,name,desc,date,status,extra,tags:[...selTags],image:curImg,notes:'',equip:[],changelog:[],powers:[]};
+    D.elements.push(savedEl);
   }
+  // Auto-tag bidirezionale: se questo è un evento, aggiungi back-reference a tutti i tag
+  // Se uno dei tag è un evento, aggiungi questo elemento all'evento
+  if(cat==='event'||cat==='place'){
+    selTags.forEach(tid=>{
+      const tagged=byId(tid); if(!tagged) return;
+      if(!tagged.tags) tagged.tags=[];
+      if(!tagged.tags.includes(savedEl.id)) tagged.tags.push(savedEl.id);
+    });
+  }
+  // Se questo elemento ha tag a eventi o luoghi, aggiungi back-reference
+  selTags.forEach(tid=>{
+    const tagged=byId(tid); if(!tagged) return;
+    if(tagged.cat==='event'||tagged.cat==='place'){
+      if(!tagged.tags) tagged.tags=[];
+      if(!tagged.tags.includes(savedEl.id)) tagged.tags.push(savedEl.id);
+    }
+  });
   saveD(); closeModal(); renderAll();
   if(editId) openDetail(+editId);
   toast(editId?'Elemento aggiornato':'Elemento creato');
@@ -2999,17 +3089,20 @@ function renderMapPaths(){
   if(!D.map||!D.map.image) return;
 
   const period = document.getElementById('mapTimeSel').value;
+  const elSelEl = document.getElementById('mapElSel');
+  const filterElId = elSelEl ? (elSelEl.value ? +elSelEl.value : null) : null;
   const pois = D.map.pois||[];
   if(!pois.length) return;
 
-  // For each element with spatial data, draw path between POIs in order
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.id = 'mapPathSvg';
   svg.setAttribute('class','map-path-svg');
   svg.style.width = mapState.imgW+'px';
   svg.style.height = mapState.imgH+'px';
 
-  D.elements.forEach(el => {
+  const elements = filterElId ? D.elements.filter(el=>el.id===filterElId) : D.elements;
+
+  elements.forEach(el => {
     const entries = (el.changelog||[])
       .filter(c=>c.placeId && c.date)
       .filter(c=>!period||c.date<=period)
@@ -3017,43 +3110,47 @@ function renderMapPaths(){
     if(entries.length < 2) return;
 
     const col = elColor(el);
+    // Create unique marker per element
+    const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg','defs'));
+    const markerId = 'arrow-'+el.id;
+    if(!defs.querySelector('#'+markerId)){
+      const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+      marker.setAttribute('id', markerId);
+      marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','8');
+      marker.setAttribute('refX','6'); marker.setAttribute('refY','3');
+      marker.setAttribute('orient','auto');
+      const arrowPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+      arrowPath.setAttribute('d','M0,0 L0,6 L8,3 z');
+      arrowPath.setAttribute('fill',col); arrowPath.setAttribute('opacity','0.8');
+      marker.appendChild(arrowPath); defs.appendChild(marker);
+    }
+
     for(let i=0; i<entries.length-1; i++){
       const fromPoi = pois.find(p=>+p.placeId===+entries[i].placeId);
       const toPoi   = pois.find(p=>+p.placeId===+entries[i+1].placeId);
       if(!fromPoi||!toPoi||fromPoi.id===toPoi.id) continue;
 
-      const x1 = fromPoi.x * mapState.imgW;
-      const y1 = fromPoi.y * mapState.imgH;
-      const x2 = toPoi.x * mapState.imgW;
-      const y2 = toPoi.y * mapState.imgH;
+      const x1 = fromPoi.x * mapState.imgW, y1 = fromPoi.y * mapState.imgH;
+      const x2 = toPoi.x * mapState.imgW,   y2 = toPoi.y * mapState.imgH;
+      const mx = (x1+x2)/2, my = (y1+y2)/2 - Math.hypot(x2-x1,y2-y1)*0.18;
 
-      // Curved path
-      const mx = (x1+x2)/2, my = (y1+y2)/2 - 30;
       const path = document.createElementNS('http://www.w3.org/2000/svg','path');
       path.setAttribute('d',`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
       path.setAttribute('fill','none');
       path.setAttribute('stroke',col);
-      path.setAttribute('stroke-width','2');
-      path.setAttribute('stroke-opacity','0.6');
-      path.setAttribute('stroke-dasharray','5,4');
-      path.setAttribute('marker-end','url(#arrow-'+el.id+')');
-
-      // Arrow marker
-      const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg','defs'));
-      const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
-      marker.setAttribute('id','arrow-'+el.id);
-      marker.setAttribute('markerWidth','8');
-      marker.setAttribute('markerHeight','8');
-      marker.setAttribute('refX','6');
-      marker.setAttribute('refY','3');
-      marker.setAttribute('orient','auto');
-      const arrow = document.createElementNS('http://www.w3.org/2000/svg','path');
-      arrow.setAttribute('d','M0,0 L0,6 L8,3 z');
-      arrow.setAttribute('fill',col);
-      arrow.setAttribute('opacity','0.7');
-      marker.appendChild(arrow);
-      defs.appendChild(marker);
-      svg.appendChild(path);
+      path.setAttribute('stroke-width', filterElId ? '3' : '2');
+      path.setAttribute('stroke-opacity', filterElId ? '0.85' : '0.55');
+      path.setAttribute('stroke-dasharray','6,4');
+      path.setAttribute('marker-end',`url(#${markerId})`);
+      // Step label
+      const stepLabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+      const tx = mx, ty = my - 6;
+      stepLabel.setAttribute('x', tx); stepLabel.setAttribute('y', ty);
+      stepLabel.setAttribute('text-anchor','middle');
+      stepLabel.setAttribute('fill',col); stepLabel.setAttribute('font-size','10');
+      stepLabel.setAttribute('opacity','0.8');
+      stepLabel.textContent = `${i+1}`;
+      svg.appendChild(path); svg.appendChild(stepLabel);
     }
   });
 
