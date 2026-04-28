@@ -77,6 +77,8 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .spatial-text{color:var(--text-dim);font-size:11px;margin-top:2px}
 
 /* MAP PATHS */
+.tl-range select{color-scheme:dark}
+.tl-range select option{background:#1e1b16;color:#e8e0d0}
 .map-path-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:4}
 
 /* WORLD FILTERS */
@@ -772,7 +774,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
           <div class="dp-lbl">Aggiungi oggetto</div>
           <div class="tic" style="margin-top:4px" onclick="document.getElementById('equipInput').focus()">
             <div class="tac">
-              <input type="text" id="equipInput" placeholder="Cerca oggetto…" oninput="showEquipDropdown()" onkeydown="equipKeydown(event)" autocomplete="off">
+              <input type="text" id="equipInput" placeholder="Cerca tra gli oggetti…" oninput="showEquipDropdown()" onkeydown="equipKeydown(event)" autocomplete="off">
               <div class="tdrop" id="equipDropdown"></div>
             </div>
           </div>
@@ -1263,8 +1265,8 @@ function populateTlSelects(){
   ['tlFrom','tlTo'].forEach(id=>{
     const sel=document.getElementById(id); if(!sel||sel.tagName!=='SELECT') return;
     const prev=sel.value;
-    sel.innerHTML=`<option value="">${id==='tlFrom'?'Inizio':'Fine'}</option>`
-      +dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+    sel.innerHTML=`<option value="" style="background:var(--surface2);color:var(--text)">${id==='tlFrom'?'Inizio':'Fine'}</option>`
+      +dates.map(d=>`<option value="${d}" style="background:var(--surface2);color:var(--text)" ${d===prev?'selected':''}>${d}</option>`).join('');
   });
 }
 
@@ -2139,39 +2141,85 @@ function switchDpTab(tab){
 function saveNotes(){ if(!curDetailId) return; const el=byId(curDetailId); if(!el) return; el.notes=document.getElementById('dpNotes').value; saveD(); }
 
 // Equipment
+let equipExpanded = {};
+
 function renderEquipList(el){
   const list=document.getElementById('dpEquipList');
   const equip=(el.equip||[]).map(id=>byId(id)).filter(Boolean);
-  if(!equip.length){list.innerHTML='<div style="color:var(--text-muted);font-size:12px;font-style:italic">Nessun oggetto</div>';return;}
-  list.innerHTML=equip.map(obj=>`<div class="equip-item">
-    <span style="font-size:13px">${elIcon(obj)}</span>
-    <span class="equip-name" onclick="openDetail(${obj.id})">${obj.name}</span>
-    <span class="equip-type">${elLabel(obj)}</span>
-    <button class="equip-remove" onclick="removeEquip(${obj.id})">✕</button>
-  </div>`).join('');
+  if(!equip.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-size:13px;font-style:italic">Nessun oggetto</div>';
+    return;
+  }
+  list.innerHTML=equip.map(obj=>{
+    const isOpen = equipExpanded[obj.id];
+    const descHtml = isOpen && obj.desc
+      ? `<div style="font-size:12px;color:var(--text-dim);line-height:1.55;padding:7px 0 4px 26px;border-top:1px solid var(--border);margin-top:4px">${obj.desc}</div>`
+      : isOpen && !obj.desc
+      ? `<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:5px 0 2px 26px;border-top:1px solid var(--border);margin-top:4px">Nessuna descrizione</div>`
+      : '';
+    return `<div class="equip-item" style="flex-wrap:wrap;cursor:default">
+      <span style="font-size:13px">${elIcon(obj)}</span>
+      <span class="equip-name" style="cursor:pointer;flex:1" onclick="toggleEquipExpand(${obj.id},event)">
+        ${obj.name}
+        <span style="font-size:10px;color:var(--text-muted);margin-left:4px">${isOpen?'▲':'▼'}</span>
+      </span>
+      <span class="equip-type">${elLabel(obj)}</span>
+      <button class="equip-remove" onclick="removeEquip(${obj.id})" title="Rimuovi">✕</button>
+      ${descHtml ? `<div style="width:100%">${descHtml}</div>` : ''}
+    </div>`;
+  }).join('');
 }
+
+function toggleEquipExpand(id, event){
+  event.stopPropagation();
+  equipExpanded[id] = !equipExpanded[id];
+  const el=byId(curDetailId); if(!el) return;
+  renderEquipList(el);
+}
+
 function showEquipDropdown(){
   const q=document.getElementById('equipInput').value.toLowerCase();
   const dd=document.getElementById('equipDropdown');
   if(!q){dd.classList.remove('open');return;}
   const el=byId(curDetailId); if(!el) return;
-  const cands=D.elements.filter(e=>e.id!==curDetailId&&!(el.equip||[]).includes(e.id)&&e.name.toLowerCase().includes(q));
-  if(!cands.length){dd.classList.remove('open');return;}
-  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addEquip(${e.id})"><span class="topt-dot" style="background:${elColor(e)}"></span><span>${e.name}</span><span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${elLabel(e)}</span></div>`).join('');
+  // Only show objects (cat === 'object' or any custom cat that isn't char/place/event)
+  const cands=D.elements.filter(e=>
+    e.cat==='object' &&
+    e.id!==curDetailId &&
+    !(el.equip||[]).includes(e.id) &&
+    e.name.toLowerCase().includes(q)
+  );
+  if(!cands.length){
+    dd.innerHTML='<div class="topt" style="color:var(--text-muted);font-style:italic;cursor:default">Nessun oggetto trovato</div>';
+    dd.classList.add('open');
+    return;
+  }
+  dd.innerHTML=cands.slice(0,8).map(e=>`<div class="topt" onclick="addEquip(${e.id})">
+    <span class="topt-dot" style="background:${elColor(e)}"></span>
+    <span>${e.name}</span>
+    ${e.desc?`<span style="margin-left:auto;font-size:10px;color:var(--text-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.desc.slice(0,40)}</span>`:''}
+  </div>`).join('');
   dd.classList.add('open');
 }
+
 function addEquip(id){
   const el=byId(curDetailId); if(!el) return;
   if(!el.equip) el.equip=[];
   if(!el.equip.includes(id)) el.equip.push(id);
-  saveD(); document.getElementById('equipInput').value=''; document.getElementById('equipDropdown').classList.remove('open');
-  renderEquipList(el); toast('Oggetto aggiunto all\'equipaggiamento');
+  saveD();
+  document.getElementById('equipInput').value='';
+  document.getElementById('equipDropdown').classList.remove('open');
+  renderEquipList(el);
+  toast('Oggetto aggiunto');
 }
+
 function removeEquip(id){
   const el=byId(curDetailId); if(!el) return;
   el.equip=(el.equip||[]).filter(e=>e!==id);
+  delete equipExpanded[id];
   saveD(); renderEquipList(el);
 }
+
 function equipKeydown(e){ if(e.key==='Escape') document.getElementById('equipDropdown').classList.remove('open'); }
 
 // Changelog
