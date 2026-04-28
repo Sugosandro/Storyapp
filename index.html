@@ -276,6 +276,50 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .mag-rules{margin-top:8px;display:flex;flex-wrap:wrap;gap:3px}
 .mag-rule-chip{font-size:9px;padding:2px 7px;border-radius:20px;background:#1a3830;color:#a0d0c0}
 
+/* ── MAPPA ── */
+.map-view{display:flex;flex-direction:column;height:calc(100vh - 50px);padding:0!important}
+.map-toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;z-index:10}
+.map-toolbar-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);margin-right:4px}
+.map-toolbar-title span{color:var(--gold);font-style:italic}
+.map-container{flex:1;position:relative;overflow:hidden;background:var(--bg);cursor:grab;user-select:none}
+.map-container.dragging{cursor:grabbing}
+.map-canvas{position:absolute;transform-origin:0 0;will-change:transform}
+.map-img{display:block;max-width:none;pointer-events:none;image-rendering:auto}
+.map-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--text-muted)}
+.map-empty-icon{font-size:48px;opacity:.3}
+.map-empty-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--text-dim)}
+.map-empty-sub{font-size:13px;font-style:italic}
+/* POI pins */
+.map-pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:transform .15s;z-index:5;pointer-events:all}
+.map-pin:hover{transform:translate(-50%,-100%) scale(1.2)}
+.map-pin-body{background:var(--surface);border:2px solid var(--gold);border-radius:50% 50% 50% 0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.5);transform:rotate(-45deg)}
+.map-pin-body.active-period{border-color:#8fbd7c;box-shadow:0 0 0 3px rgba(143,189,124,.3)}
+.map-pin-inner{transform:rotate(45deg)}
+.map-pin-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;white-space:nowrap;color:var(--text);pointer-events:none;opacity:0;transition:opacity .15s}
+.map-pin:hover .map-pin-label{opacity:1}
+/* pin presence dots */
+.map-pin-presence{position:absolute;top:-4px;right:-4px;background:#8fbd7c;border-radius:50%;width:10px;height:10px;border:1px solid var(--surface);font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff}
+/* zoom controls */
+.map-zoom{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:4px;z-index:20}
+.map-zoom button{background:var(--surface);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:var(--r);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.map-zoom button:hover{background:var(--surface2)}
+/* time slider */
+.map-time{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.map-time label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);white-space:nowrap}
+.map-time select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;padding:4px 8px;outline:none;cursor:pointer;flex:1;max-width:220px}
+.map-time select:focus{border-color:var(--gold-dim)}
+.map-time .map-time-info{font-size:11px;color:var(--text-dim);font-style:italic}
+/* poi tooltip */
+.map-tooltip{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;z-index:300;pointer-events:none;max-width:220px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.map-tooltip-name{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:5px}
+.map-tooltip-sub{font-size:11px;color:var(--text-dim);margin-bottom:6px}
+.map-tooltip-pres{font-size:11px;color:var(--text-muted)}
+.map-tooltip-pres span{display:block;padding:1px 0}
+/* add pin mode */
+.map-container.pin-mode{cursor:crosshair}
+.pin-mode-banner{background:rgba(201,168,76,.15);border:1px solid var(--gold-dim);border-radius:var(--r);padding:5px 12px;font-size:12px;color:var(--gold);display:none;align-items:center;gap:8px}
+.pin-mode-banner.active{display:flex}
+
 /* ── TREE CONNECTIONS ── */
 .tree-root{padding:4px 0}
 .tree-node{position:relative;margin-bottom:1px}
@@ -324,6 +368,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   .main{overflow:visible;height:auto;min-height:calc(100vh - 50px)}
   .view{padding:14px 12px 80px;display:none}
   .view.active{display:block}
+  .view.map-view{padding:0!important;height:calc(100vh - 50px - 48px)}
 
   /* detail panel full-screen slide */
   .dp{position:fixed;inset:0;top:50px;width:100%!important;min-width:0!important;z-index:210;display:flex!important;transform:translateX(110%);transition:transform .28s ease}
@@ -358,6 +403,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <nav>
     <button class="active" onclick="sv('world')">🌍 Mondo</button>
     <button onclick="sv('timeline')">⏳ Timeline</button>
+    <button onclick="sv('mappa')">🗺 Mappa</button>
     <button onclick="sv('fazioni')">⚔ Fazioni</button>
     <button onclick="sv('magia')">✨ Magia</button>
     <button onclick="sv('arcs')">📖 Archi</button>
@@ -365,6 +411,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   </nav>
   <div class="hact">
     <button class="btn-sm" onclick="openCatModal()">⚙ Categorie</button>
+    <button class="btn-sm" onclick="syncGDrive()" id="driveBtn" title="Sincronizza con Google Drive">☁ Drive</button>
     <button class="btn-sm" onclick="importData()">⬆ Importa</button>
     <button class="btn-sm" onclick="exportData()">⬇ Esporta</button>
   </div>
@@ -385,6 +432,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
   <div class="mob-nav-inner" id="mobNavInner">
     <button class="active" onclick="sv('world')">🌍 Mondo</button>
     <button onclick="sv('timeline')">⏳ Timeline</button>
+    <button onclick="sv('mappa')">🗺 Mappa</button>
     <button onclick="sv('fazioni')">⚔ Fazioni</button>
     <button onclick="sv('magia')">✨ Magia</button>
     <button onclick="sv('arcs')">📖 Archi</button>
@@ -421,10 +469,14 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       <!-- Date range filter -->
       <div class="tl-range">
         <label>Da</label>
-        <input type="text" id="tlFrom" placeholder="Es. Anno 1, Giorno 1" oninput="renderTimeline()">
+        <select id="tlFrom" onchange="renderTimeline()" style="background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:90px">
+          <option value="">Inizio</option>
+        </select>
         <span class="tl-sep">→</span>
         <label>A</label>
-        <input type="text" id="tlTo" placeholder="Es. Anno 1, Giorno 10" oninput="renderTimeline()">
+        <select id="tlTo" onchange="renderTimeline()" style="background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:90px">
+          <option value="">Fine</option>
+        </select>
         <button class="btn-sm" onclick="clearTlRange()" style="border:none;padding:2px 5px;font-size:11px" title="Azzera intervallo">✕</button>
       </div>
       <!-- Grouping mode -->
@@ -456,6 +508,50 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     </div>
     <div class="tl-track" id="tlTrack"></div>
   </div>
+
+  <!-- MAPPA -->
+  <div class="view map-view" id="view-mappa">
+    <div class="map-toolbar">
+      <span class="map-toolbar-title">🗺 <span>Mappa</span></span>
+      <div class="pin-mode-banner" id="pinModeBanner">
+        📍 Clicca sulla mappa per posizionare il punto
+        <button class="btn-sm" onclick="cancelPinMode()" style="padding:2px 8px;font-size:11px">Annulla</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-sm" id="addPinBtn" onclick="startPinMode()">📍 Aggiungi POI</button>
+        <button class="btn-sm" onclick="uploadMapImage()">🖼 Carica mappa</button>
+        <input type="file" id="mapImgInput" accept="image/*" style="display:none" onchange="handleMapImage(event)">
+        <button class="btn-sm" onclick="mapFitView()">⊡ Adatta</button>
+      </div>
+    </div>
+    <div class="map-container" id="mapContainer"
+      onmousedown="mapDragStart(event)" onmousemove="mapDragMove(event)" onmouseup="mapDragEnd(event)" onmouseleave="mapDragEnd(event)"
+      onwheel="mapZoom(event)" onclick="mapClick(event)"
+      ontouchstart="mapTouchStart(event)" ontouchmove="mapTouchMove(event)" ontouchend="mapTouchEnd(event)">
+      <div class="map-canvas" id="mapCanvas">
+        <!-- image and pins rendered here -->
+      </div>
+      <div class="map-empty" id="mapEmpty">
+        <div class="map-empty-icon">🗺</div>
+        <div class="map-empty-title">Nessuna mappa caricata</div>
+        <div class="map-empty-sub">Clicca "Carica mappa" per caricare un'immagine JPG o PNG</div>
+        <button class="btn-p" onclick="uploadMapImage()">🖼 Carica mappa</button>
+      </div>
+      <div class="map-zoom">
+        <button onclick="mapZoomIn()" title="Zoom in">+</button>
+        <button onclick="mapZoomOut()" title="Zoom out">−</button>
+        <button onclick="mapFitView()" title="Adatta" style="font-size:12px">⊡</button>
+      </div>
+    </div>
+    <div class="map-time" id="mapTimeBar">
+      <label>Periodo</label>
+      <select id="mapTimeSel" onchange="renderMapPins()">
+        <option value="">Tutti i periodi</option>
+      </select>
+      <span class="map-time-info" id="mapTimeInfo"></span>
+    </div>
+  </div>
+  <div class="map-tooltip" id="mapTooltip" style="display:none"></div>
 
   <!-- FAZIONI -->
   <div class="view" id="view-fazioni">
@@ -539,6 +635,14 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
         <div class="dp-lbl">Tag collegati</div>
         <div class="dp-tags" id="dpTags"></div>
       </div>
+      <div class="dp-sec" id="dpFazSection" style="display:none">
+        <div class="dp-lbl">⚔ Fazioni</div>
+        <div class="dp-tags" id="dpFazList"></div>
+      </div>
+      <div class="dp-sec" id="dpMagSection" style="display:none">
+        <div class="dp-lbl">✨ Sistemi di magia</div>
+        <div class="dp-tags" id="dpMagList"></div>
+      </div>
       <div class="dp-sec" id="dpArcsSection" style="display:none">
         <div class="dp-lbl">Archi narrativi</div>
         <div class="dp-tags" id="dpArcsList"></div>
@@ -572,6 +676,9 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
         <div class="cl-add-form">
           <div class="dp-lbl">Aggiungi voce</div>
           <input type="text" id="clDate" placeholder="Momento narrativo (es. Cap. 3, Anno 1247)" class="fi" style="font-size:12px">
+          <select id="clPlace" class="fi" style="font-size:12px;padding:6px 9px">
+            <option value="">📍 Luogo (opzionale)</option>
+          </select>
           <textarea id="clText" placeholder="Cosa è cambiato in questo momento?" class="ft" style="min-height:60px;font-size:12px"></textarea>
           <div style="display:flex;justify-content:flex-end">
             <button class="btn-p" onclick="addChangelog()" style="font-size:11px;padding:5px 12px">+ Aggiungi</button>
@@ -887,10 +994,19 @@ const PALETTE = ['#7ab8d4','#8fbd7c','#d4956a','#b88fc4','#e8a0a8','#a8d4b8','#d
 let selColor = PALETTE[0];
 
 let D = {
-  elements:[], arcs:[], fazioni:[], magie:[], cats:[], nextId:1, nextArcId:1, nextFazId:1, nextMagId:1
+  elements:[], arcs:[], fazioni:[], magie:[], cats:[], nextId:1, nextArcId:1, nextFazId:1, nextMagId:1,
+  map:{ image:'', pois:[] }
 };
 
-function loadD(){ try{ const s=localStorage.getItem('sw_v4'); if(s) D=JSON.parse(s); }catch(e){} }
+function loadD(){
+  try{ const s=localStorage.getItem('sw_v4'); if(s) D=JSON.parse(s); }catch(e){}
+  // migrate older saves
+  if(!D.map) D.map = { image:'', pois:[] };
+  if(!D.fazioni) D.fazioni=[];
+  if(!D.magie) D.magie=[];
+  if(!D.nextFazId) D.nextFazId=1;
+  if(!D.nextMagId) D.nextMagId=1;
+}
 function saveD(){ try{ localStorage.setItem('sw_v4', JSON.stringify(D)); }catch(e){} }
 
 // Merge builtins with stored custom cats
@@ -960,15 +1076,16 @@ function sv(v){
   curView=v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  const navViews=['world','timeline','fazioni','magia','arcs','connections'];
+  const navViews=['world','timeline','mappa','fazioni','magia','arcs','connections'];
   document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',navViews[i]===v));
   const mobBtns=document.querySelectorAll('.mob-nav-inner button');
-  mobBtns.forEach((b,i)=>b.classList.toggle('active',['world','timeline','fazioni','magia','arcs','connections','','',''][i]===v));
+  mobBtns.forEach((b,i)=>b.classList.toggle('active',['world','timeline','mappa','fazioni','magia','arcs','connections','','',''][i]===v));
   renderMain();
 }
 function renderMain(){
   if(curView==='world') renderWorld();
   if(curView==='timeline') renderTimeline();
+  if(curView==='mappa') renderMappa();
   if(curView==='fazioni') renderFazioni();
   if(curView==='magia') renderMagia();
   if(curView==='arcs') renderArcs();
@@ -1012,7 +1129,18 @@ function renderWorld(){
 }
 
 // ── TIMELINE ──
+function populateTlSelects(){
+  const dates=[...new Set(D.elements.filter(e=>e.cat==='event'&&e.date).map(e=>e.date))].sort();
+  ['tlFrom','tlTo'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel||sel.tagName!=='SELECT') return;
+    const prev=sel.value;
+    sel.innerHTML=`<option value="">${id==='tlFrom'?'Inizio':'Fine'}</option>`
+      +dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+  });
+}
+
 function renderTimeline(){
+  populateTlSelects();
   // Arc filter buttons
   const fi=document.getElementById('tlFilters');
   let fh=`<button class="tl-filter ${!tlArcFilter?'active':''}" onclick="setTlF(null)">Tutti</button>`;
@@ -1028,16 +1156,10 @@ function renderTimeline(){
     if(arc) events=events.filter(e=>(arc.members||[]).includes(e.id)||(e.tags||[]).some(t=>(arc.members||[]).includes(t)));
   }
 
-  // Date range filter
-  const from=document.getElementById('tlFrom').value.trim();
-  const to=document.getElementById('tlTo').value.trim();
-  if(from||to){
-    const allDates=[...new Set(D.elements.filter(e=>e.cat==='event'&&e.date).map(e=>e.date))].sort();
-    const fromIdx=from?allDates.findIndex(d=>d>=from):0;
-    const toIdx=to?allDates.findIndex(d=>d>to)-1:allDates.length-1;
-    const validDates=new Set(allDates.slice(fromIdx<0?0:fromIdx, toIdx<0?allDates.length:toIdx+1));
-    events=events.filter(e=>!e.date||validDates.has(e.date));
-  }
+  // Date range filter — works with both select and input
+  const from=document.getElementById('tlFrom').value;
+  const to=document.getElementById('tlTo').value;
+  if(from||to) events=events.filter(e=>(!from||!e.date||e.date>=from)&&(!to||!e.date||e.date<=to));
 
   if(!events.length){
     track.innerHTML=`<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Nessun evento${(from||to)?' in questo intervallo':''}</div><div class="empty-sub">${(from||to)?'Prova ad allargare l\'intervallo':'Crea eventi per la timeline'}</div></div>`;
@@ -1137,6 +1259,299 @@ function moveChapter(i,dir){
   const j=i+dir; if(j<0||j>=D.chapters.length) return;
   [D.chapters[i],D.chapters[j]]=[D.chapters[j],D.chapters[i]];
   saveD(); renderChapterList(); renderTimeline();
+}
+
+// ══════════════════════════════════════════
+// MAPPA
+// ══════════════════════════════════════════
+let mapState = {
+  scale: 1, offX: 0, offY: 0,
+  dragging: false, lastX: 0, lastY: 0,
+  pinMode: false, pendingPoi: null,
+  imgW: 0, imgH: 0,
+  // touch
+  touches: [], lastPinchDist: 0
+};
+const MAP_MIN = 0.1, MAP_MAX = 8;
+
+function renderMappa(){
+  if(!D.map) D.map = { image:'', pois:[] };
+  const hasImg = !!D.map.image;
+  document.getElementById('mapEmpty').style.display = hasImg ? 'none' : 'flex';
+  document.getElementById('addPinBtn').style.display = hasImg ? '' : 'none';
+  if(hasImg){
+    let img = document.getElementById('mapImg');
+    if(!img){
+      img = document.createElement('img');
+      img.id = 'mapImg'; img.className = 'map-img';
+      img.onload = () => {
+        mapState.imgW = img.naturalWidth;
+        mapState.imgH = img.naturalHeight;
+        mapFitView();
+        renderMapPins();
+      };
+      document.getElementById('mapCanvas').appendChild(img);
+    }
+    if(img.src !== D.map.image) img.src = D.map.image;
+    else renderMapPins();
+  }
+  populateMapTimeSel();
+}
+
+function populateMapTimeSel(){
+  const sel = document.getElementById('mapTimeSel');
+  const prev = sel.value;
+  const dates = [...new Set(D.elements.filter(e=>e.cat==='event'&&e.date).map(e=>e.date))].sort();
+  // Also collect dates from changelogs
+  D.elements.forEach(el=>(el.changelog||[]).forEach(c=>{ if(c.date&&!dates.includes(c.date)) dates.push(c.date); }));
+  dates.sort();
+  sel.innerHTML = `<option value="">Tutti i periodi</option>`
+    + dates.map(d=>`<option value="${d}" ${d===prev?'selected':''}>${d}</option>`).join('');
+}
+
+function renderMapPins(){
+  if(!D.map||!D.map.image) return;
+  // Remove old pins
+  document.querySelectorAll('.map-pin').forEach(p=>p.remove());
+  const canvas = document.getElementById('mapCanvas');
+  const period = document.getElementById('mapTimeSel').value;
+  const info = document.getElementById('mapTimeInfo');
+
+  (D.map.pois||[]).forEach(poi => {
+    const place = byId(poi.placeId);
+    // Find who is here in selected period
+    const present = period ? getElementsAtPlaceInPeriod(poi.placeId, period) : [];
+    const isActive = !period || present.length > 0;
+
+    const pin = document.createElement('div');
+    pin.className = 'map-pin';
+    pin.style.left = (poi.x * mapState.imgW) + 'px';
+    pin.style.top  = (poi.y * mapState.imgH) + 'px';
+    pin.dataset.poiId = poi.id;
+
+    const bodyClass = isActive && period ? 'map-pin-body active-period' : 'map-pin-body';
+    const icon = place ? elIcon(place) : '📍';
+    const presenceDot = (period && present.length > 0)
+      ? `<div class="map-pin-presence">${present.length}</div>` : '';
+
+    pin.innerHTML = `
+      <div style="position:relative">
+        <div class="${bodyClass}"><div class="map-pin-inner">${icon}</div></div>
+        ${presenceDot}
+      </div>
+      <div class="map-pin-label">${place ? place.name : poi.label||'POI'}</div>`;
+
+    pin.addEventListener('click', e => { e.stopPropagation(); showPinTooltip(poi, place, present, e); });
+    pin.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); removePoi(poi.id); });
+    canvas.appendChild(pin);
+  });
+
+  if(period){
+    const total = (D.map.pois||[]).reduce((n,poi)=>n+getElementsAtPlaceInPeriod(poi.placeId,period).length,0);
+    info.textContent = total > 0 ? `${total} presenza${total!==1?'e':''} in questo periodo` : 'Nessuna presenza in questo periodo';
+  } else {
+    info.textContent = '';
+  }
+}
+
+function getElementsAtPlaceInPeriod(placeId, period){
+  // An element is "at" a place in a period if it has a changelog entry
+  // with that placeId and a date <= period, and no later entry with a different place
+  const result = [];
+  D.elements.forEach(el => {
+    const cl = (el.changelog||[]).filter(c=>c.placeId&&c.date).sort((a,b)=>a.date.localeCompare(b.date));
+    if(!cl.length) return;
+    // Find last entry with date <= period
+    const relevant = cl.filter(c=>c.date<=period);
+    if(!relevant.length) return;
+    const last = relevant[relevant.length-1];
+    if(+last.placeId === +placeId) result.push(el);
+  });
+  return result;
+}
+
+function showPinTooltip(poi, place, present, e){
+  const tt = document.getElementById('mapTooltip');
+  const name = place ? place.name : poi.label||'Punto di interesse';
+  const desc = place ? (place.desc||'') : '';
+  let presHtml = '';
+  if(present.length > 0){
+    presHtml = `<div class="map-tooltip-pres" style="margin-top:6px">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:3px">Presenti in questo periodo</div>
+      ${present.map(el=>`<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:1px 6px;border-radius:10px;background:${elColorDim(el)};color:${elColor(el)};margin:2px;cursor:pointer" onclick="openDetail(${el.id})">${elIcon(el)} ${el.name}</span>`).join('')}
+    </div>`;
+  }
+  tt.innerHTML = `
+    <div class="map-tooltip-name">${elIcon(place||{cat:'place'})||'📍'} ${name}</div>
+    ${desc?`<div class="map-tooltip-sub">${desc.slice(0,80)}${desc.length>80?'…':''}</div>`:''}
+    ${place?`<button class="btn-g" onclick="openDetail(${place.id})" style="font-size:11px;padding:3px 9px;margin-top:4px">Apri scheda</button>`:''}
+    ${presHtml}
+    <div style="margin-top:8px;font-size:9px;color:var(--text-muted)">Tasto destro per rimuovere il PIN</div>`;
+  tt.style.display = 'block';
+  // Position tooltip near click but keep in viewport
+  const x = Math.min(e.clientX + 12, window.innerWidth - 240);
+  const y = Math.min(e.clientY + 12, window.innerHeight - tt.offsetHeight - 20);
+  tt.style.left = x + 'px'; tt.style.top = y + 'px';
+  // Close on next click anywhere
+  setTimeout(()=>document.addEventListener('click', hidePinTooltip, {once:true}), 10);
+}
+function hidePinTooltip(){ document.getElementById('mapTooltip').style.display='none'; }
+
+// ── MAP IMAGE ──
+function uploadMapImage(){ document.getElementById('mapImgInput').click(); }
+function handleMapImage(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if(!D.map) D.map = { image:'', pois:[] };
+    D.map.image = e.target.result;
+    saveD();
+    // Reset existing img element so it reloads
+    const old = document.getElementById('mapImg');
+    if(old) old.remove();
+    renderMappa();
+    toast('🗺 Mappa caricata');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+// ── MAP TRANSFORM ──
+function applyTransform(){
+  document.getElementById('mapCanvas').style.transform =
+    `translate(${mapState.offX}px,${mapState.offY}px) scale(${mapState.scale})`;
+}
+function mapFitView(){
+  const c = document.getElementById('mapContainer');
+  const cw = c.clientWidth, ch = c.clientHeight;
+  if(!mapState.imgW || !mapState.imgH){ mapState.scale=1; mapState.offX=0; mapState.offY=0; applyTransform(); return; }
+  const s = Math.min(cw/mapState.imgW, ch/mapState.imgH) * 0.9;
+  mapState.scale = Math.min(Math.max(s, MAP_MIN), MAP_MAX);
+  mapState.offX = (cw - mapState.imgW*mapState.scale)/2;
+  mapState.offY = (ch - mapState.imgH*mapState.scale)/2;
+  applyTransform();
+}
+function mapZoomIn(){ zoomBy(1.3); }
+function mapZoomOut(){ zoomBy(1/1.3); }
+function zoomBy(factor, cx, cy){
+  const c = document.getElementById('mapContainer');
+  cx = cx ?? c.clientWidth/2; cy = cy ?? c.clientHeight/2;
+  const newScale = Math.min(Math.max(mapState.scale*factor, MAP_MIN), MAP_MAX);
+  mapState.offX = cx - (cx-mapState.offX)*(newScale/mapState.scale);
+  mapState.offY = cy - (cy-mapState.offY)*(newScale/mapState.scale);
+  mapState.scale = newScale;
+  applyTransform();
+}
+function mapZoom(e){
+  e.preventDefault();
+  const c = document.getElementById('mapContainer');
+  const rect = c.getBoundingClientRect();
+  const cx = e.clientX-rect.left, cy = e.clientY-rect.top;
+  zoomBy(e.deltaY<0 ? 1.12 : 1/1.12, cx, cy);
+}
+
+// ── MAP DRAG ──
+function mapDragStart(e){
+  if(mapState.pinMode) return;
+  if(e.button!==0) return;
+  mapState.dragging=true; mapState.lastX=e.clientX; mapState.lastY=e.clientY;
+  document.getElementById('mapContainer').classList.add('dragging');
+}
+function mapDragMove(e){
+  if(!mapState.dragging) return;
+  mapState.offX += e.clientX-mapState.lastX;
+  mapState.offY += e.clientY-mapState.lastY;
+  mapState.lastX=e.clientX; mapState.lastY=e.clientY;
+  applyTransform();
+}
+function mapDragEnd(){ mapState.dragging=false; document.getElementById('mapContainer').classList.remove('dragging'); }
+
+// ── TOUCH ──
+function mapTouchStart(e){
+  e.preventDefault();
+  mapState.touches = [...e.touches];
+  if(e.touches.length===1 && !mapState.pinMode){
+    mapState.dragging=true; mapState.lastX=e.touches[0].clientX; mapState.lastY=e.touches[0].clientY;
+  }
+  if(e.touches.length===2){
+    mapState.dragging=false;
+    mapState.lastPinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  }
+}
+function mapTouchMove(e){
+  e.preventDefault();
+  if(e.touches.length===1 && mapState.dragging){
+    mapState.offX += e.touches[0].clientX-mapState.lastX;
+    mapState.offY += e.touches[0].clientY-mapState.lastY;
+    mapState.lastX=e.touches[0].clientX; mapState.lastY=e.touches[0].clientY;
+    applyTransform();
+  }
+  if(e.touches.length===2){
+    const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    const cx=(e.touches[0].clientX+e.touches[1].clientX)/2;
+    const cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    const c=document.getElementById('mapContainer').getBoundingClientRect();
+    zoomBy(dist/mapState.lastPinchDist, cx-c.left, cy-c.top);
+    mapState.lastPinchDist=dist;
+  }
+}
+function mapTouchEnd(e){ if(e.touches.length===0){ mapState.dragging=false; } }
+
+// ── PIN PLACEMENT ──
+function startPinMode(){
+  if(!D.map||!D.map.image){ toast('Carica prima una mappa'); return; }
+  mapState.pinMode=true;
+  document.getElementById('mapContainer').classList.add('pin-mode');
+  document.getElementById('pinModeBanner').classList.add('active');
+}
+function cancelPinMode(){
+  mapState.pinMode=false;
+  document.getElementById('mapContainer').classList.remove('pin-mode');
+  document.getElementById('pinModeBanner').classList.remove('active');
+  mapState.pendingPoi=null;
+}
+function mapClick(e){
+  if(!mapState.pinMode) return;
+  if(mapState.dragging) return;
+  const c = document.getElementById('mapContainer');
+  const rect = c.getBoundingClientRect();
+  const cx = (e.clientX-rect.left-mapState.offX)/mapState.scale;
+  const cy = (e.clientY-rect.top-mapState.offY)/mapState.scale;
+  // Normalize to 0-1
+  const nx = cx/mapState.imgW, ny = cy/mapState.imgH;
+  mapState.pendingPoi = {x:nx, y:ny};
+  cancelPinMode();
+  openPoiModal(nx, ny);
+}
+
+// ── POI MODAL ──
+function openPoiModal(x, y){
+  // Build a quick modal inline (reuse cfm pattern)
+  const places = D.elements.filter(e=>e.cat==='place');
+  showCfm('📍 Nuovo punto di interesse', 'Collega questo punto a un luogo esistente o inserisci un nome libero.', ()=>{
+    const sel = document.getElementById('poiPlaceSel').value;
+    const label = document.getElementById('poiLabel').value.trim();
+    if(!sel && !label){ toast('Inserisci un nome o seleziona un luogo'); return; }
+    if(!D.map.pois) D.map.pois=[];
+    D.map.pois.push({ id: Date.now(), x, y, placeId: sel?+sel:null, label: label||null });
+    saveD(); renderMapPins(); toast('📍 Punto aggiunto');
+  });
+  // Inject extra fields into confirm box
+  const msg = document.getElementById('cfmMsg');
+  msg.innerHTML = `
+    <select id="poiPlaceSel" class="fi" style="width:100%;font-size:12px;padding:6px 9px;margin-bottom:7px">
+      <option value="">— Seleziona un luogo —</option>
+      ${places.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+    </select>
+    <input id="poiLabel" class="fi" placeholder="…o nome libero (es. 'Accampamento Nord')" style="width:100%;font-size:12px;padding:6px 9px">`;
+  document.getElementById('cfmBtn').textContent = 'Aggiungi punto';
+}
+
+function removePoi(poiId){
+  showCfm('Rimuovi punto', 'Vuoi rimuovere questo punto dalla mappa?', ()=>{
+    D.map.pois = (D.map.pois||[]).filter(p=>p.id!==poiId);
+    saveD(); renderMapPins(); toast('Punto rimosso');
+  });
 }
 
 // ── FAZIONI ──
@@ -1418,6 +1833,52 @@ function renderSidebar(){
     </div>`;
   });
 
+  // Fazioni
+  const fazItems = (D.fazioni||[]).filter(f => !q || f.name.toLowerCase().includes(q));
+  if(fazItems.length || !q){
+    const open = q || isSbOpen('__faz');
+    const fazHtml = fazItems.length
+      ? fazItems.map(f=>`<div class="sb-item ${curFazId===f.id?'active':''}" onclick="openFazDetail(${f.id})"><span style="font-size:11px;opacity:.45">⚔</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span></div>`).join('')
+      : `<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuna</div>`;
+    h += `<div class="sb-sec">
+      <div class="sb-sec-hd" onclick="toggleSbSec('__faz')">
+        <span class="sb-chevron ${open?'open':''}" id="sbarr-__faz">${open?'▼':'▶'}</span>
+        <span class="sb-sec-lbl"><span class="dot" style="background:#f0c060"></span>Fazioni
+          <span style="opacity:.45;font-size:9px;margin-left:2px">${fazItems.length}</span>
+        </span>
+        <div class="sb-sec-actions" onclick="event.stopPropagation()">
+          <button class="sb-btn" onclick="openFazModal()" title="Nuovo">+</button>
+        </div>
+      </div>
+      <div class="sb-children ${open?'':'collapsed'}" id="sbch-__faz" style="max-height:${open?'2000px':'0'}">
+        <div class="sb-items">${fazHtml}</div>
+      </div>
+    </div>`;
+  }
+
+  // Magie
+  const magItems = (D.magie||[]).filter(m => !q || m.name.toLowerCase().includes(q));
+  if(magItems.length || !q){
+    const open = q || isSbOpen('__mag');
+    const magHtml = magItems.length
+      ? magItems.map(m=>`<div class="sb-item ${curMagId===m.id?'active':''}" onclick="openMagDetail(${m.id})"><span style="font-size:11px;opacity:.45">✨</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</span></div>`).join('')
+      : `<div style="font-size:10px;color:var(--text-muted);padding:3px 7px;font-style:italic">Nessuno</div>`;
+    h += `<div class="sb-sec">
+      <div class="sb-sec-hd" onclick="toggleSbSec('__mag')">
+        <span class="sb-chevron ${open?'open':''}" id="sbarr-__mag">${open?'▼':'▶'}</span>
+        <span class="sb-sec-lbl"><span class="dot" style="background:#a0d0c0"></span>Magia
+          <span style="opacity:.45;font-size:9px;margin-left:2px">${magItems.length}</span>
+        </span>
+        <div class="sb-sec-actions" onclick="event.stopPropagation()">
+          <button class="sb-btn" onclick="openMagModal()" title="Nuovo">+</button>
+        </div>
+      </div>
+      <div class="sb-children ${open?'':'collapsed'}" id="sbch-__mag" style="max-height:${open?'2000px':'0'}">
+        <div class="sb-items">${magHtml}</div>
+      </div>
+    </div>`;
+  }
+
   // Archi
   const arcs = D.arcs.filter(a => !q || a.name.toLowerCase().includes(q));
   if(arcs.length || !q){
@@ -1485,6 +1946,22 @@ function openDetail(id){
 
   document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
 
+  // Fazioni
+  const elFaz=fazioniOfEl(id);
+  const fazSection=document.getElementById('dpFazSection');
+  if(elFaz.length){
+    fazSection.style.display='';
+    document.getElementById('dpFazList').innerHTML=elFaz.map(f=>`<span class="tag" style="background:#4a3810;color:#f0c060" onclick="openFazDetail(${f.id});event.stopPropagation()">⚔ ${f.name}</span>`).join('');
+  } else fazSection.style.display='none';
+
+  // Magie
+  const elMag=magieOfEl(id);
+  const magSection=document.getElementById('dpMagSection');
+  if(elMag.length){
+    magSection.style.display='';
+    document.getElementById('dpMagList').innerHTML=elMag.map(m=>`<span class="tag" style="background:#1a3830;color:#a0d0c0" onclick="openMagDetail(${m.id});event.stopPropagation()">✨ ${m.name}</span>`).join('');
+  } else magSection.style.display='none';
+
   const elArcs=arcsByMember(id);
   const arcsSection=document.getElementById('dpArcsSection');
   if(elArcs.length){arcsSection.style.display='';document.getElementById('dpArcsList').innerHTML=elArcs.map(a=>`<span class="tag" style="background:var(--arc-dim);color:var(--arc)" onclick="openArcDetail(${a.id});event.stopPropagation()">📖 ${a.name}</span>`).join('');}
@@ -1519,6 +1996,7 @@ function switchDpTab(tab){
   const tabs=['info','equip','changelog','notes'];
   document.querySelectorAll('#dpPanel .dp-tab').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
   tabs.forEach(t=>{ const el=document.getElementById('dtab-'+t); if(el) el.classList.toggle('active',t===tab); });
+  if(tab==='changelog') populateClPlaceSelect();
 }
 
 function saveNotes(){ if(!curDetailId) return; const el=byId(curDetailId); if(!el) return; el.notes=document.getElementById('dpNotes').value; saveD(); }
@@ -1560,25 +2038,42 @@ function removeEquip(id){
 function equipKeydown(e){ if(e.key==='Escape') document.getElementById('equipDropdown').classList.remove('open'); }
 
 // Changelog
+function populateClPlaceSelect(){
+  const sel=document.getElementById('clPlace'); if(!sel) return;
+  const prev=sel.value;
+  const places=D.elements.filter(e=>e.cat==='place');
+  sel.innerHTML=`<option value="">📍 Luogo (opzionale)</option>`
+    +places.map(p=>`<option value="${p.id}" ${p.id==prev?'selected':''}>${p.name}</option>`).join('');
+}
 function renderChangelog(el){
   const list=document.getElementById('dpChangelog');
   const cl=el.changelog||[];
   if(!cl.length){list.innerHTML='<div style="color:var(--text-muted);font-size:12px;font-style:italic;padding:4px 0">Nessuna voce di storico</div>';return;}
-  list.innerHTML=cl.slice().reverse().map((e,i)=>`<div class="cl-entry">
-    <div class="cl-date">📅 ${e.date||'Momento non specificato'} <button onclick="removeChangelog(${cl.length-1-i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;opacity:.5;float:right" title="Rimuovi">✕</button></div>
-    <div class="cl-text">${e.text}</div>
-  </div>`).join('');
+  list.innerHTML=cl.slice().reverse().map((e,i)=>{
+    const place=e.placeId?byId(e.placeId):null;
+    const placeBadge=place?`<span style="font-size:10px;background:var(--place-dim);color:var(--place);padding:1px 6px;border-radius:10px;cursor:pointer;margin-left:6px" onclick="openDetail(${place.id})">📍 ${place.name}</span>`:'';
+    return `<div class="cl-entry">
+      <div class="cl-date" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
+        <span>📅 ${e.date||'Momento non specificato'}</span>${placeBadge}
+        <button onclick="removeChangelog(${cl.length-1-i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;opacity:.5;margin-left:auto" title="Rimuovi">✕</button>
+      </div>
+      <div class="cl-text">${e.text}</div>
+    </div>`;
+  }).join('');
 }
 function addChangelog(){
   if(!curDetailId) return;
   const el=byId(curDetailId); if(!el) return;
   const date=document.getElementById('clDate').value.trim();
   const text=document.getElementById('clText').value.trim();
+  const placeId=document.getElementById('clPlace').value;
   if(!text) return;
   if(!el.changelog) el.changelog=[];
-  el.changelog.push({date, text});
+  el.changelog.push({date, text, placeId:placeId?+placeId:null});
   saveD(); renderChangelog(el);
-  document.getElementById('clDate').value=''; document.getElementById('clText').value='';
+  document.getElementById('clDate').value='';
+  document.getElementById('clPlace').value='';
+  document.getElementById('clText').value='';
   toast('Voce aggiunta allo storico');
 }
 function removeChangelog(idx){
@@ -2111,6 +2606,128 @@ function renderAll(){ renderSidebar(); renderMain(); }
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// GOOGLE DRIVE SYNC
+// ══════════════════════════════════════════
+const GD = {
+  CLIENT_ID: '', // utente deve inserire il proprio
+  API_KEY: '',
+  SCOPE: 'https://www.googleapis.com/auth/drive.file',
+  FILE_NAME: 'storyworld_data.json',
+  fileId: null,
+  ready: false
+};
+
+function syncGDrive(){
+  // Mostra dialogo con istruzioni se non configurato
+  if(!GD.CLIENT_ID){
+    showGDriveSetup();
+    return;
+  }
+  gdriveAuth();
+}
+
+function showGDriveSetup(){
+  showCfm(
+    '☁ Google Drive Sync',
+    'Per sincronizzare i dati tra PC e smartphone tramite Google Drive, hai bisogno di configurare le credenziali Google API. Vuoi aprire le istruzioni di configurazione?',
+    ()=>{
+      // Mostra modale con istruzioni
+      const el = document.getElementById('gdriveSetupModal');
+      if(el) el.classList.add('open');
+    }
+  );
+  document.getElementById('cfmBtn').textContent = 'Configura';
+}
+
+async function gdriveAuth(){
+  try{
+    const btn = document.getElementById('driveBtn');
+    btn.textContent = '☁ …';
+    await new Promise((res,rej)=>{
+      if(typeof gapi==='undefined'){ rej(new Error('gapi not loaded')); return; }
+      gapi.load('client:auth2', async ()=>{
+        try{
+          await gapi.client.init({ apiKey:GD.API_KEY, clientId:GD.CLIENT_ID, scope:GD.SCOPE, discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] });
+          const auth = gapi.auth2.getAuthInstance();
+          if(!auth.isSignedIn.get()) await auth.signIn();
+          GD.ready = true;
+          res();
+        }catch(e){ rej(e); }
+      });
+    });
+    await gdriveSaveOrLoad();
+  }catch(e){
+    document.getElementById('driveBtn').textContent = '☁ Drive';
+    toast('❌ Errore Drive: ' + e.message);
+  }
+}
+
+async function gdriveSaveOrLoad(){
+  const btn = document.getElementById('driveBtn');
+  // Check if file exists
+  const list = await gapi.client.drive.files.list({ q:`name='${GD.FILE_NAME}' and trashed=false`, fields:'files(id,name,modifiedTime)' });
+  const files = list.result.files;
+  if(files.length){
+    GD.fileId = files[0].id;
+    // Ask user: save or load?
+    showCfm(
+      '☁ File trovato su Drive',
+      `Trovato "${GD.FILE_NAME}" su Drive. Vuoi caricare i dati dal cloud (sovrascrive il locale) o salvare i dati locali sul cloud?`,
+      async ()=>{
+        await gdriveUpload();
+        btn.textContent = '☁ Drive ✓';
+        toast('☁ Salvato su Drive');
+      }
+    );
+    document.getElementById('cfmBtn').textContent = 'Salva sul cloud';
+    // Add a second option
+    const cfmActs = document.querySelector('.cfm-acts');
+    const loadBtn = document.createElement('button');
+    loadBtn.className = 'btn-p'; loadBtn.textContent = 'Carica dal cloud';
+    loadBtn.onclick = async ()=>{
+      closeCfm();
+      await gdriveDownload();
+      btn.textContent = '☁ Drive ✓';
+      toast('☁ Caricato da Drive');
+    };
+    cfmActs.insertBefore(loadBtn, cfmActs.lastChild);
+  } else {
+    await gdriveUpload();
+    btn.textContent = '☁ Drive ✓';
+    toast('☁ Salvato su Drive (nuovo file)');
+  }
+}
+
+async function gdriveUpload(){
+  const json = JSON.stringify(D);
+  const boundary = '-------314159265358979323846';
+  const metadata = JSON.stringify({ name: GD.FILE_NAME, mimeType: 'application/json' });
+  let body, path, method;
+  if(GD.fileId){
+    path = `/upload/drive/v3/files/${GD.fileId}`;
+    method = 'PATCH';
+  } else {
+    path = '/upload/drive/v3/files';
+    method = 'POST';
+  }
+  const resp = await gapi.client.request({
+    path, method, params:{ uploadType:'multipart' },
+    headers:{ 'Content-Type': `multipart/related; boundary="${boundary}"` },
+    body: `--${boundary}\r\nContent-Type: application/json\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${boundary}--`
+  });
+  if(resp.result.id) GD.fileId = resp.result.id;
+}
+
+async function gdriveDownload(){
+  const resp = await gapi.client.drive.files.get({ fileId:GD.fileId, alt:'media' });
+  const imported = typeof resp.result==='string' ? JSON.parse(resp.result) : resp.result;
+  if(!imported.elements) throw new Error('Formato non valido');
+  D = imported;
+  if(!D.cats) D.cats=[]; if(!D.arcs) D.arcs=[]; if(!D.fazioni) D.fazioni=[]; if(!D.magie) D.magie=[];
+  saveD(); renderAll();
+}
+
 loadD(); seed(); renderAll();
 </script>
 </body>
