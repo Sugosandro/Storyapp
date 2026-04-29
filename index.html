@@ -447,6 +447,19 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .mob-nav button{background:none;border:none;color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:11px;padding:8px 11px 10px;cursor:pointer;white-space:nowrap;border-top:2px solid transparent;transition:all .2s;flex-shrink:0}
 .mob-nav button.active{color:var(--gold);border-top-color:var(--gold)}
 
+/* ── ANALISI TESTO ── */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.analisi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;position:relative}
+.analisi-card-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+.analisi-card-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--text);flex:1}
+.analisi-card-body{font-size:13px;color:var(--text-dim);line-height:1.65}
+.analisi-card-quote{font-size:12px;color:var(--text-muted);font-style:italic;border-left:2px solid var(--border-light);padding-left:8px;margin-top:6px;line-height:1.55}
+.analisi-card-actions{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+.analisi-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-style:italic}
+.analisi-storico-item{display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:border-color .15s;font-size:13px}
+.analisi-storico-item:hover{border-color:var(--border-light)}
+@media(max-width:768px){.analisi-grid{grid-template-columns:1fr!important}}
+
 @media(max-width:768px){
   nav{display:none!important}
   .mob-menu-btn{display:block}
@@ -504,6 +517,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <button onclick="sv('magia')">✨ Magia</button>
     <button onclick="sv('arcs')">📖 Archi</button>
     <button onclick="sv('connections')">🕸 Connessioni</button>
+    <button onclick="sv('analisi')">🔍 Analisi Testo</button>
   </nav>
   <div class="global-search">
     <span class="gs-icon">🔍</span>
@@ -538,6 +552,7 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     <button onclick="sv('magia')">✨ Magia</button>
     <button onclick="sv('arcs')">📖 Archi</button>
     <button onclick="sv('connections')">🕸 Connessioni</button>
+    <button onclick="sv('analisi')">🔍 Analisi</button>
     <button onclick="openCatModal()">⚙ Categorie</button>
     <button onclick="exportData()">⬇ Esporta</button>
     <button onclick="importData()">⬆ Importa</button>
@@ -710,6 +725,99 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
     </div>
     <div id="connView"></div>
   </div>
+  <!-- ANALISI TESTO -->
+  <div class="view" id="view-analisi">
+    <div class="view-hd">
+      <div class="view-title">🔍 Analisi <span>Testo</span></div>
+      <div class="vhact">
+        <button class="btn-sm" onclick="exportAnalisi()">⬇ Esporta analisi</button>
+        <button class="btn-sm" onclick="clearAnalisi()">🗑 Pulisci</button>
+      </div>
+    </div>
+
+    <!-- API KEY -->
+    <div id="analisiApiKeySection" style="margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);flex-shrink:0">🔑 Anthropic API Key</span>
+        <input type="password" id="analisiApiKey" class="fi" placeholder="sk-ant-…" style="flex:1;min-width:200px;font-size:12px;margin:0" oninput="saveAnalisiApiKey()">
+        <span id="analisiKeyStatus" style="font-size:11px;color:var(--text-muted);font-style:italic"></span>
+      </div>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5">La chiave viene salvata solo nel browser (localStorage) e non viene mai inviata altrove.<br>Ottienila su <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">console.anthropic.com</a></p>
+    </div>
+
+    <!-- INPUT TESTO -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px" class="analisi-grid">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted)">📄 Testo del capitolo / scena</label>
+          <div style="display:flex;gap:5px;align-items:center">
+            <input type="file" id="analisiFileInput" accept=".txt,.md" style="display:none" onchange="loadAnalisiFile(event)">
+            <button class="btn-sm" onclick="document.getElementById('analisiFileInput').click()" style="font-size:11px;padding:3px 9px">📂 Carica file</button>
+          </div>
+        </div>
+        <textarea id="analisiText" class="fi" style="width:100%;min-height:280px;resize:vertical;line-height:1.7;font-size:13px;padding:11px" placeholder="Incolla qui il testo del capitolo, della scena o di qualsiasi parte della storia…&#10;&#10;L'IA lo leggerà e lo confronterà con gli elementi del mondo che hai già creato." oninput="updateAnalisiCounter()"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;margin-bottom:3px">
+          <span id="analisiCounter" style="font-size:11px;color:var(--text-muted);font-style:italic">0 parole · 0 caratteri</span>
+          <span id="analisiCounterWarn" style="font-size:11px;font-style:italic;display:none"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <input class="fi" id="analisiChapLabel" placeholder="Etichetta (es. Capitolo 3)" style="font-size:12px;flex:1;min-width:140px;margin:0">
+          <button class="btn-p" onclick="runAnalisi()" id="analisiRunBtn" style="flex-shrink:0">✨ Analizza</button>
+        </div>
+      </div>
+      <div id="analisiInstructions" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text-dim);line-height:1.7">
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--text);margin-bottom:10px">Come funziona</div>
+        <p style="margin-bottom:8px">L'IA legge il testo e lo confronta con tutti gli elementi già presenti nel tuo mondo (personaggi, luoghi, oggetti, eventi, fazioni, sistemi di magia).</p>
+        <p style="margin-bottom:8px">Riceverai tre tipi di segnalazioni:</p>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#8fbd7c;font-size:16px;flex-shrink:0">🟢</span><span><strong style="color:var(--text)">Nuovi elementi suggeriti</strong> — Personaggi, luoghi od oggetti che compaiono nel testo ma non esistono ancora nel mondo.</span></div>
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#c06060;font-size:16px;flex-shrink:0">🔴</span><span><strong style="color:var(--text)">Incongruenze rilevate</strong> — Contraddizioni tra il testo e le informazioni degli elementi esistenti.</span></div>
+          <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#7ab8d4;font-size:16px;flex-shrink:0">🔵</span><span><strong style="color:var(--text)">Elementi citati</strong> — Elementi già presenti nel mondo menzionati nel testo.</span></div>
+        </div>
+        <p style="margin-top:10px;font-size:12px;font-style:italic;color:var(--text-muted)">Nessuna modifica viene fatta in automatico. Tutto è solo suggerimento.</p>
+      </div>
+    </div>
+
+    <!-- RISULTATI -->
+    <div id="analisiResults" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--text)">Risultati <span id="analisiResultLabel" style="color:var(--gold);font-style:italic"></span></div>
+        <div id="analisiResultMeta" style="font-size:11px;color:var(--text-muted);font-style:italic"></div>
+      </div>
+
+      <!-- Incongruenze -->
+      <div id="analisiIncongruenzeSection">
+        <div class="sec-div" style="margin-bottom:10px"><span class="sec-div-lbl" style="color:#c06060">🔴 Incongruenze rilevate</span><div class="sec-div-line"></div></div>
+        <div id="analisiIncongruenze" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+      </div>
+
+      <!-- Nuovi elementi -->
+      <div id="analisiNuoviSection">
+        <div class="sec-div" style="margin-bottom:10px"><span class="sec-div-lbl" style="color:#8fbd7c">🟢 Nuovi elementi suggeriti</span><div class="sec-div-line"></div></div>
+        <div id="analisiNuovi" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+      </div>
+
+      <!-- Elementi citati -->
+      <div id="analisiCitatiSection">
+        <div class="sec-div" style="margin-bottom:10px"><span class="sec-div-lbl" style="color:#7ab8d4">🔵 Elementi del mondo citati</span><div class="sec-div-line"></div></div>
+        <div id="analisiCitati" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="analisiLoading" style="display:none;text-align:center;padding:48px 20px">
+      <div id="analisiLoadingSpinner" style="font-size:32px;margin-bottom:12px;animation:spin 1.5s linear infinite;display:inline-block">✨</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--text);margin-bottom:6px">Analisi in corso…</div>
+      <div style="font-size:13px;color:var(--text-muted);font-style:italic" id="analisiLoadingMsg">L'IA sta leggendo il testo e confrontando gli elementi del mondo</div>
+    </div>
+
+    <!-- STORICO -->
+    <div id="analisiStorico" style="margin-top:30px;display:none">
+      <div class="sec-div" style="margin-bottom:10px"><span class="sec-div-lbl" style="color:var(--text-muted)">📚 Analisi precedenti</span><div class="sec-div-line"></div></div>
+      <div id="analisiStoricoList" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
 </main>
 
 <!-- DETAIL PANEL — ELEMENTI -->
@@ -1446,10 +1554,10 @@ function sv(v){
   curView=v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  const navViews=['world','timeline','mappa','fazioni','magia','arcs','connections'];
+  const navViews=['world','timeline','mappa','fazioni','magia','arcs','connections','analisi'];
   document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',navViews[i]===v));
   const mobBtns=document.querySelectorAll('.mob-nav-inner button');
-  mobBtns.forEach((b,i)=>b.classList.toggle('active',['world','timeline','mappa','fazioni','magia','arcs','connections','','',''][i]===v));
+  mobBtns.forEach((b,i)=>b.classList.toggle('active',['world','timeline','mappa','fazioni','magia','arcs','connections','analisi','',''][i]===v));
   renderMain();
 }
 function renderMain(){
@@ -1460,6 +1568,7 @@ function renderMain(){
   if(curView==='magia') renderMagia();
   if(curView==='arcs') renderArcs();
   if(curView==='connections') renderConnections();
+  if(curView==='analisi') renderAnalisi();
 }
 
 // ── WORLD ──
@@ -3185,7 +3294,8 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.tac')) document.qu
 // EXPORT / IMPORT
 // ══════════════════════════════════════════
 function exportData(){
-  const json=JSON.stringify(D,null,2);
+  const exportObj = Object.assign({}, D, { analisiHistory: analisiHistory });
+  const json=JSON.stringify(exportObj,null,2);
   const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download=`storyworld_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
@@ -3200,7 +3310,12 @@ function handleImport(event){
       const imp=JSON.parse(e.target.result);
       if(!imp.elements) throw new Error();
       showCfm('Importa dati','Sostituire tutti i dati attuali con quelli importati?',()=>{
-        D=imp; if(!D.cats)D.cats=[]; if(!D.arcs)D.arcs=[]; if(!D.nextArcId)D.nextArcId=D.arcs.length?Math.max(...D.arcs.map(a=>a.id))+1:1;
+        // Restore analisi history if present
+        if(imp.analisiHistory){ analisiHistory = imp.analisiHistory; saveAnalisiState(); }
+        // Clean analisi from D before assigning
+        const {analisiHistory: _ah, ...worldData} = imp;
+        D = worldData;
+        if(!D.cats)D.cats=[]; if(!D.arcs)D.arcs=[]; if(!D.nextArcId)D.nextArcId=D.arcs.length?Math.max(...D.arcs.map(a=>a.id))+1:1;
         saveD(); closeDetail(); closeArcDetail(); renderAll(); toast('✅ Importato con successo');
       });
     }catch(err){toast('❌ File JSON non valido');}
@@ -3606,6 +3721,338 @@ function exportMarkdown(){
   toast('📄 Markdown esportato');
 }
 
+// ══════════════════════════════════════════
+// ANALISI TESTO — AI
+// ══════════════════════════════════════════
+let analisiHistory = []; // [{label, date, results}]
+
+function updateAnalisiCounter(){
+  const text = document.getElementById('analisiText').value;
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  // Rough token estimate: ~0.75 tokens per word (Italian)
+  const estTokens = Math.round(words * 0.75);
+  const counter = document.getElementById('analisiCounter');
+  const warn = document.getElementById('analisiCounterWarn');
+  counter.textContent = `${words.toLocaleString('it-IT')} parole · ${chars.toLocaleString('it-IT')} caratteri · ~${estTokens.toLocaleString('it-IT')} token`;
+  if(estTokens > 150000){
+    warn.style.display = '';
+    warn.style.color = '#c06060';
+    warn.textContent = '⚠ Testo molto lungo, considera di suddividerlo per capitoli';
+  } else if(estTokens > 80000){
+    warn.style.display = '';
+    warn.style.color = '#c9a84c';
+    warn.textContent = '⚡ Testo lungo — l\'analisi potrebbe essere più lenta';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+function exportAnalisi(){
+  if(!analisiHistory.length){ toast('⚠ Nessuna analisi da esportare'); return; }
+  // Export as readable Markdown
+  let md = `# 📊 StoryWorld — Storico Analisi Testo\n`;
+  md += `_Esportato il ${new Date().toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'})}_\n\n---\n\n`;
+  analisiHistory.forEach((h, i) => {
+    const d = new Date(h.date);
+    const ds = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    md += `## ${i+1}. ${h.label}\n_${ds}_\n\n`;
+    const r = h.results || {};
+    const inc = r.incongruenze || [];
+    const nuovi = r.nuovi_elementi || [];
+    const citati = r.elementi_citati || [];
+    if(inc.length){
+      md += `### 🔴 Incongruenze (${inc.length})\n`;
+      inc.forEach(item => {
+        md += `- **${item.elemento_nome||'Elemento'}** — ${item.problema||''}`;
+        if(item.citazione) md += `\n  > "${item.citazione}"`;
+        md += '\n';
+      });
+      md += '\n';
+    }
+    if(nuovi.length){
+      md += `### 🟢 Nuovi elementi suggeriti (${nuovi.length})\n`;
+      nuovi.forEach(item => {
+        md += `- **${item.nome||''}** _(${item.tipo||''})_ — ${item.motivo||''}`;
+        if(item.citazione) md += `\n  > "${item.citazione}"`;
+        md += '\n';
+      });
+      md += '\n';
+    }
+    if(citati.length){
+      md += `### 🔵 Elementi citati (${citati.length})\n`;
+      citati.forEach(item => {
+        md += `- **${item.elemento_nome||''}**`;
+        if(item.contesto) md += ` — "${item.contesto}"`;
+        md += '\n';
+      });
+      md += '\n';
+    }
+    if(i < analisiHistory.length - 1) md += '---\n\n';
+  });
+  const blob = new Blob([md], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `storyworld_analisi_${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📄 Analisi esportate');
+}
+
+function loadAnalisiState(){
+  try{
+    const s = localStorage.getItem('sw_analisi');
+    if(s){ analisiHistory = JSON.parse(s); }
+  }catch(e){}
+}
+function saveAnalisiState(){
+  try{ localStorage.setItem('sw_analisi', JSON.stringify(analisiHistory)); }catch(e){}
+}
+
+function saveAnalisiApiKey(){
+  const k = document.getElementById('analisiApiKey').value.trim();
+  try{ localStorage.setItem('sw_analisi_key', k); }catch(e){}
+  const st = document.getElementById('analisiKeyStatus');
+  if(k){ st.textContent = '✓ Salvata'; st.style.color = '#8fbd7c'; }
+  else { st.textContent = ''; }
+}
+function loadAnalisiApiKey(){
+  try{
+    const k = localStorage.getItem('sw_analisi_key') || '';
+    const el = document.getElementById('analisiApiKey');
+    if(el){ el.value = k; if(k){ document.getElementById('analisiKeyStatus').textContent='✓ Salvata'; document.getElementById('analisiKeyStatus').style.color='#8fbd7c'; } }
+  }catch(e){}
+}
+
+function renderAnalisi(){
+  loadAnalisiApiKey();
+  loadAnalisiState();
+  renderAnalisiStorico();
+}
+
+function loadAnalisiFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById('analisiText').value = ev.target.result;
+    if(!document.getElementById('analisiChapLabel').value)
+      document.getElementById('analisiChapLabel').value = f.name.replace(/\.[^.]+$/,'');
+  };
+  r.readAsText(f);
+  e.target.value='';
+}
+
+function clearAnalisi(){
+  document.getElementById('analisiText').value = '';
+  document.getElementById('analisiChapLabel').value = '';
+  document.getElementById('analisiResults').style.display = 'none';
+  document.getElementById('analisiInstructions').style.display = '';
+}
+
+async function runAnalisi(){
+  const apiKey = (document.getElementById('analisiApiKey').value||'').trim();
+  if(!apiKey){ toast('❌ Inserisci la tua Anthropic API Key'); return; }
+  const text = document.getElementById('analisiText').value.trim();
+  if(text.length < 20){ toast('⚠ Inserisci almeno un po\' di testo da analizzare'); return; }
+
+  // Build world summary for the prompt (compact JSON)
+  const worldSummary = buildWorldSummary();
+
+  // UI: loading
+  document.getElementById('analisiResults').style.display = 'none';
+  document.getElementById('analisiInstructions').style.display = 'none';
+  document.getElementById('analisiLoading').style.display = 'block';
+  document.getElementById('analisiRunBtn').disabled = true;
+  document.getElementById('analisiRunBtn').textContent = '⏳ Analisi…';
+
+  const msgs = [{
+    role:'user',
+    content:`Sei un assistente per scrittori di narrativa e worldbuilding. Ti fornisco:
+1. Il testo di un capitolo/scena della storia
+2. Un riassunto strutturato del mondo narrativo già costruito (personaggi, luoghi, oggetti, eventi, fazioni, sistemi di magia)
+
+Analizza il testo e rispondi SOLO con un oggetto JSON valido, senza testo aggiuntivo, backtick o markdown. Il JSON deve avere questa struttura:
+{
+  "nuovi_elementi": [
+    {"tipo": "char|place|object|event", "nome": "...", "motivo": "...", "citazione": "..."}
+  ],
+  "incongruenze": [
+    {"elemento_id": <number|null>, "elemento_nome": "...", "problema": "...", "citazione": "..."}
+  ],
+  "elementi_citati": [
+    {"elemento_id": <number>, "elemento_nome": "...", "contesto": "..."}
+  ]
+}
+
+Regole:
+- "nuovi_elementi": entità che compaiono nel testo ma NON esistono nel mondo fornito. Solo entità narrative rilevanti (non oggetti banali).
+- "incongruenze": contraddizioni tra il testo e i dati del mondo (es. un personaggio morto che agisce, un luogo descritto diversamente, un'abilità usata da chi non ce l'ha). Sii preciso, non speculare.
+- "elementi_citati": elementi del mondo già esistenti che vengono menzionati o coinvolti nel testo. Usa l'id numerico esatto dal mondo fornito.
+- Per "citazione" e "contesto" includi un estratto breve (max 20 parole) dal testo che giustifica la segnalazione.
+- Se una categoria è vuota, metti array vuoto [].
+
+=== MONDO NARRATIVO ===
+${worldSummary}
+
+=== TESTO DA ANALIZZARE ===
+${text}`
+  }];
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:2000, messages:msgs})
+    });
+    if(!resp.ok){ const err=await resp.json(); throw new Error(err.error?.message||`HTTP ${resp.status}`); }
+    const data = await resp.json();
+    const rawText = (data.content||[]).map(b=>b.type==='text'?b.text:'').join('');
+    let results;
+    try{
+      // Strip possible markdown fences
+      const clean = rawText.replace(/```json|```/g,'').trim();
+      results = JSON.parse(clean);
+    }catch(pe){
+      throw new Error('Risposta non valida dal modello. Riprova.');
+    }
+
+    // Save to history
+    const label = document.getElementById('analisiChapLabel').value.trim() || 'Analisi del '+new Date().toLocaleDateString('it-IT');
+    analisiHistory.unshift({ label, date: new Date().toISOString(), results, textPreview: text.slice(0,120) });
+    if(analisiHistory.length > 20) analisiHistory = analisiHistory.slice(0,20);
+    saveAnalisiState();
+
+    showAnalisiResults(results, label);
+  }catch(err){
+    toast('❌ Errore analisi: ' + err.message);
+    document.getElementById('analisiInstructions').style.display = '';
+  } finally {
+    document.getElementById('analisiLoading').style.display = 'none';
+    document.getElementById('analisiRunBtn').disabled = false;
+    document.getElementById('analisiRunBtn').textContent = '✨ Analizza';
+  }
+}
+
+function buildWorldSummary(){
+  const obj = {
+    elementi: D.elements.map(e=>({
+      id:e.id, nome:e.nome||e.name, tipo:e.cat, sottotipo:e.sub||'', desc:(e.desc||'').slice(0,200),
+      extra:e.extra||{}, tags:(e.tags||[]).map(t=>{const el=byId(t);return el?el.name:''}),
+      poteri:(e.powers||[]).map(p=>p.name), status:e.status||'draft'
+    })),
+    archi: (D.arcs||[]).map(a=>({id:a.id, nome:a.name, desc:(a.desc||'').slice(0,150), fasi:a.phases||[], faseCorrente:a.currentPhase, membri:(a.members||[]).map(id=>{const e=byId(id);return e?e.name:''})})),
+    fazioni: (D.fazioni||[]).map(f=>({id:f.id, nome:f.name, desc:(f.desc||'').slice(0,150), membri:(f.members||[]).map(id=>{const e=byId(id);return e?e.name:''})})),
+    magie: (D.magie||[]).map(m=>({id:m.id, nome:m.name, desc:(m.desc||'').slice(0,150), regole:m.rules||[], utenti:(m.users||[]).map(id=>{const e=byId(id);return e?e.name:''})}))
+  };
+  return JSON.stringify(obj);
+}
+
+function showAnalisiResults(results, label){
+  document.getElementById('analisiResults').style.display = 'block';
+  document.getElementById('analisiInstructions').style.display = 'none';
+  document.getElementById('analisiResultLabel').textContent = label;
+  document.getElementById('analisiResultMeta').textContent =
+    `${results.incongruenze?.length||0} incongruenz${results.incongruenze?.length===1?'a':'e'} · ${results.nuovi_elementi?.length||0} elementi nuovi · ${results.elementi_citati?.length||0} citazioni`;
+
+  // Incongruenze
+  const inc = results.incongruenze||[];
+  const incSec = document.getElementById('analisiIncongruenzeSection');
+  const incEl = document.getElementById('analisiIncongruenze');
+  if(!inc.length){ incSec.style.display='none'; } else {
+    incSec.style.display='';
+    incEl.innerHTML = inc.map(i=>{
+      const el = i.elemento_id ? byId(i.elemento_id) : null;
+      const linkBtn = el ? `<button class="btn-sm" onclick="openDetail(${el.id});sv('world')" style="font-size:11px;padding:3px 8px">→ Vai all'elemento</button>` : '';
+      const elTag = el ? `<span class="analisi-tag" style="background:${elColorDim(el)};color:${elColor(el)}">${elIcon(el)} ${el.name}</span>` : `<span class="analisi-tag" style="background:var(--surface3);color:var(--text-muted)">${i.elemento_nome||'Elemento non identificato'}</span>`;
+      return `<div class="analisi-card" style="border-left:3px solid #c06060">
+        <div class="analisi-card-hd"><div class="analisi-card-title">⚠ ${i.problema||'Incongruenza'}</div>${elTag}</div>
+        ${i.citazione?`<div class="analisi-card-quote">"${i.citazione}"</div>`:''}
+        <div class="analisi-card-actions">${linkBtn}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Nuovi elementi
+  const nuovi = results.nuovi_elementi||[];
+  const nuoviSec = document.getElementById('analisiNuoviSection');
+  const nuoviEl = document.getElementById('analisiNuovi');
+  const tipoMap = {char:{icon:'👤',label:'Personaggio',cat:'char'},place:{icon:'📍',label:'Luogo',cat:'place'},object:{icon:'📦',label:'Oggetto',cat:'object'},event:{icon:'⚡',label:'Evento',cat:'event'}};
+  if(!nuovi.length){ nuoviSec.style.display='none'; } else {
+    nuoviSec.style.display='';
+    nuoviEl.innerHTML = nuovi.map(n=>{
+      const t = tipoMap[n.tipo] || {icon:'?',label:n.tipo||'Elemento',cat:'char'};
+      const catInfo = catById(t.cat);
+      const col = catInfo?.color||'#8fbd7c', dim = catInfo?.colorDim||'#2f4a28';
+      const encodedName = encodeURIComponent(n.nome||'');
+      const encodedDesc = encodeURIComponent(n.motivo||'');
+      const addBtn = `<button class="btn-p" onclick="openNewModalPrefilled('${t.cat}','${encodedName}','${encodedDesc}')" style="font-size:11px;padding:4px 11px">+ Aggiungi al mondo</button>`;
+      return `<div class="analisi-card" style="border-left:3px solid ${col}">
+        <div class="analisi-card-hd">
+          <div class="analisi-card-title">${t.icon} ${n.nome||'Senza nome'}</div>
+          <span class="analisi-tag" style="background:${dim};color:${col}">${t.label}</span>
+        </div>
+        <div class="analisi-card-body">${n.motivo||''}</div>
+        ${n.citazione?`<div class="analisi-card-quote">"${n.citazione}"</div>`:''}
+        <div class="analisi-card-actions">${addBtn}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Elementi citati
+  const citati = results.elementi_citati||[];
+  const citatiSec = document.getElementById('analisiCitatiSection');
+  const citatiEl = document.getElementById('analisiCitati');
+  if(!citati.length){ citatiSec.style.display='none'; } else {
+    citatiSec.style.display='';
+    citatiEl.innerHTML = citati.map(c=>{
+      const el = c.elemento_id ? byId(c.elemento_id) : D.elements.find(e=>e.name===c.elemento_nome);
+      if(!el) return `<div class="analisi-card"><div class="analisi-card-hd"><div class="analisi-card-title">🔵 ${c.elemento_nome}</div></div>${c.contesto?`<div class="analisi-card-quote">"${c.contesto}"</div>`:''}</div>`;
+      return `<div class="analisi-card" style="border-left:3px solid ${elColor(el)}">
+        <div class="analisi-card-hd">
+          <div class="analisi-card-title">${elIcon(el)} ${el.name}</div>
+          <span class="analisi-tag" style="background:${elColorDim(el)};color:${elColor(el)}">${elLabel(el)}</span>
+        </div>
+        ${c.contesto?`<div class="analisi-card-quote">"${c.contesto}"</div>`:''}
+        <div class="analisi-card-actions"><button class="btn-sm" onclick="openDetail(${el.id});sv('world')" style="font-size:11px;padding:3px 8px">→ Scheda</button></div>
+      </div>`;
+    }).join('');
+  }
+
+  renderAnalisiStorico();
+}
+
+function renderAnalisiStorico(){
+  const list = document.getElementById('analisiStoricoList');
+  const sec = document.getElementById('analisiStorico');
+  if(!analisiHistory.length){ sec.style.display='none'; return; }
+  sec.style.display='';
+  list.innerHTML = analisiHistory.map((h,i)=>{
+    const d = new Date(h.date);
+    const ds = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    const r = h.results||{};
+    const inc = (r.incongruenze||[]).length, nuovi=(r.nuovi_elementi||[]).length, cit=(r.elementi_citati||[]).length;
+    return `<div class="analisi-storico-item" onclick="showAnalisiResults(analisiHistory[${i}].results, analisiHistory[${i}].label)">
+      <span style="font-size:16px">📄</span>
+      <span style="flex:1;color:var(--text)">${h.label}</span>
+      <span style="font-size:11px;color:var(--text-muted);font-style:italic">${ds}</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#4a1515;color:#c06060;margin-left:4px">${inc} inc.</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:#2f4a28;color:#8fbd7c;margin-left:4px">${nuovi} nuovi</span>
+      <button onclick="event.stopPropagation();analisiHistory.splice(${i},1);saveAnalisiState();renderAnalisiStorico()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 2px;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function openNewModalPrefilled(cat, encodedName, encodedDesc){
+  openNewModal(cat);
+  setTimeout(()=>{
+    const nameEl = document.getElementById('fName');
+    const descEl = document.getElementById('fDesc');
+    if(nameEl) nameEl.value = decodeURIComponent(encodedName);
+    if(descEl) descEl.value = decodeURIComponent(encodedDesc);
+  }, 80);
+}
+
 function renderAll(){ renderSidebar(); renderMain(); }
 
 // ══════════════════════════════════════════
@@ -3733,7 +4180,7 @@ async function gdriveDownload(){
   saveD(); renderAll();
 }
 
-loadD(); seed(); renderAll(); initDatePickers();
+loadD(); seed(); renderAll(); initDatePickers(); loadAnalisiState();
 </script>
 </body>
 </html>
