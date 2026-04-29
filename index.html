@@ -68,7 +68,11 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .power-remove:hover{opacity:1;color:#c06060}
 
 /* SPATIAL TIMELINE */
-.spatial-tl{display:flex;flex-direction:column;gap:3px}
+.tl-entry-body{overflow:hidden;transition:max-height .25s ease,opacity .2s;max-height:0;opacity:0}
+.tl-entry-body.open{max-height:600px;opacity:1}
+.tl-entry-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:2px 0}
+.tl-entry-toggle-arrow{font-size:9px;color:var(--text-muted);transition:transform .2s;display:inline-block}
+.tl-entry-toggle-arrow.open{transform:rotate(90deg)}
 .spatial-entry{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .spatial-entry:last-child{border-bottom:none}
 .spatial-date{color:var(--text-muted);font-size:11px;min-width:120px;flex-shrink:0;font-style:italic}
@@ -86,6 +90,37 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 .world-filter-lbl{font-size:11px;color:var(--text-muted);margin-right:4px}
 .world-filter{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:12px;padding:3px 11px;border-radius:20px;cursor:pointer;transition:all .2s}
 .world-filter.active{border-color:var(--gold-dim);color:var(--gold);background:var(--gold-glow)}
+
+/* DATE PICKER */
+.dp-wrap{position:relative;display:inline-block;width:100%}
+.dp-input-row{display:flex;align-items:center;gap:4px}
+.dp-text-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;padding:8px 11px;outline:none;transition:border-color .2s;width:100%}
+.dp-text-input:focus{border-color:var(--gold-dim)}
+.dp-text-input::placeholder{color:var(--text-muted)}
+.dp-cal-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text-muted);cursor:pointer;padding:7px 9px;font-size:14px;flex-shrink:0;transition:all .2s;line-height:1}
+.dp-cal-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.dp-popup{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:600;background:var(--surface);border:1px solid var(--border-light);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.7);width:280px;padding:12px}
+.dp-popup.open{display:block}
+.dp-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dp-nav-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:2px 8px;border-radius:var(--r);transition:all .2s}
+.dp-nav-btn:hover{color:var(--gold);background:var(--gold-glow)}
+.dp-month-lbl{font-family:'Playfair Display',serif;font-size:14px;color:var(--text);cursor:pointer}
+.dp-month-lbl:hover{color:var(--gold)}
+.dp-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.dp-wd{text-align:center;font-size:9px;letter-spacing:.08em;color:var(--text-muted);padding:2px 0;text-transform:uppercase}
+.dp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-day{text-align:center;font-size:12px;padding:5px 2px;border-radius:4px;cursor:pointer;color:var(--text-dim);transition:all .15s;border:none;background:none;width:100%}
+.dp-day:hover{background:var(--surface3);color:var(--text)}
+.dp-day.today{color:var(--gold);font-weight:600}
+.dp-day.selected{background:var(--gold-dim);color:var(--gold);font-weight:600}
+.dp-day.other-month{opacity:.3}
+.dp-day.empty{cursor:default}
+.dp-year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-height:200px;overflow-y:auto;margin-top:6px}
+.dp-year-btn{background:none;border:1px solid var(--border);border-radius:var(--r);color:var(--text-dim);font-family:'Crimson Pro',serif;font-size:12px;padding:4px;cursor:pointer;transition:all .15s}
+.dp-year-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.dp-year-btn.selected{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.dp-clear{width:100%;margin-top:8px;background:none;border:1px solid var(--border);border-radius:var(--r);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:11px;padding:4px;cursor:pointer;transition:all .2s}
+.dp-clear:hover{border-color:#c06060;color:#c06060}
 
 /* MARKDOWN EXPORT BUTTON */
 .btn-md{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:11px;padding:3px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
@@ -543,14 +578,10 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       <!-- Date range filter -->
       <div class="tl-range">
         <label>Da</label>
-        <select id="tlFrom" onchange="renderTimeline()" style="background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:90px">
-          <option value="">Inizio</option>
-        </select>
+        <div id="tlFromField" style="min-width:140px"></div>
         <span class="tl-sep">→</span>
         <label>A</label>
-        <select id="tlTo" onchange="renderTimeline()" style="background:none;border:none;outline:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:12px;cursor:pointer;min-width:90px">
-          <option value="">Fine</option>
-        </select>
+        <div id="tlToField" style="min-width:140px"></div>
         <button class="btn-sm" onclick="clearTlRange()" style="border:none;padding:2px 5px;font-size:11px" title="Azzera intervallo">✕</button>
       </div>
       <!-- Grouping mode -->
@@ -575,8 +606,8 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
       <div id="chapterList" style="margin-bottom:10px"></div>
       <div style="display:flex;gap:7px;align-items:flex-end">
         <div style="flex:1"><label class="fl">Nome capitolo/atto</label><input class="fi" id="newChapterName" placeholder="Es. Capitolo 1: L'Inizio" style="font-size:12px"></div>
-        <div style="width:180px"><label class="fl">Da (data narrativa)</label><input class="fi" id="newChapterFrom" placeholder="Anno 1247, Giorno 1" style="font-size:12px"></div>
-        <div style="width:180px"><label class="fl">A (data narrativa)</label><input class="fi" id="newChapterTo" placeholder="Anno 1247, Giorno 7" style="font-size:12px"></div>
+        <div style="width:175px"><label class="fl">Da (data)</label><div id="chFromField"></div></div>
+        <div style="width:175px"><label class="fl">A (data)</label><div id="chToField"></div></div>
         <button class="btn-p" onclick="addChapter()" style="flex-shrink:0;height:32px;padding:0 12px">+ Aggiungi</button>
       </div>
     </div>
@@ -792,7 +823,8 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
         <div class="changelog" id="dpChangelog"></div>
         <div class="cl-add-form">
           <div class="dp-lbl">Aggiungi voce</div>
-          <input type="text" id="clDate" placeholder="Momento narrativo (es. Cap. 3, Anno 1247)" class="fi" style="font-size:12px">
+          <div id="clDateField"></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;margin-bottom:4px">Data della voce di storico</div>
           <select id="clPlace" class="fi" style="font-size:12px;padding:6px 9px">
             <option value="">📍 Luogo (opzionale)</option>
           </select>
@@ -973,7 +1005,10 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
         <option value="done">✅ Definitivo</option>
       </select>
     </div>
-    <div class="fg" id="fDateGroup" style="display:none"><label class="fl">Data / Momento narrativo</label><input class="fi" id="fDate" placeholder="Es. Anno 1247, Giorno 3"></div>
+    <div class="fg" id="fDateGroup" style="display:none">
+      <label class="fl">Data / Momento narrativo</label>
+      <div id="dpDateField"></div>
+    </div>
     <div class="fg"><label class="fl">Descrizione</label><textarea class="ft" id="fDesc" placeholder="Descrivi questo elemento…"></textarea></div>
     <div id="fExtraGroup"></div>
     <div class="fg">
@@ -1044,6 +1079,11 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
         </div>
       </div>
     </div>
+    <div class="fg"><label class="fl">Fazione genitore (opzionale — crea un sottogruppo)</label>
+      <select class="fs" id="ffParent" style="font-size:13px">
+        <option value="">— Nessuna (fazione principale) —</option>
+      </select>
+    </div>
     <div class="fg"><label class="fl">Relazioni con altre fazioni</label>
       <div id="fazRelList" style="margin-bottom:6px"></div>
       <div style="display:flex;gap:6px;align-items:center">
@@ -1106,6 +1146,166 @@ nav button:hover{color:var(--text);background:var(--surface2)}nav button.active{
 
 <script>
 // ══════════════════════════════════════════
+// DATE PICKER
+// ══════════════════════════════════════════
+const MONTHS_IT=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const MONTHS_SHORT=['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+const DAYS_IT=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
+
+// Internal format: YYYY-MM-DD  Display format: GG Mese AAAA
+function dateToDisplay(iso){ // "2024-03-15" → "15 Marzo 2024"
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number);
+  if(!y||!m||!d) return iso;
+  return `${d} ${MONTHS_IT[m-1]} ${y}`;
+}
+function displayToDate(str){ // "15 Marzo 2024" or "15/03/2024" → "2024-03-15"
+  if(!str||!str.trim()) return '';
+  str=str.trim();
+  // Try "DD/MM/YYYY" or "DD-MM-YYYY"
+  let m=str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{3,4})$/);
+  if(m) return `${m[3].padStart(4,'0')}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  // Try "DD Mese YYYY" (case insensitive)
+  const monthIdx=MONTHS_IT.findIndex(mn=>str.toLowerCase().includes(mn.toLowerCase()));
+  if(monthIdx>=0){
+    const nums=str.match(/\d+/g);
+    if(nums&&nums.length>=2){
+      const day=nums[0].padStart(2,'0');
+      const year=nums[nums.length-1].padStart(4,'0');
+      return `${year}-${String(monthIdx+1).padStart(2,'0')}-${day}`;
+    }
+  }
+  // Already ISO
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  return str; // unknown, keep as-is
+}
+function dateCompare(a,b){ return (a||'').localeCompare(b||''); }
+
+// ── DatePicker widget ──
+// Usage: new DatePicker(containerId, {value, onChange, placeholder})
+class DatePicker {
+  constructor(containerId, opts={}){
+    this.id=containerId;
+    this.value=opts.value||''; // always ISO internally
+    this.onChange=opts.onChange||null;
+    this.placeholder=opts.placeholder||'GG/MM/AAAA';
+    this.viewYear=0; this.viewMonth=0; this.showYearGrid=false;
+    this._render();
+    this._bindOutside();
+  }
+  _render(){
+    const c=document.getElementById(this.id); if(!c) return;
+    c.innerHTML=`<div class="dp-wrap" id="${this.id}_wrap">
+      <div class="dp-input-row">
+        <input class="dp-text-input" id="${this.id}_txt" placeholder="${this.placeholder}" value="${dateToDisplay(this.value)}" autocomplete="off">
+        <button class="dp-cal-btn" id="${this.id}_btn" type="button" tabindex="-1">📅</button>
+      </div>
+      <div class="dp-popup" id="${this.id}_pop"></div>
+    </div>`;
+    document.getElementById(this.id+'_txt').addEventListener('input', e=>this._onText(e.target.value));
+    document.getElementById(this.id+'_txt').addEventListener('blur', e=>this._onTextBlur(e.target.value));
+    document.getElementById(this.id+'_btn').addEventListener('click', e=>{ e.stopPropagation(); this._togglePop(); });
+    this._initView();
+    this._renderPop();
+  }
+  _initView(){
+    const d=this.value?new Date(this.value):new Date();
+    this.viewYear=isNaN(d.getFullYear())?new Date().getFullYear():d.getFullYear();
+    this.viewMonth=isNaN(d.getMonth())?new Date().getMonth():d.getMonth();
+  }
+  _togglePop(){
+    const pop=document.getElementById(this.id+'_pop'); if(!pop) return;
+    const isOpen=pop.classList.toggle('open');
+    if(isOpen){ this._initView(); this._renderPop(); }
+  }
+  _closePop(){ const p=document.getElementById(this.id+'_pop'); if(p) p.classList.remove('open'); }
+  _renderPop(){
+    const pop=document.getElementById(this.id+'_pop'); if(!pop) return;
+    if(this.showYearGrid){ this._renderYearGrid(pop); return; }
+    const today=new Date(); const ty=today.getFullYear(),tm=today.getMonth(),td=today.getDate();
+    const selD=this.value?new Date(this.value):null;
+    const sy=selD?selD.getFullYear():null, sm=selD?selD.getMonth():null, sd=selD?selD.getDate():null;
+    // First day of month
+    const first=new Date(this.viewYear,this.viewMonth,1).getDay(); // 0=Sun
+    const startOffset=(first+6)%7; // Mon=0
+    const daysInMonth=new Date(this.viewYear,this.viewMonth+1,0).getDate();
+    const daysInPrev=new Date(this.viewYear,this.viewMonth,0).getDate();
+    let daysH='';
+    for(let i=0;i<startOffset;i++){
+      daysH+=`<button class="dp-day other-month" onclick="void(0)">${daysInPrev-startOffset+i+1}</button>`;
+    }
+    for(let d=1;d<=daysInMonth;d++){
+      const isToday=ty===this.viewYear&&tm===this.viewMonth&&td===d;
+      const isSel=sy===this.viewYear&&sm===this.viewMonth&&sd===d;
+      daysH+=`<button class="dp-day${isToday?' today':''}${isSel?' selected':''}" onclick="window.__dp_${this.id}.selectDay(${d})">${d}</button>`;
+    }
+    pop.innerHTML=`
+      <div class="dp-nav">
+        <button class="dp-nav-btn" onclick="window.__dp_${this.id}.prevMonth()">‹</button>
+        <span class="dp-month-lbl" onclick="window.__dp_${this.id}.toggleYearGrid()">${MONTHS_IT[this.viewMonth]} ${this.viewYear} ▾</span>
+        <button class="dp-nav-btn" onclick="window.__dp_${this.id}.nextMonth()">›</button>
+      </div>
+      <div class="dp-weekdays">${DAYS_IT.map(d=>`<div class="dp-wd">${d}</div>`).join('')}</div>
+      <div class="dp-days">${daysH}</div>
+      <button class="dp-clear" onclick="window.__dp_${this.id}.clear()">✕ Cancella data</button>`;
+    window['__dp_'+this.id]=this;
+  }
+  _renderYearGrid(pop){
+    const curY=new Date().getFullYear();
+    const years=[];
+    for(let y=curY+5;y>=curY-200;y--) years.push(y);
+    pop.innerHTML=`
+      <div class="dp-nav">
+        <button class="dp-nav-btn" onclick="window.__dp_${this.id}.toggleYearGrid()">‹ Torna</button>
+        <span style="font-size:12px;color:var(--text-muted)">Seleziona anno</span>
+      </div>
+      <div class="dp-year-grid">${years.map(y=>`<button class="dp-year-btn${y===this.viewYear?' selected':''}" onclick="window.__dp_${this.id}.selectYear(${y})">${y}</button>`).join('')}</div>`;
+    window['__dp_'+this.id]=this;
+    // Scroll to current year
+    setTimeout(()=>{
+      const sel=pop.querySelector('.dp-year-btn.selected');
+      if(sel) sel.scrollIntoView({block:'center'});
+    },50);
+  }
+  selectDay(d){
+    const iso=`${this.viewYear}-${String(this.viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    this._setValue(iso); this._closePop();
+  }
+  selectYear(y){ this.viewYear=y; this.showYearGrid=false; this._renderPop(); }
+  toggleYearGrid(){ this.showYearGrid=!this.showYearGrid; this._renderPop(); }
+  prevMonth(){ this.viewMonth--; if(this.viewMonth<0){this.viewMonth=11;this.viewYear--;} this._renderPop(); }
+  nextMonth(){ this.viewMonth++; if(this.viewMonth>11){this.viewMonth=0;this.viewYear++;} this._renderPop(); }
+  clear(){ this._setValue(''); this._closePop(); }
+  _onText(v){ /* just track live */ }
+  _onTextBlur(v){
+    const iso=displayToDate(v);
+    if(iso!==this.value){ this.value=iso; if(this.onChange) this.onChange(iso); }
+    // Reformat display
+    const txt=document.getElementById(this.id+'_txt');
+    if(txt) txt.value=dateToDisplay(iso)||v;
+  }
+  _setValue(iso){
+    this.value=iso;
+    const txt=document.getElementById(this.id+'_txt');
+    if(txt) txt.value=dateToDisplay(iso);
+    if(this.onChange) this.onChange(iso);
+  }
+  getValue(){ return this.value; }
+  setValue(iso){ this.value=iso; const txt=document.getElementById(this.id+'_txt'); if(txt) txt.value=dateToDisplay(iso); this._initView(); }
+  _bindOutside(){
+    if(!DatePicker._globalBound){
+      document.addEventListener('click', e=>{
+        document.querySelectorAll('.dp-popup.open').forEach(p=>{
+          const wrap=p.closest('.dp-wrap');
+          if(wrap&&!wrap.contains(e.target)) p.classList.remove('open');
+        });
+      });
+      DatePicker._globalBound=true;
+    }
+  }
+}
+
+// ══════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════
 const BUILTIN_CATS = [
@@ -1129,15 +1329,39 @@ function loadD(){
   if(!D.magie) D.magie=[];
   if(!D.nextFazId) D.nextFazId=1;
   if(!D.nextMagId) D.nextMagId=1;
+  // Migrate fazioni: ensure parentId field exists
+  (D.fazioni||[]).forEach(f=>{ if(f.parentId===undefined) f.parentId=null; });
   // Migrate elements
   (D.elements||[]).forEach(el=>{
     if(!el.powers) el.powers=[];
     if(!el.status) el.status='draft';
   });
 }
-function saveD(){ try{ localStorage.setItem('sw_v4', JSON.stringify(D)); }catch(e){} }
+// ── DATE PICKER INSTANCES ──
+let dpEventDate=null, dpClDate=null, dpTlFrom=null, dpTlTo=null, dpChFrom=null, dpChTo=null, dpNascita=null;
 
-// Merge builtins with stored custom cats
+function initDatePickers(){
+  // Timeline filters
+  if(document.getElementById('tlFromField')&&!dpTlFrom){
+    dpTlFrom=new DatePicker('tlFromField',{placeholder:'Da data…',onChange:()=>renderTimeline()});
+  }
+  if(document.getElementById('tlToField')&&!dpTlTo){
+    dpTlTo=new DatePicker('tlToField',{placeholder:'A data…',onChange:()=>renderTimeline()});
+  }
+  // Chapter fields
+  if(document.getElementById('chFromField')&&!dpChFrom){
+    dpChFrom=new DatePicker('chFromField',{placeholder:'Data inizio…'});
+  }
+  if(document.getElementById('chToField')&&!dpChTo){
+    dpChTo=new DatePicker('chToField',{placeholder:'Data fine…'});
+  }
+  // Changelog date (in detail panel — always present)
+  if(document.getElementById('clDateField')&&!dpClDate){
+    dpClDate=new DatePicker('clDateField',{placeholder:'Data voce storico…'});
+  }
+}
+
+function saveD(){ try{ localStorage.setItem('sw_v4', JSON.stringify(D)); }catch(e){} }
 function allCats(){ return [...BUILTIN_CATS, ...(D.cats||[])]; }
 function catById(id){ return allCats().find(c=>c.id===id); }
 
@@ -1173,6 +1397,24 @@ function seed(){
 function byId(id){ return D.elements.find(e=>e.id===+id); }
 function arcByID(id){ return D.arcs.find(a=>a.id===+id); }
 function fazById(id){ return (D.fazioni||[]).find(f=>f.id===+id); }
+function fazParentChain(faz){
+  // Returns array from root to faz: [root, ..., faz]
+  const chain=[]; let cur=faz;
+  const seen=new Set();
+  while(cur && !seen.has(cur.id)){
+    chain.unshift(cur); seen.add(cur.id);
+    cur=cur.parentId?fazById(cur.parentId):null;
+  }
+  return chain;
+}
+function fazChildren(parentId){ return (D.fazioni||[]).filter(f=>f.parentId===+parentId); }
+function fazDescendantIds(fazId){
+  // All ids in subtree rooted at fazId
+  const ids=[]; const queue=[+fazId];
+  while(queue.length){ const id=queue.shift(); ids.push(id); fazChildren(id).forEach(c=>queue.push(c.id)); }
+  return ids;
+}
+function fazioniOfEl(id){ return (D.fazioni||[]).filter(f=>(f.members||[]).includes(+id)); }
 function magById(id){ return (D.magie||[]).find(m=>m.id===+id); }
 function backlinks(id){ return D.elements.filter(e=>e.id!==+id&&(e.tags||[]).includes(+id)); }
 function arcsByMember(id){ return D.arcs.filter(a=>(a.members||[]).includes(+id)); }
@@ -1292,8 +1534,8 @@ function renderTimeline(){
   }
 
   // Date range filter — works with both select and input
-  const from=document.getElementById('tlFrom').value;
-  const to=document.getElementById('tlTo').value;
+  const from=dpTlFrom?dpTlFrom.getValue():'';
+  const to=dpTlTo?dpTlTo.getValue():'';
   if(from||to) events=events.filter(e=>(!from||!e.date||e.date>=from)&&(!to||!e.date||e.date<=to));
 
   if(!events.length){
@@ -1343,20 +1585,39 @@ function renderTimeline(){
       const col=elColor(ev)||'#888';
       const tagsH=(ev.tags||[]).map(t=>tagHtml(t)).join('');
       const arcsH=arcsByMember(ev.id).map(a=>`<div class="tl-arc">📖 ${a.name}</div>`).join('');
-      h+=`<div class="tl-entry" onclick="openDetail(${ev.id})">
+      const hasBody=!!(ev.desc||tagsH||arcsH);
+      const bodyId=`tlbody-${ev.id}`;
+      const arrowId=`tlarr-${ev.id}`;
+      h+=`<div class="tl-entry" style="cursor:default">
         <div style="position:absolute;left:-27px;top:14px;width:8px;height:8px;border-radius:50%;background:${col};border:2px solid var(--surface)"></div>
-        ${ev.date?`<div class="tl-date">📅 ${ev.date}</div>`:''}
-        <div class="tl-title">${ev.name}</div>
-        <div class="tl-desc">${ev.desc||''}</div>
-        ${tagsH?`<div class="tl-tags">${tagsH}</div>`:''}${arcsH}
+        <div class="tl-entry-toggle" onclick="toggleTlEntry(${ev.id})" title="Espandi / comprimi">
+          ${ev.date?`<span class="tl-date" style="margin:0">📅 ${dateToDisplay(ev.date)||ev.date}</span>`:''}
+          <span class="tl-title" style="flex:1;margin:0">${ev.name}</span>
+          ${hasBody?`<span class="tl-entry-toggle-arrow" id="${arrowId}">▶</span>`:''}
+          <button onclick="event.stopPropagation();openDetail(${ev.id})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0 3px;opacity:.6" title="Apri dettaglio">↗</button>
+        </div>
+        ${hasBody?`<div class="tl-entry-body" id="${bodyId}">
+          ${ev.desc?`<div class="tl-desc" style="margin-top:5px">${ev.desc}</div>`:''}
+          ${tagsH?`<div class="tl-tags">${tagsH}</div>`:''}${arcsH}
+        </div>`:''}
       </div>`;
     });
   });
   track.innerHTML=h;
 }
 
+let tlOpenEntries=new Set();
+function toggleTlEntry(id){
+  const body=document.getElementById('tlbody-'+id);
+  const arr=document.getElementById('tlarr-'+id);
+  if(!body) return;
+  const isOpen=body.classList.toggle('open');
+  if(arr) arr.classList.toggle('open',isOpen);
+  if(isOpen) tlOpenEntries.add(id); else tlOpenEntries.delete(id);
+}
+
 function setTlF(id){tlArcFilter=id;renderTimeline();}
-function clearTlRange(){ document.getElementById('tlFrom').value=''; document.getElementById('tlTo').value=''; renderTimeline(); }
+function clearTlRange(){ if(dpTlFrom) dpTlFrom.setValue(''); if(dpTlTo) dpTlTo.setValue(''); renderTimeline(); }
 
 // ── CHAPTER MANAGER ──
 function toggleChapterManager(){
@@ -1380,13 +1641,13 @@ function renderChapterList(){
 }
 function addChapter(){
   const name=document.getElementById('newChapterName').value.trim(); if(!name) return;
-  const from=document.getElementById('newChapterFrom').value.trim();
-  const to=document.getElementById('newChapterTo').value.trim();
+  const from=dpChFrom?dpChFrom.getValue():'';
+  const to=dpChTo?dpChTo.getValue():'';
   if(!D.chapters) D.chapters=[];
   D.chapters.push({name,from,to});
   document.getElementById('newChapterName').value='';
-  document.getElementById('newChapterFrom').value='';
-  document.getElementById('newChapterTo').value='';
+  if(dpChFrom) dpChFrom.setValue('');
+  if(dpChTo) dpChTo.setValue('');
   saveD(); renderChapterList(); renderTimeline(); toast('Capitolo aggiunto');
 }
 function deleteChapter(i){ D.chapters.splice(i,1); saveD(); renderChapterList(); renderTimeline(); }
@@ -1720,21 +1981,35 @@ function removePoi(poiId){
 function renderFazioni(){
   const grid=document.getElementById('fazGrid');
   if(!(D.fazioni||[]).length){grid.innerHTML=`<div class="empty"><div class="empty-icon">⚔</div><div class="empty-title">Nessuna fazione</div><div class="empty-sub">Crea fazioni per strutturare la politica del tuo mondo</div></div>`;return;}
-  grid.innerHTML=D.fazioni.map(f=>{
-    const memCount=(f.members||[]).length;
-    const mems=(f.members||[]).slice(0,3).map(id=>tagHtml(id)).join('');
-    const more=memCount>3?`<span style="font-size:10px;color:var(--text-muted);font-style:italic">+${memCount-3} altri</span>`:'';
-    return `<div class="faz-card" onclick="openFazDetail(${f.id})">
-      <div class="faz-lbl">⚔ Fazione${f.motto?` · <em>"${f.motto}"</em>`:''}</div>
+  // Only render root factions at top level; children are nested
+  const roots=(D.fazioni||[]).filter(f=>!f.parentId);
+  grid.innerHTML=roots.map(f=>renderFazCard(f,0)).join('');
+}
+function renderFazCard(f, depth){
+  const memCount=(f.members||[]).length;
+  const mems=(f.members||[]).slice(0,3).map(id=>tagHtml(id)).join('');
+  const more=memCount>3?`<span style="font-size:10px;color:var(--text-muted);font-style:italic">+${memCount-3} altri</span>`:'';
+  const children=fazChildren(f.id);
+  const indent=depth>0?`margin-left:${depth*18}px;border-left:2px solid var(--gold-dim);padding-left:10px`:'';
+  const parentChain=fazParentChain(f);
+  const breadcrumb=parentChain.length>1?`<div style="font-size:9px;color:var(--text-muted);margin-bottom:3px">${parentChain.slice(0,-1).map(p=>`<span style="cursor:pointer;text-decoration:underline dotted" onclick="event.stopPropagation();openFazDetail(${p.id})">${p.name}</span>`).join(' › ')} ›</div>`:'';
+  const subLabel=depth>0?`<span style="font-size:9px;background:var(--gold-dim);color:var(--gold);padding:1px 6px;border-radius:10px;margin-right:6px">sottogruppo</span>`:'';
+  const card=`<div style="${indent}">
+    <div class="faz-card" onclick="openFazDetail(${f.id})">
+      ${breadcrumb}
+      <div class="faz-lbl">${subLabel}⚔ Fazione${f.motto?` · <em>"${f.motto}"</em>`:''}</div>
       <div class="faz-name">${f.name}</div>
       <div class="faz-desc">${f.desc||''}</div>
       ${mems?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px">${mems}${more}</div>`:''}
       <div class="faz-footer">
         <span class="faz-count">${memCount} membro${memCount!==1?'i':''}</span>
+        ${children.length?`<span style="font-size:10px;color:var(--gold-dim)">▶ ${children.length} sottogruppo${children.length!==1?'i':''}</span>`:''}
         <span style="font-size:10px;color:var(--text-muted)">${(f.rels||[]).length} relazion${(f.rels||[]).length!==1?'i':'e'}</span>
       </div>
-    </div>`;
-  }).join('');
+    </div>
+    ${children.map(c=>renderFazCard(c,depth+1)).join('')}
+  </div>`;
+  return card;
 }
 
 // ── MAGIA ──
@@ -2107,18 +2382,22 @@ function openDetail(id){
 
   const ex=el.extra||{}, ks=Object.keys(ex).filter(k=>ex[k]);
   let exH='';
-  if(el.date) exH=`<div class="dp-lbl">Data</div><div class="dp-txt">📅 ${el.date}</div>`;
+  if(el.date) exH=`<div class="dp-lbl">Data</div><div class="dp-txt">📅 ${dateToDisplay(el.date)||el.date}</div>`;
   else if(ks.length) exH=`<div style="display:flex;flex-direction:column;gap:8px">${ks.map(k=>`<div><div class="dp-lbl">${k}</div><div class="dp-txt">${ex[k]}</div></div>`).join('')}</div>`;
   document.getElementById('dpExtra').innerHTML=exH;
 
   document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
 
-  // Fazioni
+  // Fazioni — mostra catena gerarchica completa
   const elFaz=fazioniOfEl(id);
   const fazSection=document.getElementById('dpFazSection');
   if(elFaz.length){
     fazSection.style.display='';
-    document.getElementById('dpFazList').innerHTML=elFaz.map(f=>`<span class="tag" style="background:#4a3810;color:#f0c060" onclick="openFazDetail(${f.id});event.stopPropagation()">⚔ ${f.name}</span>`).join('');
+    document.getElementById('dpFazList').innerHTML=elFaz.map(f=>{
+      const chain=fazParentChain(f);
+      const label=chain.map((p,i)=>`<span style="cursor:pointer;${i<chain.length-1?'opacity:.7':''}" onclick="openFazDetail(${p.id});event.stopPropagation()">${p.name}</span>`).join('<span style="opacity:.4"> › </span>');
+      return `<span class="tag" style="background:#4a3810;color:#f0c060">⚔ ${label}</span>`;
+    }).join('');
   } else fazSection.style.display='none';
 
   // Magie
@@ -2276,7 +2555,7 @@ function renderChangelog(el){
     const placeBadge=place?`<span style="font-size:10px;background:var(--place-dim);color:var(--place);padding:1px 6px;border-radius:10px;cursor:pointer;margin-left:6px" onclick="openDetail(${place.id})">📍 ${place.name}</span>`:'';
     return `<div class="cl-entry">
       <div class="cl-date" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-        <span>📅 ${e.date||'Momento non specificato'}</span>${placeBadge}
+        <span>📅 ${e.date?dateToDisplay(e.date)||e.date:'Momento non specificato'}</span>${placeBadge}
         <button onclick="removeChangelog(${cl.length-1-i})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;opacity:.5;margin-left:auto" title="Rimuovi">✕</button>
       </div>
       <div class="cl-text">${e.text}</div>
@@ -2286,7 +2565,7 @@ function renderChangelog(el){
 function addChangelog(){
   if(!curDetailId) return;
   const el=byId(curDetailId); if(!el) return;
-  const date=document.getElementById('clDate').value.trim();
+  const date=dpClDate?dpClDate.getValue():'';
   const text=document.getElementById('clText').value.trim();
   const placeId=document.getElementById('clPlace').value;
   if(!text) return;
@@ -2306,7 +2585,7 @@ function addChangelog(){
   if(autoTagged){
     document.getElementById('dpTags').innerHTML=(el.tags||[]).map(t=>tagHtml(t)).join('')||'<span style="color:var(--text-muted);font-style:italic;font-size:12px">Nessun tag</span>';
   }
-  document.getElementById('clDate').value='';
+  if(dpClDate) dpClDate.setValue('');
   document.getElementById('clPlace').value='';
   document.getElementById('clText').value='';
   toast(autoTagged ? 'Voce aggiunta · 🏷 tag luogo aggiunto' : 'Voce aggiunta allo storico');
@@ -2329,8 +2608,15 @@ function openFazDetail(id){
   ['dpPanel','arcPanel','magPanel'].forEach(p=>{ const el=document.getElementById(p); el.classList.add('hidden'); el.classList.remove('mob-open'); });
   switchFazTab(fazTabSt);
   document.getElementById('fdpName').textContent=f.name;
-  document.getElementById('fdpDesc').innerHTML=f.desc
-    ?`<div class="dp-lbl">Descrizione${f.motto?` · <em style="color:var(--gold)">"${f.motto}"</em>`:''}</div><div class="dp-txt">${f.desc}</div>`:'';
+  document.getElementById('fdpDesc').innerHTML=(() => {
+    const f2=fazById(id);
+    const chain=fazParentChain(f2);
+    const breadcrumb=chain.length>1
+      ?`<div class="dp-lbl">Gerarchia</div><div style="font-size:12px;color:var(--gold-dim);margin-bottom:10px">${chain.map((p,i)=>i<chain.length-1?`<span style="cursor:pointer;color:var(--gold);text-decoration:underline dotted" onclick="openFazDetail(${p.id})">${p.name}</span>`:p.name).join(' › ')}</div>`:'';
+    const subs=fazChildren(f2.id);
+    const subsHtml=subs.length?`<div class="dp-lbl" style="margin-top:10px">Sottogruppi</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">${subs.map(s=>`<span style="font-size:12px;background:var(--surface3);border:1px solid var(--border-light);color:var(--gold);padding:3px 10px;border-radius:20px;cursor:pointer" onclick="openFazDetail(${s.id})">⚔ ${s.name}</span>`).join('')}</div>`:'';
+    return breadcrumb+subsHtml+(f2.desc?`<div class="dp-lbl">Descrizione${f2.motto?` · <em style="color:var(--gold)">"${f2.motto}"</em>`:''}</div><div class="dp-txt">${f2.desc}</div>`:'');
+  })();
   document.getElementById('fdpMembers').innerHTML=(f.members||[]).map(id=>tagHtml(id)).join('')
     ||'<span style="color:var(--text-muted);font-size:11px;font-style:italic">Nessun membro</span>';
   const rels=f.rels||[];
@@ -2353,6 +2639,14 @@ function switchFazTab(tab){
   document.getElementById('faztab-notes').classList.toggle('active',tab==='notes');
 }
 function saveFazNotes(){ if(!curFazId) return; const f=fazById(curFazId); if(!f) return; f.notes=document.getElementById('fdpNotes').value; saveD(); }
+function populateFazParentSelect(excludeId, selectedId){
+  const sel=document.getElementById('ffParent');
+  const opts=(D.fazioni||[]).filter(f=>!excludeId||f.id!==+excludeId).map(f=>{
+    const chain=fazParentChain(f).map(x=>x.name).join(' › ');
+    return `<option value="${f.id}" ${f.id===selectedId?'selected':''}>${chain}</option>`;
+  }).join('');
+  sel.innerHTML=`<option value="">— Nessuna (fazione principale) —</option>${opts}`;
+}
 function editCurrentFaz(){
   if(!curFazId) return; const f=fazById(curFazId); if(!f) return;
   selFazMembers=[...(f.members||[])]; fazRels=[...(f.rels||[]).map(r=>({...r}))];
@@ -2361,6 +2655,7 @@ function editCurrentFaz(){
   document.getElementById('ffName').value=f.name;
   document.getElementById('ffDesc').value=f.desc||'';
   document.getElementById('ffMotto').value=f.motto||'';
+  populateFazParentSelect(f.id, f.parentId);
   renderFazMemChips(); renderFazRelList();
   document.getElementById('fazModalOverlay').classList.add('open');
 }
@@ -2596,10 +2891,11 @@ function openNewModal(catId){
   selTags=[]; curImg='';
   document.getElementById('editingId').value='';
   document.getElementById('modalTitle').textContent='Nuovo elemento';
-  ['fName','fDesc','fDate'].forEach(id=>document.getElementById(id).value='');
+  ['fName','fDesc'].forEach(id=>document.getElementById(id).value='');
   resetImgPrev();
   populateCatFields(catId||'char');
   renderTagChips();
+  dpEventDate=new DatePicker('dpDateField',{placeholder:'Seleziona o scrivi GG/MM/AAAA…'});
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('fName').focus(),80);
 }
@@ -2612,12 +2908,14 @@ function editCurrent(){
   document.getElementById('fName').value=el.name;
   document.getElementById('fDesc').value=el.desc||'';
   document.getElementById('fStatus').value=el.status||'draft';
-  document.getElementById('fDate').value=el.date||'';
   if(el.image){document.getElementById('fImgPreview').src=el.image;document.getElementById('fImgPreview').style.display='block';document.getElementById('fImgRemove').style.display='inline-block';}
   else resetImgPrev();
   document.getElementById('fImgInput').value='';
   populateCatFields(el.cat, el.sub);
-  const ex=el.extra||{}; ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i)i.value=ex[k]||'';});
+  const ex=el.extra||{};
+  ['ruolo','nascita','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i)i.value=ex[k]||'';});
+  // Init date picker for event date
+  dpEventDate=new DatePicker('dpDateField',{placeholder:'Seleziona o scrivi GG/MM/AAAA…',value:el.date||''});
   renderTagChips();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -2643,7 +2941,7 @@ function updateSubCatField(selectedSub){
 function updateExtraFields(){
   const catId=document.getElementById('fCat').value;
   document.getElementById('fDateGroup').style.display=catId==='event'?'block':'none';
-  const extraDefs={char:[['ruolo','Ruolo narrativo'],['età','Età']],place:[['regione','Regione / Area']],object:[['materiale','Materiale / Origine']],event:[]};
+  const extraDefs={char:[['ruolo','Ruolo narrativo'],['nascita','Data di nascita']],place:[['regione','Regione / Area']],object:[['materiale','Materiale / Origine']],event:[]};
   document.getElementById('fExtraGroup').innerHTML=(extraDefs[catId]||[]).map(([k,l])=>`<div class="fg"><label class="fl">${l}</label><input class="fi" id="fExtra_${k}" placeholder=""></div>`).join('');
 }
 
@@ -2652,10 +2950,10 @@ function saveElement(){
   const cat=document.getElementById('fCat').value;
   const subEl=document.getElementById('fSubCat'); const sub=subEl?subEl.value:'';
   const desc=document.getElementById('fDesc').value.trim();
-  const date=document.getElementById('fDate').value.trim();
+  const date=dpEventDate?dpEventDate.getValue():'';
   const status=document.getElementById('fStatus').value||'draft';
   const extra={};
-  ['ruolo','età','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
+  ['ruolo','nascita','regione','materiale'].forEach(k=>{const i=document.getElementById('fExtra_'+k);if(i&&i.value.trim())extra[k]=i.value.trim();});
   const editId=document.getElementById('editingId').value;
   let savedEl;
   if(editId){
@@ -2684,7 +2982,27 @@ function saveElement(){
   });
   saveD(); closeModal(); renderAll();
   if(editId) openDetail(+editId);
-  toast(editId?'Elemento aggiornato':'Elemento creato');
+  // Auto-generate birth event if nascita is set on a char
+  if(cat==='char' && extra.nascita){
+    const birthEventName=`Nascita di ${name}`;
+    const existingBirth=D.elements.find(e=>e.cat==='event'&&e.extra&&e.extra._birthOf===savedEl.id);
+    if(!existingBirth){
+      const birthEv={id:D.nextId++,cat:'event',sub:'',name:birthEventName,desc:`Nascita di ${name}.`,date:extra.nascita,status:'done',extra:{_birthOf:savedEl.id},tags:[savedEl.id],image:'',notes:'',equip:[],changelog:[],powers:[]};
+      D.elements.push(birthEv);
+      // Back-tag
+      if(!savedEl.tags) savedEl.tags=[];
+      if(!savedEl.tags.includes(birthEv.id)) savedEl.tags.push(birthEv.id);
+      saveD(); renderAll(); if(editId) openDetail(+editId);
+      toast(editId?'Elemento aggiornato · 🎂 evento nascita generato':'Elemento creato · 🎂 evento nascita generato');
+    } else {
+      // Update existing birth event date if changed
+      existingBirth.date=extra.nascita; existingBirth.name=birthEventName;
+      saveD(); renderAll(); if(editId) openDetail(+editId);
+      toast(editId?'Elemento aggiornato':'Elemento creato');
+    }
+  } else {
+    toast(editId?'Elemento aggiornato':'Elemento creato');
+  }
 }
 
 function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
@@ -2719,6 +3037,7 @@ function openFazModal(){
   document.getElementById('editingFazId').value='';
   document.getElementById('fazModalTitle').textContent='Nuova fazione';
   ['ffName','ffDesc','ffMotto'].forEach(id=>document.getElementById(id).value='');
+  populateFazParentSelect(null, null);
   renderFazMemChips(); renderFazRelList();
   document.getElementById('fazModalOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('ffName').focus(),80);
@@ -2727,10 +3046,24 @@ function saveFaz(){
   const name=document.getElementById('ffName').value.trim(); if(!name){document.getElementById('ffName').focus();return;}
   const desc=document.getElementById('ffDesc').value.trim();
   const motto=document.getElementById('ffMotto').value.trim();
+  const parentId=document.getElementById('ffParent').value?+document.getElementById('ffParent').value:null;
   const editId=document.getElementById('editingFazId').value;
   if(!D.fazioni) D.fazioni=[];
-  if(editId){ const f=fazById(editId); Object.assign(f,{name,desc,motto,members:[...selFazMembers],rels:[...fazRels]}); }
-  else D.fazioni.push({id:D.nextFazId++,name,desc,motto,members:[...selFazMembers],rels:[...fazRels],notes:''});
+  let savedFaz;
+  if(editId){
+    const f=fazById(editId);
+    Object.assign(f,{name,desc,motto,members:[...selFazMembers],rels:[...fazRels],parentId});
+    savedFaz=f;
+  } else {
+    savedFaz={id:D.nextFazId++,name,desc,motto,members:[...selFazMembers],rels:[...fazRels],parentId,notes:''};
+    D.fazioni.push(savedFaz);
+  }
+  // Auto-tag: aggiungi i membri ai tag della fazione e viceversa
+  selFazMembers.forEach(mid=>{
+    const el=byId(mid); if(!el) return;
+    if(!el.tags) el.tags=[];
+    if(!el.tags.includes(savedFaz.id)) el.tags.push(savedFaz.id);
+  });
   saveD(); closeFazModal(); renderAll(); toast(editId?'Fazione aggiornata':'Fazione creata');
 }
 function closeFazModal(){ document.getElementById('fazModalOverlay').classList.remove('open'); }
@@ -3400,7 +3733,7 @@ async function gdriveDownload(){
   saveD(); renderAll();
 }
 
-loadD(); seed(); renderAll();
+loadD(); seed(); renderAll(); initDatePickers();
 </script>
 </body>
 </html>
